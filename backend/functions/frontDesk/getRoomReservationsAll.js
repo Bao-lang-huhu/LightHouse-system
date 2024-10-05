@@ -7,7 +7,7 @@ const getRoomReservationsAll = async (req, res) => {
         // Step 1: Fetch all reservations from ROOM_RESERVATION
         const { data: reservations, error: reservationsError } = await supabase
             .from('ROOM_RESERVATION')
-            .select('room_reservation_id, reservation_status, room_check_in_date, room_check_out_date, guest_id');
+            .select('room_reservation_id, reservation_status, room_check_in_date, room_check_out_date, guest_id, total_cost');
 
         if (reservationsError) {
             console.error('Error fetching room reservations:', reservationsError);
@@ -32,7 +32,6 @@ const getRoomReservationsAll = async (req, res) => {
             return res.status(400).json({ error: roomListError.message });
         }
 
-        // Step 3: Fetch room details from ROOM table using room_id
         const roomIds = roomList.map(item => item.room_id);
 
         const { data: rooms, error: roomsError } = await supabase
@@ -45,7 +44,6 @@ const getRoomReservationsAll = async (req, res) => {
             return res.status(400).json({ error: roomsError.message });
         }
 
-        // Step 4: Fetch the photos for each room from ROOM_PHOTO_LIST
         const { data: roomPhotos, error: photosError } = await supabase
             .from('ROOM_PHOTO_LIST')
             .select('room_id, room_slot, room_photo_url')
@@ -56,15 +54,13 @@ const getRoomReservationsAll = async (req, res) => {
             return res.status(400).json({ error: photosError.message });
         }
 
-        // Step 5: Filter out reservations where guest_id is null
         const validGuestIds = reservations
             .filter(reservation => reservation.guest_id !== null)
             .map(reservation => reservation.guest_id);
 
-        // Step 6: Fetch guest details from GUEST table using valid guest_ids
         const { data: guests, error: guestError } = await supabase
             .from('GUEST')
-            .select('guest_id, guest_fname, guest_lname')
+            .select('guest_id, guest_fname, guest_lname, guest_address, guest_email, guest_country, guest_gender, guest_phone_no')
             .in('guest_id', validGuestIds);
 
         if (guestError) {
@@ -72,7 +68,6 @@ const getRoomReservationsAll = async (req, res) => {
             return res.status(400).json({ error: guestError.message });
         }
 
-        // Step 7: Map room reservations with room details, photos, and guest details
         const combinedReservations = reservations.map(reservation => {
             const roomListItem = roomList.find(item => item.room_reservation_id === reservation.room_reservation_id);
             const roomDetails = rooms.find(room => room.room_id === roomListItem?.room_id);
@@ -90,6 +85,7 @@ const getRoomReservationsAll = async (req, res) => {
                     room_type_name: roomDetails.room_type_name,
                     room_pax_max: roomDetails.room_pax_max,
                     room_status: roomDetails.room_status,
+                    total_cost: reservation.total_cost,  // Correctly mapping total_cost from reservation
                     images: {
                         main: mainPhoto ? mainPhoto.room_photo_url : 'https://via.placeholder.com/600x400',
                         extra: extraPhotos.map(photo => photo.room_photo_url)
@@ -97,12 +93,17 @@ const getRoomReservationsAll = async (req, res) => {
                 } : null,
                 guest: guestDetails ? {
                     guest_fname: guestDetails.guest_fname,
-                    guest_lname: guestDetails.guest_lname
+                    guest_lname: guestDetails.guest_lname,
+                    guest_address: guestDetails.guest_address,
+                    guest_email: guestDetails.guest_email,
+                    guest_country: guestDetails.guest_country,
+                    guest_gender: guestDetails.guest_gender,
+                    guest_phone_no: guestDetails.guest_phone_no,
                 } : { guest_fname: 'Unknown', guest_lname: 'Unknown' }
             };
         });
 
-        // Return the combined room reservations with room details, photos, and guest details
+
         console.log('Combined Reservations:', combinedReservations);
         res.status(200).json(combinedReservations);
     } catch (error) {

@@ -14,15 +14,6 @@ const RoomReservation = () => {
               <strong>Room Reservations</strong>
             </h1>
           </div>
-          <div className="checkdate">              
-            <div className="input-container">
-              <p><strong>Date</strong></p>
-              <input type="date" id="event-date" name="event-date" />
-            </div>
-          </div>
-          <div className="buttons is-centered ">
-            <a className="button is-blue search" href='#search'>SEARCH</a>
-          </div>
         </div>
         <hr/>
       </header>

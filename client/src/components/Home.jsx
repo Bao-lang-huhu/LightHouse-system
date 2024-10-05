@@ -30,7 +30,7 @@ const Home = () => {
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getMainRoomPhotos');
+                const response = await axios.get('https://light-house-system.vercel.app/api/getMainRoomPhotos');
                 setRoomPhotos(response.data.rooms || []);  
             } catch (error) {
                 setError('Failed to load room photos');

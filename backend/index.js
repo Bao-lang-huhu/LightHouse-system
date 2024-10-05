@@ -23,6 +23,10 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Middleware to enable CORS
+app.get('/', (req, res) => {
+    res.send('Backend is running!');
+});
+
 app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

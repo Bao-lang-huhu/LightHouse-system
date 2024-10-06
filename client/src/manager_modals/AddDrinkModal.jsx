@@ -59,7 +59,7 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
             setError('');
             setSuccess('');
             setErroredFields({});
-            const response = await axios.post('http://localhost:3001/api/registerDrink', drink);
+            const response = await axios.post('https://light-house-system.vercel.app/api/registerDrink', drink);
 
             if (response.status === 201) {
                 setSuccess('Drink registered successfully!'); 

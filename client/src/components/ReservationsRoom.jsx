@@ -22,7 +22,7 @@ const ReservationsRoom = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:3001/api/getReservationsByGuestId', {
+        const response = await axios.get('https://light-house-system.vercel.app/api/getReservationsByGuestId', {
           params: { guest_id: guestId }
         });
         const reservations = response.data;

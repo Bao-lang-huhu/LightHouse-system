@@ -20,7 +20,7 @@ function LoginStaff() {
 
         try {
             // Start the login process
-            const response = await axios.post('http://localhost:3001/api/loginStaff', {
+            const response = await axios.post('https://light-house-system.vercel.app/api/loginStaff', {
                 staff_username: username,
                 staff_password: password
             });

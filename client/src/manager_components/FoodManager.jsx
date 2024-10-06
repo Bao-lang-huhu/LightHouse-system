@@ -42,7 +42,7 @@ const FoodManager = () => {
     useEffect(() => {
         const fetchFoods = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getFoodItems'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system.vercel.app/api/getFoodItems'); // Replace with your API endpoint
                 setFoods(response.data.filter(food => food.food_status !== 'DELETE')); // Set the fetched food data to state, excluding inactive
             } catch (error) {
                 console.error('Error fetching food data:', error);
@@ -94,7 +94,7 @@ const FoodManager = () => {
             setError('');
             setSuccess('');
 
-            const response = await axios.put(`http://localhost:3001/api/updateFoodItem/${selectedFood.food_id}`, selectedFood);
+            const response = await axios.put(`https://light-house-system.vercel.app/api/updateFoodItem/${selectedFood.food_id}`, selectedFood);
 
             if (response.status === 200) {
                 setSuccess('Food item updated successfully!');
@@ -127,7 +127,7 @@ const FoodManager = () => {
             setSuccess('');
 
             const response = await axios.put(
-                `http://localhost:3001/api/updateFoodItem/${selectedFood.food_id}`,
+                `https://light-house-system.vercel.app/api/updateFoodItem/${selectedFood.food_id}`,
                 {
                     food_id: selectedFood.food_id,
                     food_status: 'DELETE' 

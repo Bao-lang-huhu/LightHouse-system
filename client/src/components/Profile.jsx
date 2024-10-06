@@ -28,7 +28,7 @@ const Profile = () => {
           setError('User not logged in');
           return;
         }
-        const response = await axios.get('http://localhost:3001/api/getGuestDetails', {
+        const response = await axios.get('https://light-house-system.vercel.app/api/getGuestDetails', {
           headers: { Authorization: `Bearer ${token}` }, 
         });
 

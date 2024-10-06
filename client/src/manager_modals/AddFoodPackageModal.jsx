@@ -59,7 +59,7 @@ const AddFoodPackageModal = ({ isOpen, toggleModal }) => {
             setSuccess('');
             setErroredFields({});
 
-            const response = await axios.post('http://localhost:3001/api/registerFoodPackage', foodPackage);
+            const response = await axios.post('https://light-house-system.vercel.app/api/registerFoodPackage', foodPackage);
 
             if (response.status === 201) {
                 setSuccess('Food package registered successfully!');

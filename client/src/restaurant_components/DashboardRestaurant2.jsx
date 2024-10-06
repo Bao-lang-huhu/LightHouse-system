@@ -7,7 +7,7 @@ import { IoPerson, IoClipboard, IoFastFoodOutline, IoRestaurant } from 'react-ic
 import axios from 'axios';
 import Calendar from 'react-calendar'; // Import the Calendar component
 import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
-
+//new
 const DashboardRestaurant2 = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [staffName, setStaffName] = useState('Admin');
@@ -59,7 +59,7 @@ const DashboardRestaurant2 = () => {
     }
 
     // Fetch all pending table reservations with guest details
-    axios.get('http://localhost:3001/api/getPendingTableReservations') // Adjust the endpoint to your backend setup
+    axios.get('https://light-house-system.vercel.app/api/getPendingTableReservations') // Adjust the endpoint to your backend setup
       .then(response => {
         setPendingReservations(response.data); // Set the fetched pending reservations
       })

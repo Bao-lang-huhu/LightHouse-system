@@ -36,7 +36,7 @@ function Resturant_Second() {
     const table_time = localStorage.getItem('table_reservation_time');
 
     try {
-      const response = await axios.get('http://localhost:3001/api/getTableReservations2', {
+      const response = await axios.get('https://light-house-system.vercel.app/api/getTableReservations2', {
         params: {
           table_reservation_date,
           table_time,

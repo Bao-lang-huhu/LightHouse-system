@@ -33,7 +33,7 @@ function Resturant_First() {
     // Fetch available seat quantities from getTables API
     const fetchSeatQuantities = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/getTables');
+        const response = await axios.get('https://light-house-system.vercel.app/api/getTables');
         const uniqueSeatQuantities = [...new Set(response.data.map(table => table.seat_quantity))];
         setAvailableSeatQuantities(uniqueSeatQuantities);
       } catch (error) {
@@ -90,7 +90,7 @@ function Resturant_First() {
       localStorage.setItem('table_reservation_time', selectedTime);
       localStorage.setItem('table_guest_quantity', guestCount);
   
-      const response = await axios.get('http://localhost:3001/api/checkTablesAvailability', {
+      const response = await axios.get('https://light-house-system.vercel.app/api/checkTablesAvailability', {
         params: {
           table_reservation_date: reservationDate,
           table_time: selectedTime,

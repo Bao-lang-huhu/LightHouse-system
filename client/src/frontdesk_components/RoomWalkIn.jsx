@@ -38,7 +38,7 @@ function RoomWalkIn() {
     const totalGuests = parseInt(adults, 10) + parseInt(children, 10);
 
     try {
-      const response = await axios.get('http://localhost:3001/api/getRoomsOrder', {
+      const response = await axios.get('https://light-house-system.vercel.app/api/getRoomsOrder', {
         params: {
           checkIn: moment(checkInDate).format('YYYY-MM-DD'),
           checkOut: moment(checkOutDate).format('YYYY-MM-DD'),

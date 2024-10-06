@@ -50,7 +50,7 @@ const AddLaundryModal = ({ isOpen, toggleModal }) => {
             setSuccess('');
             setErroredFields({});
 
-            const response = await axios.post('http://localhost:3001/api/registerLaundry', laundry);
+            const response = await axios.post('https://light-house-system.vercel.app/api/registerLaundry', laundry);
 
             if (response.status === 201) {
                 setSuccess('Laundry item registered successfully!');

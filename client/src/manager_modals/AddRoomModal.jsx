@@ -74,7 +74,7 @@ const AddRoomModal = ({ isOpen, toggleModal }) => {
             setSuccess('');
             setErroredFields({});
             
-            const response = await axios.post('http://localhost:3001/api/registerRoom', room);
+            const response = await axios.post('https://light-house-system.vercel.app/api/registerRoom', room);
             if (response.status === 201) {
                 setSuccess('Room registered successfully!'); 
                 setError(''); 

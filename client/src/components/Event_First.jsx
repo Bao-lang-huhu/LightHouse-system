@@ -76,7 +76,7 @@ function Event_first() {
       const eventDate = selectedDate.toLocaleDateString('en-CA'); // 'en-CA' outputs the date as YYYY-MM-DD
 
       // Make the GET request with the event_date as a query parameter
-      const response = await axios.get('http://localhost:3001/api/getEventReservations', {
+      const response = await axios.get('https://light-house-system.vercel.app/api/getEventReservations', {
         params: { event_date: eventDate }, // Send the date without time and in local format
       });
 

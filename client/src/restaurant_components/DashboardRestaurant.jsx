@@ -7,6 +7,8 @@ import { IoPerson, IoClipboard, IoFastFoodOutline, IoRestaurant } from 'react-ic
 import axios from 'axios';
 import Calendar from 'react-calendar'; // Import the Calendar component
 import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
+//new
+
 
 const DashboardRestaurant = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -66,12 +68,12 @@ const DashboardRestaurant = () => {
     setAllOrderCount(220); // Replace with actual data
 
     // Fetch incoming orders
-    axios.get('http://localhost:3001/api/getFoodOrders') // Replace with actual API endpoint
+    axios.get('https://light-house-system.vercel.app/api/getFoodOrders') // Replace with actual API endpoint
       .then(response => setFoodOrders(response.data))
       .catch(error => console.error('Error fetching incoming orders:', error));
 
     // Fetch food list with order count
-    axios.get('http://localhost:3001/api/getCountFoodOrderList') // Replace with actual API endpoint
+    axios.get('https://light-house-system.vercel.app/api/getCountFoodOrderList') // Replace with actual API endpoint
       .then(response => setFoodList(response.data))
       .catch(error => console.error('Error fetching food list:', error));
   }, []);

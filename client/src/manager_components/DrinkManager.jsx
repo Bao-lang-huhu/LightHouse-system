@@ -22,7 +22,7 @@ const DrinkManager = () => {
     useEffect(() => {
         const fetchDrinks = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getDrinks');
+                const response = await axios.get('https://light-house-system.vercel.app/api/getDrinks');
                 setDrinks(response.data.filter(drink => drink.drink_status !== 'DELETE'));
             } catch (error) {
                 console.error('Error fetching drink data:', error);
@@ -85,7 +85,7 @@ const DrinkManager = () => {
             setSuccess(''); 
 
             const response = await axios.put(
-                `http://localhost:3001/api/updateDrink/${selectedDrink.drink_id}`, 
+                `https://light-house-system.vercel.app/api/updateDrink/${selectedDrink.drink_id}`, 
                 selectedDrink
                 
             );
@@ -119,7 +119,7 @@ const DrinkManager = () => {
             setSuccess(''); 
 
             const response = await axios.put(
-                `http://localhost:3001/api/updateDrink/${selectedDrink.drink_id}`,
+                `https://light-house-system.vercel.app/api/updateDrink/${selectedDrink.drink_id}`,
                 { drink_status: 'DELETE' } 
             );
 

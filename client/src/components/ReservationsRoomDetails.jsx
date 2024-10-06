@@ -22,7 +22,7 @@ const ReservationsRoomDetails = () => {
           throw new Error('No authentication token found');
         }
 
-        const response = await axios.get(`http://localhost:3001/api/getReservationsByReservationId`, {
+        const response = await axios.get(`https://light-house-system.vercel.app/api/getReservationsByReservationId`, {
           params: { room_reservation_id },
           headers: {
             Authorization: `Bearer ${token}` // Attach the token to the request
@@ -33,7 +33,7 @@ const ReservationsRoomDetails = () => {
         setReservationDetails(reservationData);
 
         // Fetch guest information using guest_id from the reservation details
-        const guestResponse = await axios.get(`http://localhost:3001/api/getGuestDetails`, {
+        const guestResponse = await axios.get(`https://light-house-system.vercel.app/api/getGuestDetails`, {
           params: { guest_id: reservationData.guest_id },
           headers: {
             Authorization: `Bearer ${token}` // Attach the token for guest details as well
@@ -52,7 +52,7 @@ const ReservationsRoomDetails = () => {
 
   const handleCancel = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/api/cancelReservation', {
+      const response = await axios.post('https://light-house-system.vercel.app/api/cancelReservation', {
         room_reservation_id,       
         cancel_reason: cancelReason 
       });

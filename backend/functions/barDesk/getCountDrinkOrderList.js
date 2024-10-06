@@ -5,17 +5,15 @@ const getCountDrinkOrderList = async (req, res) => {
   try {
     console.log('Fetching drink items with order count...');
 
-    // Fetch all drink items including the drink_photo
     const { data: drinkItems, error: drinkItemError } = await supabase
       .from('BAR_DRINK')
-      .select('drink_id, drink_name, drink_photo'); // Include drink_photo here
+      .select('drink_id, drink_name, drink_photo');
 
     if (drinkItemError) {
       console.error('Error retrieving drink items:', drinkItemError.message);
       return res.status(400).json({ error: drinkItemError.message });
     }
 
-    // For each drink item, count the number of orders in the BAR_ORDER_LIST table
     const drinkOrderList = await Promise.all(
       drinkItems.map(async (drinkItem) => {
         const { count, error } = await supabase

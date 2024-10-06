@@ -10,8 +10,6 @@ const cancelReservation = async (req, res) => {
     }
 
     try {
-        // Update the ROOM_RESERVATION table to set reservation_status to CANCELLED, 
-        // update cancel_reserve_date to current timestamp, and save the cancel_reason
         const { data, error } = await supabase
             .from('ROOM_RESERVATION')
             .update({

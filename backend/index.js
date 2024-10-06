@@ -15,7 +15,6 @@ const eventsRoutes = require('./routes/eventsRoutes');
 const barRoutes = require('./routes/barRoutes');
 const verifyTokenRoute = require('./routes/token/verifyToken');
 const restaurantRoutes = require ('./routes/restaurantRoutes');
-
 //counts for dashboard
 const getCountsDashboardManager = require('./routes/count/getCountsDashboardManager'); 
 

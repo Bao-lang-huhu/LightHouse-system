@@ -86,42 +86,74 @@ const AddStaffModal = ({ isOpen, toggleModal }) => {
         }
     };
 
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setStaff({ ...staff, [name]: value });
+    
+        if (name === 'staff_fname' || name === 'staff_lname') {
+            const alphabeticValue = value.replace(/[^a-zA-Z\s'-]/g, '');
+            setStaff({ ...staff, [name]: alphabeticValue });
+        } 
+        else if (name === 'staff_phone_no') {
+            // Allow only digits (0-9) to be entered
+            const numericValue = value.replace(/[^0-9]/g, '');
+            setStaff({ ...staff, [name]: numericValue });
+        } else {
+            setStaff({ ...staff, [name]: value });
+        }
+    
         setErroredFields((prev) => ({ ...prev, [name]: false }));
     };
+    
 
     const handleSubmit = async () => {
+        setError('');
+        setSuccess('');
+        setErroredFields({});
+    
+        // Required fields validation
+        const requiredFields = ['staff_fname', 'staff_lname', 'staff_username', 'staff_email', 'staff_phone_no', 'staff_gender', 'staff_acc_role', 'staff_password'];
+        const errors = {};
+    
+        requiredFields.forEach((field) => {
+            if (!staff[field] || staff[field].trim() === '') {
+                errors[field] = true;
+            }
+        });
+    
+        // Password length validation (at least 8 characters)
+        if (staff.staff_password && staff.staff_password.length < 8) {
+            errors.staff_password = true;
+            setError('Password must be at least 8 characters long.');
+        }
+    
+        // Check if there are validation errors
+        if (Object.keys(errors).length > 0) {
+            setErroredFields(errors);
+            setError((prev) => prev || 'Please fill in all required fields.');
+            return; // Stop form submission if there are errors
+        }
+    
+        // Proceed with form submission if validation passes
         try {
-            setError('');
-            setSuccess('');
-            setErroredFields({});
-
             const response = await axios.post('http://localhost:3001/api/registerStaff', staff);
+    
             if (response.status === 201) {
                 setSuccess('Staff registered successfully!');
                 setError('');
-                setErroredFields({});
-
+    
                 setTimeout(() => {
-                    handleClose();
+                    handleClose(); // Close modal after successful submission
                 }, 3000);
             }
         } catch (error) {
             console.error('Error registering staff:', error.response?.data || error.message);
             setError('Failed to register staff: ' + (error.response?.data?.error || error.message));
-            setSuccess('');
-
-            if (error.response?.data?.erroredFields) {
-                const fields = error.response.data.erroredFields.reduce((acc, field) => {
-                    acc[field] = true;
-                    return acc;
-                }, {});
-                setErroredFields(fields);
-            }
         }
     };
+    
+    
 
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`}>
@@ -231,7 +263,7 @@ const AddStaffModal = ({ isOpen, toggleModal }) => {
                                 <div className="control">
                                     <input
                                         className={`input ${erroredFields.staff_phone_no ? 'is-danger' : ''}`}
-                                        type="text"
+                                        type="tel"
                                         name="staff_phone_no"
                                         placeholder="Enter phone number"
                                         value={staff.staff_phone_no}

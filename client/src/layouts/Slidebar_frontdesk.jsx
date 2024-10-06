@@ -90,10 +90,10 @@ const SidebarFrontDesk= () => {
                 </Link>
               </li>
               <li>
-                <a title="Events">
+                <Link to="/frontdesk_event_reservation" title="Events">
                   <IoWine style={{ marginRight: isSidebarOpen ? '5px' : '0', textAlign: 'center' }} />
                   {isSidebarOpen && 'Events'}
-                </a>
+                </Link>
               </li>
             </ul>
 

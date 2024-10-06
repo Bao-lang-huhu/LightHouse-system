@@ -6,7 +6,13 @@ const { getVenue } = require('../functions/getVenue');
 const { registerFoodPackage } = require('../functions/registerFoodPackage');
 const { getFoodPackage } = require('../functions/getFoodPackage');
 const { updateFoodPackage } = require ('../functions/update/updateFoodPackage')
-const { updateVenue } = require ('../functions/update/updateVenue')
+const { updateVenue } = require ('../functions/update/updateVenue');
+
+const { getEventReservations } = require ('../functions/guest/getEventReservations');
+const { registerEventReservation } = require ('../functions/guest/registerEventReservation');
+const { getActiveVenues } = require ('../functions/guest/getActiveVenues');
+const { getActiveFoodPackages } = require ('../functions/guest/getActiveFoodPackages');
+const {getEventReservationsAll} = require('../functions/frontDesk/getEventReservationsAll')
 const router = express.Router();
 
 // Route for venue registration
@@ -27,4 +33,15 @@ router.put('/updateFoodPackage/:event_fd_pckg_id', updateFoodPackage);
 // PUT request to update a venue package
 router.put('/updateVenue/:event_venue_id', updateVenue);
 
+router.get('/getEventReservations', getEventReservations);
+
+router.post('/registerEventReservation', registerEventReservation);
+
+router.get('/getActiveVenues', getActiveVenues);
+
+router.get('/getActiveFoodPackages', getActiveFoodPackages);
+
+router.get('/getEventReservationsAll', getEventReservationsAll);
 module.exports = router;
+
+

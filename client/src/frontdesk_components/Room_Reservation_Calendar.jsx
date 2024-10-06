@@ -3,18 +3,20 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
+import { ClipLoader } from 'react-spinners';
+import { jwtDecode } from 'jwt-decode';
 
 const localizer = momentLocalizer(moment);
 
 const RoomReservationCalendar = () => {
   const [events, setEvents] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null); // State for selected event (reservation)
-  const [showModal, setShowModal] = useState(false); // State for showing modal
+  const [selectedEvent, setSelectedEvent] = useState(null); 
+  const [showModal, setShowModal] = useState(false); 
   const [downPayment, setDownPayment] = useState(900);
   const [reservationStatus, setReservationStatus] = useState('CONFIRM');
   const [cancellationRequest, setCancellationRequest] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  // Function to fetch room reservations
   const fetchRoomReservations = async () => {
     try {
       const response = await axios.get('http://localhost:3001/api/getRoomReservationsAll');
@@ -22,12 +24,12 @@ const RoomReservationCalendar = () => {
         id: reservation.room_reservation_id,
         title: reservation.room 
           ? `Room Reserved - Room ${reservation.room.room_number} (${reservation.guest.guest_fname} ${reservation.guest.guest_lname})`
-          : 'Room Reservation',  // Handle null room gracefully
+          : 'Room Reservation',
         start: new Date(reservation.room_check_in_date),
         end: new Date(reservation.room_check_out_date),
         status: reservation.reservation_status,
-        guest: reservation.guest,  // Add guest info for the modal
-        room: reservation.room     // Add room info for the modal
+        guest: reservation.guest,
+        room: reservation.room     
       }));
       setEvents(reservations);
     } catch (error) {
@@ -36,28 +38,27 @@ const RoomReservationCalendar = () => {
   };
 
   useEffect(() => {
-    fetchRoomReservations(); // Fetch reservations when the component is mounted
+    fetchRoomReservations();
   }, []);
 
-  // Function to apply custom event styling based on reservation status
   const eventStyleGetter = (event) => {
-    let backgroundColor = '#007bff'; // Default blue for confirmed
+    let backgroundColor = '#007bff';
 
     switch (event.status) {
       case 'CONFIRMED':
-        backgroundColor = '#007bff'; // Blue for confirmed
+        backgroundColor = '#007bff'; 
         break;
       case 'CANCELED':
-        backgroundColor = 'red'; // Red for canceled
+        backgroundColor = 'red'; 
         break;
       case 'COMPLETED':
-        backgroundColor = '#17a2b8'; // Light blue for completed
+        backgroundColor = '#17a2b8'; 
         break;
       case 'NO SHOW':
-        backgroundColor = '#6c757d'; // Dark grey for no show
+        backgroundColor = '#6c757d'; 
         break;
       default:
-        backgroundColor = '#007bff'; // Default blue
+        backgroundColor = '#007bff'; 
         break;
     }
 
@@ -71,30 +72,56 @@ const RoomReservationCalendar = () => {
     };
   };
 
-  // Handle event clicks
   const handleEventClick = (event) => {
-    setSelectedEvent(event);  // Set the selected event
-    setShowModal(true);       // Show the modal
+    setSelectedEvent(event);
+    setDownPayment(event?.down_payment || 900);
+    setReservationStatus(event?.status || 'CONFIRM');
+    setShowModal(true);      
   };
 
-  // Close modal
   const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedEvent(null); // Clear selected event after closing the modal
+    setSelectedEvent(null); 
   };
 
-  // Handle check-in (example functionality)
-  const handleCheckIn = () => {
-    console.log(`Checking in reservation: ${selectedEvent.id}`);
-    // Logic for handling check-in can go here (e.g., API call to update status)
-    setShowModal(false);
+  const handleCheckIn = async () => {
+    try {
+      const token = localStorage.getItem('token'); // Assuming you store JWT in local storage
+      const decodedToken = jwtDecode(token); // Decode JWT token
+      const staff_id = decodedToken.staff_id;  // Extract staff_id from token
+  
+      await axios.put(`http://localhost:3001/api/updateRoomReservation/${selectedEvent.id}`, {
+        reservationStatus: 'COMPLETED',  // Check-in means status is completed
+        staff_id: staff_id  // Include staff ID for the CHECK_IN table
+      });
+  
+      fetchRoomReservations(); // Refresh the event list
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error during check-in:', error);
+    }
+  };
+  
+  
+
+  const handleSaveChanges = async () => {
+    try {
+      await axios.put(`http://localhost:3001/api/updateRoomReservation/${selectedEvent.id}`, {
+        downPayment,
+        reservationStatus,
+        cancellationRequest: reservationStatus === 'CANCELED' ? cancellationRequest : null
+      });
+      fetchRoomReservations(); // Refresh the event list after saving
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error saving changes:', error);
+    }
   };
 
-  // Handle status change (example functionality)
   const handleChangeStatus = (newStatus) => {
     setReservationStatus(newStatus);
-    if (newStatus === 'CANCEL') {
-      setCancellationRequest(''); // Reset cancellation notes if canceled
+    if (newStatus === 'CANCELED') {
+      setCancellationRequest(''); 
     }
   };
 
@@ -127,7 +154,7 @@ const RoomReservationCalendar = () => {
           startAccessor="start"
           endAccessor="end"
           defaultView="month"
-          style={{ height: 500 }}
+          style={{ height: 700 }}
           eventPropGetter={eventStyleGetter}  
           onSelectEvent={handleEventClick}  
         />
@@ -215,22 +242,21 @@ const RoomReservationCalendar = () => {
                       <input className="input" type="number" value={downPayment} onChange={(e) => setDownPayment(e.target.value)} />
                     </div>
                   </div>
+                  {reservationStatus !== 'COMPLETED' && (
                   <div className="field">
                     <label className="label">Confirm Reservation</label>
                     <div className="control">
-                      <div className="select">
+                      <div className="select is-fullwidth">
                         <select value={reservationStatus} onChange={(e) => handleChangeStatus(e.target.value)}>
-                          <option value="CONFIRM">CONFIRM</option>
-                          <option value="CANCEL">CANCEL</option>
-                          <option value="PENDING">PENDING</option>
+                          <option value="CONFIRMED">CONFIRM</option>
+                          <option value="CANCELED">CANCEL</option>
                         </select>
                       </div>
                     </div>
-                  </div>
+                  </div>)}
                 </div>
 
-                {/* Show Cancellation Request only if CANCEL is chosen */}
-                {reservationStatus === 'CANCEL' && (
+                {reservationStatus === 'CANCELED' && (
                   <div className="box">
                     <h2 className="title is-5">Cancellation Request</h2>
                     <div className="field">
@@ -245,7 +271,7 @@ const RoomReservationCalendar = () => {
             </div>
           </section>
           <footer className="modal-card-foot">
-            <button className="button is-success" onClick={() => console.log('Save Changes')}>Save Changes</button>
+            <button className="button is-success" onClick={handleSaveChanges}>Save Changes</button>
             <button className="button is-primary" onClick={handleCheckIn}>Check In</button>
           </footer>
         </div>

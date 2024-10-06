@@ -24,7 +24,6 @@ const AccountManager = () => {
         const fetchStaffData = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/getStaffs');
-                // Exclude staff members with "DELETE" status
                 setStaffList(response.data.filter(staff => staff.staff_status !== 'DELETE'));
             } catch (error) {
                 console.error('Error fetching staff data:', error);
@@ -37,16 +36,87 @@ const AccountManager = () => {
     const handlePhotoChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            const fileType = file.type.toLowerCase();
+            const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            const maxSizeInMB = 3; 
+    
+            if (!validImageTypes.includes(fileType)) {
+                setError('Only JPEG, JPG, and PNG files are allowed.');
+                setStaffPhoto(null); 
+                setStaffPhotoPreview(null);
+                return;
+            }
+    
+            if (file.size / (1024 * 1024) > maxSizeInMB) {
+                setError('File size exceeds 3 MB. Please upload a smaller file.');
+                setStaffPhoto(null);
+                setStaffPhotoPreview(null);
+                return; 
+            }
+    
             const reader = new FileReader();
             reader.onloadend = () => {
-                setStaffPhoto(reader.result); // Update photo state
-                setStaffPhotoPreview(reader.result); // Update photo preview state
-                setSelectedStaff((prev) => ({ ...prev, staff_photo: reader.result })); // Update selected food object
+                setStaffPhoto(reader.result); 
+                setStaffPhotoPreview(reader.result); 
+                setSelectedStaff((prev) => ({ ...prev, staff_photo: reader.result }));
+                setError(''); 
             };
-            reader.readAsDataURL(file); // Convert image to base64
+            reader.readAsDataURL(file); 
         }
     };
-
+    
+    const handleSaveChanges = async () => {
+        try {
+            setError('');
+            setSuccess('');
+    
+            const requiredFields = ['staff_fname', 'staff_lname', 'staff_username', 'staff_email', 'staff_phone_no', 'staff_acc_role', 'staff_status'];
+            for (const field of requiredFields) {
+                if (!selectedStaff[field] || selectedStaff[field].trim() === '') {
+                    setError(`Please fill in the ${field.replace('staff_', '').replace('_', ' ')} field.`);
+                    return; 
+                }
+            }
+    
+            const updatedStaff = {
+                ...selectedStaff,
+                staff_fname: selectedStaff.staff_fname || '',
+                staff_lname: selectedStaff.staff_lname || '',
+                staff_username: selectedStaff.staff_username || '',
+                staff_email: selectedStaff.staff_email || '',
+                staff_phone_no: selectedStaff.staff_phone_no || '',
+                staff_gender: selectedStaff.staff_gender || '',
+                shift_start_time: selectedStaff.shift_start_time || '',
+                shift_end_time: selectedStaff.shift_end_time || '',
+                staff_hire_date: selectedStaff.staff_hire_date || '',
+                staff_photo: selectedStaff.staff_photo || '',
+                staff_acc_role: selectedStaff.staff_acc_role || '',
+                staff_status: selectedStaff.staff_status || ''
+            };
+    
+            const response = await axios.put(`http://localhost:3001/api/updateStaff/${selectedStaff.staff_id}`, updatedStaff);
+    
+            if (response.status === 200) {
+                setSuccess('Staff details updated successfully!');
+                setError('');
+    
+                setStaffList(prevStaffList =>
+                    prevStaffList.map(staff =>
+                        staff.staff_id === selectedStaff.staff_id ? { ...staff, ...updatedStaff } : staff
+                    )
+                );
+    
+                setTimeout(() => {
+                    setSuccess('');
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('Error updating staff:', error.response?.data || error.message);
+            setError('Failed to update staff: ' + (error.response?.data?.error || error.message));
+            setSuccess('');
+        }
+    };
+    
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -74,56 +144,6 @@ const AccountManager = () => {
         setSuccess('');
     };
     
-
-    const handleSaveChanges = async () => {
-        try {
-            setError('');
-            setSuccess('');
-    
-            // Check if all fields are populated before sending
-            const updatedStaff = {
-                ...selectedStaff,
-                staff_fname: selectedStaff.staff_fname || '',
-                staff_lname: selectedStaff.staff_lname || '',
-                staff_username: selectedStaff.staff_username || '',
-                staff_email: selectedStaff.staff_email || '',
-                staff_phone_no: selectedStaff.staff_phone_no || '',
-                staff_gender: selectedStaff.staff_gender || '',
-                shift_start_time: selectedStaff.shift_start_time || '',
-                shift_end_time: selectedStaff.shift_end_time || '',
-                staff_hire_date: selectedStaff.staff_hire_date || '',
-                staff_photo: selectedStaff.staff_photo || '',
-                staff_acc_role: selectedStaff.staff_acc_role || '',
-                staff_status: selectedStaff.staff_status || ''
-            };
-    
-            console.log('Updating staff with data:', updatedStaff); // Log the updated data
-    
-            const response = await axios.put(`http://localhost:3001/api/updateStaff/${selectedStaff.staff_id}`, updatedStaff);
-    
-            if (response.status === 200) {
-                setSuccess('Staff details updated successfully!');
-                setError('');
-    
-                // Update the staff list with the new data
-                setStaffList(prevStaffList =>
-                    prevStaffList.map(staff =>
-                        staff.staff_id === selectedStaff.staff_id ? { ...staff, ...updatedStaff } : staff
-                    )
-                );
-    
-                setTimeout(() => {
-                    setSuccess('');
-                }, 3000);
-            }
-        } catch (error) {
-            console.error('Error updating staff:', error.response?.data || error.message);
-            setError('Failed to update staff: ' + (error.response?.data?.error || error.message));
-            setSuccess('');
-        }
-    };
-    
-
     const handleChangePassword = async () => {
         if (newPassword.trim() === '') {
             setError('New password cannot be empty.');
@@ -137,7 +157,7 @@ const AccountManager = () => {
             const response = await axios.put(
                 `http://localhost:3001/api/updateStaff/${selectedStaff.staff_id}`, 
                 { 
-                    staff_password: newPassword // Use 'staff_password' as key
+                    staff_password: newPassword
                 }
             );
     

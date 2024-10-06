@@ -21,6 +21,8 @@ const Home = () => {
     const [error, setError] = useState('');  
     const [dateError, setDateError] = useState('');  
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+
 
     // Get today's date and calculate two months ahead date
     const today = moment().toDate();
@@ -55,19 +57,20 @@ const Home = () => {
     // Handle room search with date validation and formatted display
     const handleSearch = async () => {
         setDateError('');  // Reset any previous date errors
-
+    
         if (!checkInDate || !checkOutDate) {
             setDateError('Please select both check-in and check-out dates.');
             return;
         }
-
+    
         if (checkOutDate <= checkInDate) {
             setDateError('Check-out date cannot be earlier than or equal to check-in date.');
             return;
         }
-
+    
         const totalGuests = parseInt(adults, 10) + parseInt(children, 10);
-
+    
+        setLoading(true); // Set loading to true when search starts
         try {
             const response = await axios.get('http://localhost:3001/api/getRoomsOrder', {
                 params: {
@@ -77,7 +80,7 @@ const Home = () => {
                     children: children,
                 }
             });
-
+    
             if (response.data.rooms.length > 0) {
                 navigate(`/room_search?checkIn=${moment(checkInDate).format('YYYY-MM-DD')}&checkOut=${moment(checkOutDate).format('YYYY-MM-DD')}&adults=${adults}&children=${children}&roomPax=${totalGuests}&available=true`);
             } else {
@@ -85,8 +88,11 @@ const Home = () => {
             }
         } catch (error) {
             setError('Error fetching available rooms');
+        } finally {
+            setLoading(false); // Reset loading when the search is complete
         }
     };
+    
 
     return (
         <section>
@@ -171,8 +177,15 @@ const Home = () => {
                     </div>
 
                     <div className="buttons is-centered">
-                        <button className="button is-blue search" onClick={handleSearch}>SEARCH</button>
+                        <button className="button is-blue search" onClick={handleSearch} disabled={loading}>
+                            {loading ? (
+                                <span className=" is-small">
+                                    <i className="fas fa-spinner fa-spin" style={{color:"blue"}}></i> {/* FontAwesome spinner icon */}
+                                </span>
+                            ) : 'SEARCH'}
+                        </button>
                     </div>
+
                 </div>
             </div>
             <div className="property-views-container">

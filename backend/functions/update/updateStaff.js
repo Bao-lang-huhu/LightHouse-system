@@ -1,5 +1,5 @@
 const { supabase } = require('../../supabaseClient');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const updateStaff = async (req, res) => {
     const { staff_id } = req.params; 

@@ -1,10 +1,11 @@
 const { v4: uuidv4 } = require('uuid');
 const { supabase } = require('../supabaseClient');
 const admin = require('firebase-admin');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+
 
 // Correct path to the Firebase Admin SDK JSON file
-const serviceAccount = require('../config/lighthousehotel-firebase-adminsdk-vywmp-7e7396bb73.json');
+const serviceAccount = require('../config/lighthousehotel-firebase-adminsdk-vywmp-33b1bba55d.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)

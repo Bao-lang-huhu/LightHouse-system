@@ -1,5 +1,5 @@
 const { supabase } = require('../supabaseClient');
-const bcrypt = require('bcryptjs');
+var bcrypt = require('bcryptjs');
 
 
 // Max size in bytes (3 MB)

@@ -29,7 +29,7 @@ function LoginGuest() {
         e.preventDefault();
 
         try {
-            const response = await axios.post('https://light-house-system.vercel.app/api/loginGuest', {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/loginGuest', {
                 guest_email: email,
                 guest_password: password
             });

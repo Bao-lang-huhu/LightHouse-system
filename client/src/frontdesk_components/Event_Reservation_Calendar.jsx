@@ -19,7 +19,7 @@ const EventReservationCalendar = () => {
   // Fetch event reservations
   const fetchEventReservations = async () => {
     try {
-      const response = await axios.get('https://light-house-system.vercel.app/api/getEventReservationsAll');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getEventReservationsAll');
       const reservations = response.data.map(reservation => {
         const startTime = `${reservation.event_date}T${reservation.event_start_time}`;
         const endTime = `${reservation.event_date}T${reservation.event_end_time}`;

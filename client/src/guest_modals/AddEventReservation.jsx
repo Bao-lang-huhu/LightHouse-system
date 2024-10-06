@@ -48,8 +48,8 @@ const AddEventReservation = ({ isOpen, toggleModal }) => {
 
     const fetchActiveVenuesAndPackages = async () => {
         try {
-            const venuesResponse = await axios.get('https://light-house-system.vercel.app/api/getActiveVenues');
-            const foodPackagesResponse = await axios.get('https://light-house-system.vercel.app/api/getActiveFoodPackages');
+            const venuesResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getActiveVenues');
+            const foodPackagesResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getActiveFoodPackages');
             setVenues(venuesResponse.data);
             setFoodPackages(foodPackagesResponse.data);
         } catch (error) {
@@ -59,7 +59,7 @@ const AddEventReservation = ({ isOpen, toggleModal }) => {
 
     const fetchFoodItems = async () => {
         try {
-            const response = await axios.get('https://light-house-system.vercel.app/api/getFoodItems');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodItems');
             const filteredItems = response.data.filter(item => item.food_service_category === 'BOTH' || item.food_service_category === 'EVENT');
             setFoodItems(filteredItems);
         } catch (error) {
@@ -78,7 +78,7 @@ const AddEventReservation = ({ isOpen, toggleModal }) => {
             const decodedToken = jwtDecode(token);
             const guest_id = decodedToken.guest_id;
 
-            const response = await axios.get('https://light-house-system.vercel.app/api/getGuestDetails', {
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getGuestDetails', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setGuestDetails(response.data);
@@ -205,7 +205,7 @@ const AddEventReservation = ({ isOpen, toggleModal }) => {
             const decodedToken = jwtDecode(token);
             const guest_id = decodedToken.guest_id;
 
-            const response = await axios.post('https://light-house-system.vercel.app/api/registerEventReservation', {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerEventReservation', {
                 ...eventDetails,
                 event_venue_id: selectedVenueId,
                 event_fd_pckg_id: selectedFoodPackageId,

@@ -16,7 +16,7 @@ const IncomingOrderBar = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('https://light-house-system.vercel.app/api/getDrinkOrders'); // Use getDrinkOrders
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getDrinkOrders'); // Use getDrinkOrders
         setOrders(response.data);
         setLoading(false);
       } catch (error) {
@@ -31,7 +31,7 @@ const IncomingOrderBar = () => {
   // Function to update the status of a bar order
   const updateBarOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(`https://light-house-system.vercel.app/api/updateBarOrderStatus/${orderId}`, {
+      const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateBarOrderStatus/${orderId}`, {
         new_status: newStatus, // Send the new status in the request body
       });
 

@@ -29,7 +29,7 @@ const RoomManager = () => {
 
     const fetchRooms = async () => {
         try {
-            const response = await axios.get('https://light-house-system.vercel.app/api/getRoomsAll');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomsAll');
             setRooms(response.data.filter(room => room.room_status !== 'DELETE')); // Exclude INACTIVE rooms
         } catch (error) {
             console.error('Error fetching room data:', error);
@@ -104,7 +104,7 @@ const RoomManager = () => {
             setError('');
             setSuccess('');
 
-            const response = await axios.put(`https://light-house-system.vercel.app/api/updateRoom/${selectedRoom.room_id}`, selectedRoom);
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateRoom/${selectedRoom.room_id}`, selectedRoom);
 
             if (response.status === 200) {
                 setSuccess('Room details updated successfully!');
@@ -136,7 +136,7 @@ const RoomManager = () => {
             setSuccess('');
 
             const response = await axios.put(
-                `https://light-house-system.vercel.app/api/updateRoom/${selectedRoom.room_id}`, 
+                `https://light-house-system-h74t-server.vercel.app/api/updateRoom/${selectedRoom.room_id}`, 
                 {
                     room_status: 'DELETE'         
                 }

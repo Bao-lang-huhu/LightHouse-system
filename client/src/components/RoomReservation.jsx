@@ -43,7 +43,7 @@ const RoomReservation = () => {
             }
 
             try {
-                const response = await axios.get('https://light-house-system.vercel.app/api/getGuestDetails', {
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getGuestDetails', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -100,7 +100,7 @@ const RoomReservation = () => {
             console.log('Reservation Data:', reservationData);
 
             // Send POST request to backend API
-            const response = await axios.post('https://light-house-system.vercel.app/api/registerRoomReservation', reservationData);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerRoomReservation', reservationData);
 
             if (response.status === 201) {
                 alert('Reservation confirmed!');

@@ -39,7 +39,7 @@ const DashboardFront = () => {
         // Fetch counts data
         const fetchCounts = async () => {
             try {
-                const response = await axios.get('https://light-house-system.vercel.app/api/counts'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/counts'); // Replace with your API endpoint
                 const data = response.data;
 
                 const validatedData = {

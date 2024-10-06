@@ -62,7 +62,7 @@ const AddVenueModal = ({ isOpen, toggleModal }) => {
             setSuccess('');
             setErroredFields({});
 
-            const response = await axios.post('https://light-house-system.vercel.app/api/registerVenue', venue);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerVenue', venue);
             if (response.status === 201) {
                 setSuccess('Venue registered successfully!'); 
                 setError(''); 

@@ -17,7 +17,7 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
     useEffect(() => {
         const fetchCheckIns = async () => {
             try {
-                const response = await axios.get('https://light-house-system.vercel.app/api/getcheckInGuests');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getcheckInGuests');
                 setCheckIns(response.data);
             } catch (error) {
                 console.error('Error fetching check-in data with guests:', error);
@@ -56,7 +56,7 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
                 add_item_status: 'BORROWED'
             };
 
-            const response = await axios.post('https://light-house-system.vercel.app/api/registerAdditionalItem', payload);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerAdditionalItem', payload);
 
             if (response.status === 201) {
                 setSuccess('Additional item registered successfully!');

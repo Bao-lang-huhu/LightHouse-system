@@ -38,7 +38,7 @@ const ProceedBar = () => {
   useEffect(() => {
     const fetchCheckedInGuests = async () => {
       try {
-        const response = await axios.get('https://light-house-system.vercel.app/api/getCheckedInGuests');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckedInGuests');
         setCheckedInGuests(response.data);
       } catch (error) {
         console.error('Error fetching checked-in guests:', error);
@@ -72,7 +72,7 @@ const ProceedBar = () => {
         drinkItems: drinkOrders // No notes field included here
       };
   
-      const response = await axios.post('https://light-house-system.vercel.app/api/registerDrinkOrders', orderData);
+      const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerDrinkOrders', orderData);
   
       if (response.status === 201) {
         setOrderSuccess('Order placed successfully!');

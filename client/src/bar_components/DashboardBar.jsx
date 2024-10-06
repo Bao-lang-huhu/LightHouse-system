@@ -65,12 +65,12 @@ const DashboardBar = () => {
     setAllOrderCount(220); // Replace with actual data
 
     // Fetch incoming drink orders
-    axios.get('https://light-house-system.vercel.app/api/getDrinkOrders') // Replace with actual API endpoint for drinks
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getDrinkOrders') // Replace with actual API endpoint for drinks
       .then(response => setDrinkOrders(response.data))
       .catch(error => console.error('Error fetching incoming orders:', error));
 
     // Fetch drink list with order count
-    axios.get('https://light-house-system.vercel.app/api/getCountDrinkOrderList') // Replace with actual API endpoint for drinks
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getCountDrinkOrderList') // Replace with actual API endpoint for drinks
       .then(response => setDrinkList(response.data))
       .catch(error => console.error('Error fetching drink list:', error));
   }, []);

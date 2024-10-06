@@ -60,7 +60,7 @@ const AddConciergeModal = ({ isOpen, toggleModal }) => {
             setSuccess('');
             setErroredFields({});
 
-            const response = await axios.post('https://light-house-system.vercel.app/api/registerConcierge', concierge);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerConcierge', concierge);
 
             if (response.status === 201) {
                 setSuccess('Concierge registered successfully!');

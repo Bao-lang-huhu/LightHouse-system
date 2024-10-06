@@ -28,7 +28,7 @@ const Profile = () => {
           setError('User not logged in');
           return;
         }
-        const response = await axios.get('https://light-house-system.vercel.app/api/getGuestDetails', {
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getGuestDetails', {
           headers: { Authorization: `Bearer ${token}` }, 
         });
 
@@ -68,7 +68,7 @@ const Profile = () => {
   const handleSaveChanges = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:3001/api/updateGuest', guest, {
+      const response = await axios.put('https://light-house-system-h74t-server.vercel.app/api/updateGuest', guest, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

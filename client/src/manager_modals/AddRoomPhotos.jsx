@@ -57,7 +57,7 @@ const AddRoomPhotos = ({ isOpen, toggleModal, roomId }) => {
         }
 
         try {
-            const response = await axios.post('https://light-house-system.vercel.app/api/registerRoomPhotos', {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerRoomPhotos', {
                 room_id: roomId, // Pass the current room ID
                 photos: photoDetails, // Send all photo details
             });

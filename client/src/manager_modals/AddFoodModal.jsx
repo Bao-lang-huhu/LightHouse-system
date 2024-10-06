@@ -104,7 +104,7 @@ const AddFoodModal = ({ isOpen, toggleModal }) => {
                 return;
             }
 
-            const response = await axios.post('https://light-house-system.vercel.app/api/registerFoodItem', food);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerFoodItem', food);
 
             if (response.status === 201) {
                 setSuccess('Food item registered successfully!');

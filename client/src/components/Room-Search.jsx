@@ -52,7 +52,7 @@ const RoomSearch = () => {
         // Fetch available rooms based on the provided search parameters
         const fetchAvailableRooms = async () => {
             try {
-                const response = await axios.get(`https://light-house-system.vercel.app/api/getRoomsOrder`, {
+                const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getRoomsOrder`, {
                     params: { checkIn: checkInDate, checkOut: checkOutDate, adults, children }
                 });
 

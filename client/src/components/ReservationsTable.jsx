@@ -51,7 +51,7 @@ const ReservationsTable = () => {
             }
 
             try {
-                const response = await axios.get('https://light-house-system.vercel.app/api/getTableRevByGuestID', {
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getTableRevByGuestID', {
                     params: { guest_id: guestId }
                 });
 
@@ -82,7 +82,7 @@ const ReservationsTable = () => {
             setOngoingReservations(ongoingReservations.filter(res => res.table_reservation_id !== reservationToCancel));
 
             // Send the cancellation request to the backend
-            await axios.post('https://light-house-system.vercel.app/api/cancelTableReservation', {
+            await axios.post('https://light-house-system-h74t-server.vercel.app/api/cancelTableReservation', {
                 table_reservation_id: reservationToCancel,
                 cancel_reason: cancelReason
             });
@@ -93,7 +93,7 @@ const ReservationsTable = () => {
             // After cancellation, re-fetch the reservations to update the list with the latest data
             const guestId = localStorage.getItem('guest_id');
             if (guestId) {
-                const response = await axios.get('https://light-house-system.vercel.app/api/getTableRevByGuestID', {
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getTableRevByGuestID', {
                     params: { guest_id: guestId }
                 });
 

@@ -21,7 +21,7 @@ const FoodPackageManager = () => {
     useEffect(() => {
         const fetchFoodPackages = async () => {
             try {
-                const response = await axios.get('https://light-house-system.vercel.app/api/getFoodPackage'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodPackage'); // Replace with your API endpoint
                 setFoodPackages(response.data); // Set the fetched food packages data to state
             } catch (error) {
                 console.error('Error fetching food packages:', error);
@@ -65,7 +65,7 @@ const FoodPackageManager = () => {
         try {
             setError('');
             setSuccess('');
-            const response = await axios.put(`https://light-house-system.vercel.app/api/updateFoodPackage/${selectedPackage.event_fd_pckg_id}`, selectedPackage);
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateFoodPackage/${selectedPackage.event_fd_pckg_id}`, selectedPackage);
 
             if (response.status === 200) {
                 setSuccess('Food package details updated successfully!');
@@ -92,7 +92,7 @@ const FoodPackageManager = () => {
         try {
             setError('');
             setSuccess('');
-            const response = await axios.put(`https://light-house-system.vercel.app/api/updateFoodIPackage/${selectedPackage.event_fd_pckg_id}`, 
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateFoodIPackage/${selectedPackage.event_fd_pckg_id}`, 
                 { event_fd_status: 'DELETE' });
 
             if (response.status === 200) {

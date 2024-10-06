@@ -13,7 +13,7 @@ const CheckInTable = () => {
   useEffect(() => {
     const fetchCheckInData = async () => {
       try {
-        const response = await axios.get('https://light-house-system.vercel.app/api/getCheckInData'); // Example API call
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckInData'); // Example API call
         setCheckIns(response.data);
         setLoading(false);
       } catch (error) {

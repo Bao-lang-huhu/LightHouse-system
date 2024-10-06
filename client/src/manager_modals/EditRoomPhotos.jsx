@@ -15,7 +15,7 @@ const EditRoomPhotos = ({ isOpen, toggleModal, roomId }) => {
     useEffect(() => {
         const fetchRoomPhotos = async () => {
             try {
-                const response = await axios.get('https://light-house-system.vercel.app/api/getRoomPhotos', {
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomPhotos', {
                     params: { roomId } // Fetch photos for the specific roomId
                 });
 
@@ -48,7 +48,7 @@ const EditRoomPhotos = ({ isOpen, toggleModal, roomId }) => {
     const handleUpdatePhoto = async (index) => {
         const photo = photoDetails[index];
         try {
-            const response = await axios.put(`https://light-house-system.vercel.app/api/updateRoomPhoto`, {
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateRoomPhoto`, {
                 room_photo_id: photo.room_photo_id,
                 room_slot: photo.room_slot,
                 room_photo_url: photo.room_photo_url,
@@ -75,7 +75,7 @@ const EditRoomPhotos = ({ isOpen, toggleModal, roomId }) => {
         const index = confirmArchive.index;
         const photo = photoDetails[index];
         try {
-            const response = await axios.put(`https://light-house-system.vercel.app/api/updateRoomPhoto`, {
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateRoomPhoto`, {
                 room_photo_id: photo.room_photo_id,
                 room_slot: 'ARCHIVE', // Set slot to "ARCHIVE"
             });

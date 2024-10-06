@@ -25,7 +25,6 @@ const AllOrdersBar = () => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get('http://localhost:3001/api/getDrinkOrdersAll'); // Use getDrinkOrdersAll
-        // Filter out orders with 'DELETE' status
         const activeOrders = response.data.filter(order => order.b_order_status !== 'DELETE');
         setOrders(activeOrders);
         setFilteredOrders(activeOrders); // Initialize filteredOrders with active orders
@@ -75,12 +74,10 @@ const AllOrdersBar = () => {
   const handleArchive = async () => {
     if (!archiveOrderId) return;
     try {
-      // Send request to update order status to 'DELETE'
       const response = await axios.put(`http://localhost:3001/api/updateBarOrderStatus/${archiveOrderId}`, { // Use updateBarOrderStatus
         new_status: 'DELETE',
       });
       if (response.status === 200) {
-        // Remove the archived order from the orders list
         const updatedOrders = orders.filter(order => order.bar_order_id !== archiveOrderId);
         setOrders(updatedOrders);
         setFilteredOrders(updatedOrders);
@@ -106,6 +103,12 @@ const AllOrdersBar = () => {
     }
   };
 
+  // Clear the date filter
+  const handleClearDateFilter = () => {
+    setDateFilter(''); // Clear the date filter
+    setFilteredOrders(orders); // Reset to show all orders
+  };
+
   return (
     <section className='section-p1'>
       <header>
@@ -128,9 +131,15 @@ const AllOrdersBar = () => {
                     onChange={(e) => setDateFilter(e.target.value)} // Set date filter
                   />
                 </div>
-                <div className="control is-fullwidth">
-                  <button className="button is-blue is-fullwidth-mobile" style={{ height: '100%' }}>
+                <div className="control">
+                  <button className="button is-blue" style={{ height: '100%' }}>
                     <IoSearchCircle className="is-white" />
+                  </button>
+                </div>
+                <div className="control">
+                  <button className="button is-light" style={{ height: '100%' }} onClick={handleClearDateFilter}>
+                    <IoCloseSharp className="is-white" />
+                    Clear
                   </button>
                 </div>
               </div>
@@ -212,10 +221,7 @@ const AllOrdersBar = () => {
           </div>
         </div>
       </section>
-      {/* Pass the selected order to the OrderSummary modal */}
       {selectedOrder && <DrinkOrderSummary isOpen={isModalOpen} toggleModal={toggleModal} order={selectedOrder} />}
-
-      {/* Confirmation Modal for Archiving */}
       {isArchiving && (
         <div className="modal is-active">
           <div className="modal-background" onClick={() => setIsArchiving(false)}></div>

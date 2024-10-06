@@ -54,10 +54,10 @@ const SidebarFrontDesk= () => {
                 </Link>
               </li>
               <li>
-                <a>
+                <Link to="/frontdesk_dashboard">
                   <IoPerson style={{ marginRight: isSidebarOpen ? '5px' : '0', textAlign: 'center' }} />
                   {isSidebarOpen && 'Dashboard'}
-                </a>
+                </Link>
               </li>
             </ul>
 
@@ -102,10 +102,10 @@ const SidebarFrontDesk= () => {
             </p>
             <ul className="menu-list">
               <li>
-                <a title="Check-In Guest">
+                <Link to="/frontdesk_check_in" title="Check-In Guest">
                   <IoCheckmarkCircle style={{ marginRight: isSidebarOpen ? '5px' : '0', textAlign: 'center' }} />
                   {isSidebarOpen && 'Check-In Guest'}
-                </a>
+                </Link>
               </li>
               <li>
                 <a title="Checked-Out History">

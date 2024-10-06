@@ -46,12 +46,11 @@ const checkTablesAvailability = async (req, res) => {
       return res.status(400).json({ error: allTablesError.message });
     }
 
-    // Step 6: Mark the tables based on their availability
     const availableTables = allTables.map(table => {
       if (reservedTableIds.includes(table.table_id)) {
-        return { ...table, status: 'PENDING' }; // Table is reserved for the specific date and time
+        return { ...table, status: 'PENDING' };
       } else {
-        return { ...table, status: 'AVAILABLE' }; // Table is available
+        return { ...table, status: 'AVAILABLE' }; 
       }
     });
 

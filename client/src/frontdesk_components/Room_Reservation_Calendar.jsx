@@ -3,7 +3,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
-import { ClipLoader } from 'react-spinners';
+import { ClipLoader } from 'react-spinners'; // Import the ClipLoader
 import { jwtDecode } from 'jwt-decode';
 
 const localizer = momentLocalizer(moment);
@@ -15,7 +15,7 @@ const RoomReservationCalendar = () => {
   const [downPayment, setDownPayment] = useState(900);
   const [reservationStatus, setReservationStatus] = useState('CONFIRM');
   const [cancellationRequest, setCancellationRequest] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Keep the loading state
 
   const fetchRoomReservations = async () => {
     try {
@@ -34,6 +34,8 @@ const RoomReservationCalendar = () => {
       setEvents(reservations);
     } catch (error) {
       console.error('Error fetching room reservations:', error);
+    } finally {
+      setLoading(false); // Stop loading once data is fetched or error occurs
     }
   };
 
@@ -102,8 +104,6 @@ const RoomReservationCalendar = () => {
     }
   };
   
-  
-
   const handleSaveChanges = async () => {
     try {
       await axios.put(`http://localhost:3001/api/updateRoomReservation/${selectedEvent.id}`, {
@@ -127,6 +127,13 @@ const RoomReservationCalendar = () => {
 
   return (
     <div style={{ margin: '20px' }}>
+      {/* Show loader while data is being fetched */}
+      {loading ? (
+        <div className="loader-container" style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+          <ClipLoader color="#007bff" size={50} />
+        </div>
+      ) : (
+        <>
       {/* Legend Section */}
       <div style={{ marginBottom: '10px', display: 'flex', gap: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -270,12 +277,15 @@ const RoomReservationCalendar = () => {
               </div>
             </div>
           </section>
-          <footer className="modal-card-foot">
-            <button className="button is-success" onClick={handleSaveChanges}>Save Changes</button>
-            <button className="button is-primary" onClick={handleCheckIn}>Check In</button>
+          <footer className="modal-card-foot is-justify-content-flex-end">
+            <button className="button is-blue m-1" onClick={handleSaveChanges}>Save Changes</button>
+            <button className="button is-inverted-blue m-1" onClick={handleCheckIn}>Check In</button>
           </footer>
+
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

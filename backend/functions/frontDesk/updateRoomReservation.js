@@ -26,9 +26,9 @@ const updateRoomReservation = async (req, res) => {
       const { error: insertError } = await supabase
         .from('CHECK_IN')
         .insert({
-          room_reservation_id,    // Link to ROOM_RESERVATION
-          staff_id,               // Staff making the check-in
-          check_in_date_time: new Date(),  // Current timestamp
+          room_reservation_id,  
+          staff_id,               
+          check_in_date_time: new Date(),  
           initial_payment: null,
           payment_status: 'UNPAID',
           check_in_status: 'CHECKED_IN',

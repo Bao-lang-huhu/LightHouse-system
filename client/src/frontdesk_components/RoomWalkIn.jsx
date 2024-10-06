@@ -4,9 +4,9 @@ import './components_f.css';
 import '../App.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import DatePicker from 'react-datepicker';  // Import the DatePicker component
-import 'react-datepicker/dist/react-datepicker.css';  // Import the CSS for the DatePicker
-import moment from 'moment';  // Import moment for date formatting
+import DatePicker from 'react-datepicker'; 
+import 'react-datepicker/dist/react-datepicker.css'; 
+import moment from 'moment';  
 
 function RoomWalkIn() {
   const [checkInDate, setCheckInDate] = useState(null);
@@ -16,13 +16,11 @@ function RoomWalkIn() {
   const [rooms, setRooms] = useState([]);
   const [error, setError] = useState('');
   const [dateError, setDateError] = useState('');
-  const [noRoomsAvailable, setNoRoomsAvailable] = useState(false); // Initialize noRoomsAvailable state
+  const [noRoomsAvailable, setNoRoomsAvailable] = useState(false); 
   const navigate = useNavigate();
 
-  const today = moment().toDate();  // Get today's date for minimum selection
-  const twoMonthsFromToday = moment().add(2, 'months').toDate();  // Calculate two months ahead
-
-  // Function to handle room search
+  const today = moment().toDate(); 
+  const twoMonthsFromToday = moment().add(2, 'months').toDate(); 
   const handleSearch = async () => {
     setDateError('');  // Reset any previous date errors
     setNoRoomsAvailable(false); // Reset no rooms available message
@@ -52,11 +50,11 @@ function RoomWalkIn() {
       const fetchedRooms = response.data.rooms;
 
       if (fetchedRooms.length > 0) {
-        setRooms(fetchedRooms);  // Update rooms with search results
-        setNoRoomsAvailable(false); // Rooms are available
+        setRooms(fetchedRooms);
+        setNoRoomsAvailable(false); 
       } else {
-        setRooms([]);  // No rooms available
-        setNoRoomsAvailable(true); // Trigger no rooms available message
+        setRooms([]); 
+        setNoRoomsAvailable(true); 
       }
     } catch (error) {
       setError('Error fetching available rooms');

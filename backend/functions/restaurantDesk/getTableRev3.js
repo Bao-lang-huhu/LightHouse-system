@@ -1,6 +1,5 @@
 const { supabase } = require('../../supabaseClient');
 
-// Function to get all table reservations and details across multiple dates
 const getAllTableReservations = async (req, res) => {
   try {
     console.log(`Fetching all reservations`);
@@ -17,17 +16,15 @@ const getAllTableReservations = async (req, res) => {
 
     if (reservations.length === 0) {
       console.log('No reservations found.');
-      return res.status(200).json([]); // Return empty array if no reservations
+      return res.status(200).json([]); 
     }
 
     // Log the reservations data fetched
     console.log('Reservations data:', reservations);
 
-    // Step 2: Extract guest IDs and reservation IDs
     const guestIds = reservations.map(reservation => reservation.guest_id);
     const reservationIds = reservations.map(reservation => reservation.table_reservation_id);
 
-    // Step 3: Fetch guest details from GUEST table using guest_ids
     const { data: guestDetails, error: guestDetailsError } = await supabase
       .from('GUEST')
       .select('guest_id, guest_fname, guest_lname, guest_phone_no')

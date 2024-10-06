@@ -1,0 +1,22 @@
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .button-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .button-row .button {
+    flex: 1;
+    margin: 0.25rem;
+  }
+  
+  .button-fullwidth {
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+  

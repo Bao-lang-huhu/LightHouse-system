@@ -4,7 +4,6 @@ const { supabase } = require('../../supabaseClient'); // Import Supabase client
 const getReservationsByGuestId = async (req, res) => {
     const { guest_id } = req.query;
 
-    // Check if guest_id is provided
     if (!guest_id) {
         console.log('Guest ID not provided');
         return res.status(400).json({ message: 'Guest ID is required.' });

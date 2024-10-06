@@ -88,10 +88,8 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
                     {/* Summary */}
                     <div className="column is-4">
                       <div style={{ marginBottom: '1rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <p className="title is-6">Number of Items: {numberOfItems}</p>
                           <p className="title is-6">Total: ₱{total.toFixed(2)}</p>
-                        </div>
                       </div>
                     </div>
                   </div>

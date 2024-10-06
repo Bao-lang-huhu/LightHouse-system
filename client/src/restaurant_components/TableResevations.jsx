@@ -113,7 +113,7 @@ const TablReservations = () => {
         const response = await axios.put(
           `http://localhost:3001/api/updateTableReservationStatus/${selectedGuest.table_reservation_id}`,
           {
-            reservation_status: newStatus, // Pass the new status in the body
+            reservation_status: newStatus, 
           }
         );
 
@@ -135,15 +135,15 @@ const TablReservations = () => {
   const getTableColor = (status) => {
     switch (status) {
       case 'COMPLETED':
-        return 'has-background-success-light'; // Green for completed
+        return 'has-background-success-light'; 
       case 'PENDING':
         return 'has-background-warning-light'; // Yellow for pending
       case 'CANCELED':
-        return 'has-background-danger-light'; // Red for canceled
+        return 'has-background-danger-light'; 
       case 'NO SHOW':
         return 'has-background-grey-light';
       default:
-        return 'has-background-light'; // Default light background for available tables
+        return 'has-background-light'; 
     }
   };
 
@@ -170,7 +170,6 @@ const TablReservations = () => {
           </div>
           <Link to="/restaurant_table_reservations_calendar"><button className='button is-blue'>Calendar View</button></Link>
 
-          {/* Date Input for Selecting Date */}
           <div className="field mt-4">
             <label className="label">Select Date</label>
             <div className="control">
@@ -178,7 +177,6 @@ const TablReservations = () => {
             </div>
           </div>
 
-          {/* Accordion for Time Slots */}
           {timeSlots.length > 0 && (
             <div className="mt-4">
               <h3 className ="m-1">Time Slots</h3>
@@ -192,7 +190,6 @@ const TablReservations = () => {
                     {slot.time}
                   </div>
 
-                  {/* Show guests only if the accordion is open */}
                   {activeAccordion === index && slot.reservations && Array.isArray(slot.reservations) && (
                     <div className="accordion-content mt-3">
                       {slot.reservations.map((reservation, guestIndex) => (

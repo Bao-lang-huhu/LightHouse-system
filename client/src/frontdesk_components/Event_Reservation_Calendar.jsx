@@ -32,10 +32,10 @@ const EventReservationCalendar = () => {
           start: new Date(startTime), // Combine event_date and event_start_time
           end: new Date(endTime),     // Combine event_date and event_end_time
           status: reservation.event_status,
-          guest: reservation.guest,   // Guest information
-          venue: reservation.venue,   // Venue details
-          foodPackage: reservation.foodPackage, // Food package details
-          foodItems: reservation.foodItems, // Food items for the reservation
+          guest: reservation.guest, 
+          venue: reservation.venue, 
+          foodPackage: reservation.foodPackage, 
+          foodItems: reservation.foodItems, 
           event_total_price: reservation.event_total_price,  
           event_no_guest: reservation.event_no_guest 
         };

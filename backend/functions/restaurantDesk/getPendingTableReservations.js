@@ -1,11 +1,9 @@
 const { supabase } = require('../../supabaseClient');
 
-// Function to get pending table reservations with guest and table details
 const getPendingTableReservations = async (req, res) => {
   try {
     console.log('Fetching all pending reservations');
 
-    // Step 1: Fetch all PENDING reservations
     const { data: reservations, error: reservationsError } = await supabase
       .from('TABLE_RESERVATION')
       .select('table_reservation_id, guest_id, reservation_status, table_reservation_date')

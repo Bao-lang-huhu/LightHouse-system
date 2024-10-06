@@ -16,7 +16,7 @@ const { updateRoomPhoto } = require('../functions/update/updateRoomPhoto');
 
 const {getRoomReservationsAll } = require('../functions/frontDesk/getRoomReservationsAll');
 const {updateRoomReservation} = require('../functions/frontDesk/updateRoomReservation');
-
+const {getCheckInData} = require('../functions/frontDesk/getCheckInData')
 const router = express.Router();
 
 // Route for room registration
@@ -53,5 +53,7 @@ router.put('/updateRoomPhoto', updateRoomPhoto);
 router.get('/getRoomReservationsAll', getRoomReservationsAll);
 
 router.put('/updateRoomReservation/:room_reservation_id', updateRoomReservation);
+
+router.get('/getCheckInData',getCheckInData);
 
 module.exports = router;

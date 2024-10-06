@@ -27,12 +27,10 @@ const ReservationsRoom = () => {
         });
         const reservations = response.data;
 
-        // Filter ongoing reservations (e.g., status "CONFIRMED")
         const ongoing = reservations.filter(res => res.reservation_status === 'CONFIRMED');
         setOngoingReservations(ongoing);
         setFilteredOngoing(ongoing); // Set filtered ongoing initially same as ongoing
 
-        // Filter reservation history (e.g., status "COMPLETED", "CANCELED")
         const history = reservations.filter(res => ['COMPLETED', 'CANCELED'].includes(res.reservation_status));
         setReservationHistory(history);
         setFilteredHistory(history); // Set filtered history initially same as history

@@ -71,7 +71,6 @@ function Resturant_Second() {
   const handleTableSelection = (table) => {
     if (table.status === 'AVAILABLE') {
       setSelectedTable(table.table_id);
-      // Save selected table details to localStorage
       localStorage.setItem('selected_table_id', table.table_id);
       localStorage.setItem('selected_table_name', table.table_name);
     }
@@ -94,7 +93,6 @@ function Resturant_Second() {
     }
   };
 
-  // Logic to style and disable reserved or mismatching tables
   const getButtonColorClass = (table) => {
     if (selectedTable === table.table_id) {
       return 'is-selected'; // Highlight selected table

@@ -1,13 +1,13 @@
 import FrontDeskLayout from "../layouts/FrontDesk_Layout";
-import DashboardFront from "../frontdesk_components/DashboardFront";
+import CheckInTable from "../frontdesk_components/CheckIn";
 import ProtectedRoute from "../auth/protectedRoute";
-const FDashboard = () => {
+const FCheckInTable = () => {
     return (
         <ProtectedRoute allowedRoles={['frontDesk']}>
-        <FrontDeskLayout>
-            <DashboardFront/>
-        </FrontDeskLayout>
+            <FrontDeskLayout>
+                <CheckInTable/>
+            </FrontDeskLayout>
         </ProtectedRoute>
       )
 }
-export default FDashboard;
+export default FCheckInTable;

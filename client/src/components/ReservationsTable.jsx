@@ -27,7 +27,6 @@ const ReservationsTable = () => {
         let hour = parseInt(hours, 10);
         let period = 'AM';
     
-        // Assume hours after 11:00 AM are in the PM period unless explicitly marked otherwise
         if (hour >= 2 && hour <= 5) {
             period = 'PM';
         } else if (hour === 12) {

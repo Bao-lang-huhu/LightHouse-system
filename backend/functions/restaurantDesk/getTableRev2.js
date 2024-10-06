@@ -43,6 +43,15 @@ const getTableReservations2 = async (req, res) => {
 
     // Mark the tables based on reservations
     const tablesWithStatus = allTables.map(table => {
+     
+        // Check if table is INACTIVE
+        if (table.table_status === 'INACTIVE') {
+          return {
+            ...table,
+            status: 'UNAVAILABLE',  // Mark table as unavailable if it is inactive
+            reason: 'Table is not available at the moment' // Optional: you can add a reason
+          };
+        }
       const matchingTableList = tableList.find(tl => tl.table_id === table.table_id);
       if (matchingTableList) {
         const matchingReservation = reservations.find(res => res.table_reservation_id === matchingTableList.table_reservation_id);

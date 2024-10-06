@@ -47,6 +47,7 @@ import FConciergeLaundry from "./frontdesk_pages/F_ConciergeLaundry";
 import FAdditionalItem from "./frontdesk_pages/F_AdditionalItem";
 import FMainHouse from "./frontdesk_pages/F_Main_House";
 import FEventReservation from "./frontdesk_pages/F_EventReservation";
+import CheckInTable from "./frontdesk_components/CheckIn";
 
 import RHomeRestaurant from "./restaurant_pages/R_Home";
 import RDashboard from "./restaurant_pages/R_Dashboard";
@@ -65,6 +66,7 @@ import BAllOrders from "./bar_pages/B_AllOrders";
 import BOrder from "./bar_pages/B_Order";
 import BIncomingOrder from "./bar_pages/B_IncomingOrder";
 import BProceedBarOrder from "./bar_pages/B_ProceedBar";
+import FCheckInTable from "./frontdesk_pages/F_CheckIn";
 
 function App() {
   return (
@@ -126,6 +128,10 @@ function App() {
         <Route path="/frontdesk_additional_item" element={<FAdditionalItem/>}/>
         <Route path="/frontdesk_maintenance_and_housekeeping" element={<FMainHouse/>}/>
         <Route path="/frontdesk_event_reservation" element={<FEventReservation/>}></Route>
+        <Route path="/frontdesk_check_in" element={<FCheckInTable/>}></Route>
+
+        
+        
         <Route path = "/restaurant_home" element ={<RHomeRestaurant/>}/>
         <Route path = "/restaurant_dashboard" element ={<RDashboard/>}/>
         <Route path = "/restaurant_dashboard_table" element ={<RDashboard2/>}/>

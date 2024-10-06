@@ -79,8 +79,10 @@ const IncomingOrderRestaurant = () => {
         {/* Success and Error Messages */}
         {showSuccess && <SuccessMsg message={message} />}
         {showError && <ErrorMsg message={message} />}
-
-        <div className="columns is-multiline is-mobile is-vcentered">
+        {orders.length === 0 ? (
+          <p>No incoming orders.</p>
+        ) : (
+          <div className="columns is-multiline is-mobile is-vcentered">
           {orders.map((order, index) => (
             <div className="column is-4-desktop is-6-tablet is-12-mobile" key={order.food_order_id}>
               <div className="box" style={{ border: '1px solid #e0e0e0', borderRadius: '8px', position: 'relative' }}>
@@ -180,6 +182,7 @@ const IncomingOrderRestaurant = () => {
             </div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

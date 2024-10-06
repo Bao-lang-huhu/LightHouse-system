@@ -66,12 +66,12 @@ const DashboardRestaurant = () => {
     setAllOrderCount(220); // Replace with actual data
 
     // Fetch incoming orders
-    axios.get('https://light-house-system.vercel.app/api/getFoodOrders') // Replace with actual API endpoint
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodOrders') // Replace with actual API endpoint
       .then(response => setFoodOrders(response.data))
       .catch(error => console.error('Error fetching incoming orders:', error));
 
     // Fetch food list with order count
-    axios.get('https://light-house-system.vercel.app/api/getCountFoodOrderList') // Replace with actual API endpoint
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getCountFoodOrderList') // Replace with actual API endpoint
       .then(response => setFoodList(response.data))
       .catch(error => console.error('Error fetching food list:', error));
   }, []);

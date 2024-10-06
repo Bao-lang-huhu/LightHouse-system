@@ -21,7 +21,7 @@ const OrderRestaurant = () => {
   useEffect(() => {
     const fetchFoodItems = async () => {
       try {
-        const response = await axios.get('https://light-house-system.vercel.app/api/getFoodItems');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodItems');
         setFoodItems(response.data);
         setFilteredFoodItems(response.data);
       } catch (error) {

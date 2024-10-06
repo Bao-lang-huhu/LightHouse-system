@@ -59,7 +59,7 @@ const DashboardRestaurant2 = () => {
     }
 
     // Fetch all pending table reservations with guest details
-    axios.get('https://light-house-system.vercel.app/api/getPendingTableReservations') // Adjust the endpoint to your backend setup
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getPendingTableReservations') // Adjust the endpoint to your backend setup
       .then(response => {
         setPendingReservations(response.data); // Set the fetched pending reservations
       })

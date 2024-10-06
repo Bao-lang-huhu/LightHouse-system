@@ -33,7 +33,7 @@ const TableRevCalendar = () => {
   const fetchReservations = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://light-house-system.vercel.app/api/getTableReservations3');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getTableReservations3');
 
       // Format the reservations for the calendar
       const formattedReservations = response.data.map((reservation) => {

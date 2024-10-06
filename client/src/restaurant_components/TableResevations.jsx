@@ -28,7 +28,7 @@ const TablReservations = () => {
 
   const fetchTables = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/getTables');
+      const response = await axios.get('https://light-house-system.vercel.app/api/getTables');
       setTables(response.data);
     } catch (error) {
       console.error('Error fetching tables:', error);
@@ -38,7 +38,7 @@ const TablReservations = () => {
   const fetchReservations = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3001/api/getTableReservations', {
+      const response = await axios.get('https://light-house-system.vercel.app/api/getTableReservations', {
         params: { table_reservation_date: selectedDate }, // Use selectedDate, which defaults to today
       });
       setTimeSlots(response.data || []); // Ensure response data is an array
@@ -111,7 +111,7 @@ const TablReservations = () => {
 
       try {
         const response = await axios.put(
-          `http://localhost:3001/api/updateTableReservationStatus/${selectedGuest.table_reservation_id}`,
+          `https://light-house-system.vercel.app/api/updateTableReservationStatus/${selectedGuest.table_reservation_id}`,
           {
             reservation_status: newStatus, 
           }

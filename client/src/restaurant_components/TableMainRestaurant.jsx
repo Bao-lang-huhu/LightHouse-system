@@ -18,7 +18,7 @@ const TableMainRestaurant = () => {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/getTables'); // Replace with your API endpoint
+        const response = await axios.get('https://light-house-system.vercel.app/api/getTables'); // Replace with your API endpoint
         setTables(response.data); // Set the fetched tables data to state
       } catch (error) {
         console.error('Error fetching table data:', error);
@@ -49,7 +49,7 @@ const TableMainRestaurant = () => {
       setError('');
       setSuccess('');
 
-      const response = await axios.put(`http://localhost:3001/api/updateTable/${selectedTable.table_id}`, selectedTable);
+      const response = await axios.put(`https://light-house-system.vercel.app/api/updateTable/${selectedTable.table_id}`, selectedTable);
 
       if (response.status === 200) {
         setSuccess('Table updated successfully!');

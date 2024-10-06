@@ -7,8 +7,6 @@ import { IoPerson, IoClipboard, IoFastFoodOutline, IoRestaurant } from 'react-ic
 import axios from 'axios';
 import Calendar from 'react-calendar'; // Import the Calendar component
 import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
-//new
-
 
 const DashboardRestaurant = () => {
   const [currentDate, setCurrentDate] = useState(new Date());

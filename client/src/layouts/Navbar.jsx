@@ -10,7 +10,7 @@ import '../App.css';
 
 function Navbar() {
   const [isActive, setIsActive] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const [guestPhoto, setGuestPhoto] = useState(defaultProfilePic); // State for guest photo
   const [isGuest, setIsGuest] = useState(false); // Check if the user is a guest
   const navigate = useNavigate();
@@ -23,25 +23,25 @@ function Navbar() {
   };
 
   useEffect(() => {
-    // Set logged-in state if token exists
     if (token) {
-      setIsLoggedIn(true);
-
       try {
         // Decode the token to check for guest_id
         const decodedToken = jwtDecode(token);
 
-        // Check if the decoded token has a guest_id field
+        // Check if the decoded token has a guest_id field, this means the user is logged in as a guest
         if (decodedToken.guest_id) {
           setIsGuest(true); // Set guest state
+          setIsLoggedIn(true); // Consider the user logged in only if guest_id exists
           localStorage.setItem('guest_id', decodedToken.guest_id); // Store guest_id in localStorage
         } else {
           setIsGuest(false);
+          setIsLoggedIn(false); // Do not consider the user logged in if no guest_id is present
           localStorage.removeItem('guest_id'); // Ensure guest_id is removed if not a guest
         }
       } catch (error) {
         console.error('Error decoding token:', error);
         setIsGuest(false);
+        setIsLoggedIn(false);
         localStorage.removeItem('guest_id'); // Remove guest_id if decoding fails
       }
     } else {

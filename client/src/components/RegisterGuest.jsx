@@ -274,13 +274,7 @@ function RegisterGuest() {
                                             name="guest_email"
                                             placeholder="Enter your email"
                                             value={guest.guest_email}
-                                            onChange={(e) => {
-                                                const email = e.target.value;
-                                                const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Email regex pattern
-                                                if (email === '' || re.test(email)) {
-                                                    handleChange(e); // Allow the change only if it matches the regex
-                                                }
-                                            }}
+                                            onChange={handleChange}
                                             required
                                         />
                                     </div>

@@ -288,7 +288,7 @@ const AddStaffModal = ({ isOpen, toggleModal }) => {
                                     disabled={false} 
                                 />
 
-                                    {erroredFields.staff_password&& <p className="help is-danger">Please enter a valid password.</p>}
+                                    {erroredFields.staff_password&& <p className="help is-danger">Password must be at least 8 characters long.</p>}
                                 </div>
                             </div>
                         </div>

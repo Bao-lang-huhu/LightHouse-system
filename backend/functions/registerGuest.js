@@ -1,9 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
 const { supabase } = require('../supabaseClient');
 var bcrypt = require('bcryptjs');
-var admin = require("firebase-admin");
+const admin = require("firebase-admin");
 
-const serviceAccount = require('../config/lighthousehotel-firebase-adminsdk-vywmp-b70229e42b.json');
+const serviceAccount = require('../config/lighthousehotel-firebase-adminsdk-vywmp-daf0183ac3.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)

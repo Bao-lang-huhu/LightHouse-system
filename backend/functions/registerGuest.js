@@ -1,15 +1,12 @@
 const { v4: uuidv4 } = require('uuid');
 const { supabase } = require('../supabaseClient');
 var bcrypt = require('bcryptjs');
-const admin = require("firebase-admin");
+var admin = require("firebase-admin");
 
+const serviceAccount = require('../config/lighthousehotel-firebase-adminsdk-vywmp-daf0183ac3.json');
 
 admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-  })
+  credential: admin.credential.cert(serviceAccount)
 });
 
 // Register Guest Route with Firebase Authentication check

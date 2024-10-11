@@ -69,6 +69,11 @@ const registerGuest = async (req, res) => {
     } catch (err) {
         console.error('Registration error:', err);
 
+        // Log detailed error message
+        if (err.response) {
+            console.error("Error response data:", err.response.data);
+        }
+
         // Handle Firebase authentication errors
         if (err.code === 'auth/user-not-found') {
             return res.status(404).json({ error: "Invalid Firebase UID." });

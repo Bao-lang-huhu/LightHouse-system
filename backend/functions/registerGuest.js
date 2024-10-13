@@ -19,29 +19,37 @@ const registerGuest = async (req, res) => {
         firebase_uid // This comes from the frontend and will be validated
     } = req.body;
 
+    console.log("Received request body:", req.body); // Log the full request body
     console.log("Received firebase_uid:", firebase_uid);
     console.log("Received guest_email:", guest_email);
 
     const guest_id = uuidv4(); // Generate a unique guest ID
+    console.log("Generated guest_id:", guest_id);
 
     // Validate required fields
     if (!guest_fname || !guest_email || !guest_phone_no || !guest_password || !firebase_uid) {
+        console.error("Missing required fields");
         return res.status(400).json({ error: "Required fields are missing." });
     }
 
     try {
         // Validate the Firebase UID and email with Firebase Admin SDK
+        console.log("Validating Firebase UID and email...");
         const userRecord = await admin.auth().getUser(firebase_uid);
         console.log("Firebase user record:", userRecord);
 
         if (!userRecord || userRecord.email !== guest_email) {
+            console.error("Firebase UID or email mismatch.");
             return res.status(400).json({ error: "Firebase UID or email mismatch." });
         }
 
         // Hash the password before storing it
+        console.log("Hashing guest password...");
         const hashedPassword = await bcrypt.hash(guest_password, 10); // 10 is the salt rounds
+        console.log("Hashed password:", hashedPassword);
 
         // Insert the guest data into the Supabase 'GUEST' table
+        console.log("Inserting guest data into Supabase...");
         const { data, error } = await supabase
             .from('GUEST')
             .insert([{
@@ -64,6 +72,7 @@ const registerGuest = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
 
+        console.log("Guest successfully registered:", guest_email);
         // Return success response
         res.status(201).json({ message: "Guest registered successfully!", guest_email });
     } catch (err) {
@@ -86,4 +95,3 @@ const registerGuest = async (req, res) => {
 };
 
 module.exports = { registerGuest };
- 

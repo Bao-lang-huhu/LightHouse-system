@@ -27,7 +27,10 @@ app.get('/', (req, res) => {
 });
 
 app.use(cors({
-    origin: 'https://light-house-system-df35-front.vercel.app',
+    origin: [
+        'http://localhost:3000', // Allow requests from React frontend running on localhost:3000
+        'https://light-house-system-df35-front.vercel.app' // Also allow requests from production frontend
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -35,7 +38,14 @@ app.use(cors({
 
 // Handle preflight requests for all routes
 app.options('*', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://light-house-system-df35-front.vercel.app');
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'https://light-house-system-df35-front.vercel.app'
+    ];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');

@@ -9,6 +9,7 @@ import SuccessMsg from '../messages/successMsg';
 import axios from 'axios';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5'; // Icons for the "peek" button
 
+
 function RegisterGuest() {
     const [guest, setGuest] = useState({
         guest_fname: '',
@@ -28,6 +29,11 @@ function RegisterGuest() {
     const [isSubmitting, setIsSubmitting] = useState(false); // To disable the button during submission
     const [showPassword, setShowPassword] = useState(false); // For toggling password visibility
     const navigate = useNavigate(); // For redirection
+
+    // Base URL for API - dynamically set based on the environment
+    const apiBaseUrl = process.env.NODE_ENV === 'development'
+        ? 'http://localhost:3001'  // Local development
+        : 'https://light-house-system-h74t-server.vercel.app';  // Production
 
     const handleChange = (e) => {
         setGuest({ ...guest, [e.target.name]: e.target.value });
@@ -57,7 +63,7 @@ function RegisterGuest() {
             }
 
             // Send registration data along with Firebase UID to the backend
-            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerGuest', {
+            const response = await axios.post(`${apiBaseUrl}/api/registerGuest`, {
                 ...guest,
                 firebase_uid // Include Firebase UID
             });

@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 
+console.log("Private Key (masked):", process.env.FIREBASE_PRIVATE_KEY.substring(0, 50) + "...");
 console.log("Private Key Before Replace:", process.env.FIREBASE_PRIVATE_KEY);
 console.log("Private Key After Replace:", process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'));
 

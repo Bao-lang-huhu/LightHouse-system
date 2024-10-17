@@ -15,6 +15,7 @@ const eventsRoutes = require('./routes/eventsRoutes');
 const barRoutes = require('./routes/barRoutes');
 const verifyTokenRoute = require('./routes/token/verifyToken');
 const restaurantRoutes = require ('./routes/restaurantRoutes');
+const forecastRoute = require('./routes/forecastRoute');
 //counts for dashboard
 const getCountsDashboardManager = require('./routes/count/getCountsDashboardManager'); 
 
@@ -77,7 +78,7 @@ app.use('/api', verifyTokenRoute);
 app.use('/api', restaurantRoutes);
 
 app.use('/api', getCountsDashboardManager);
-
+app.use('/api', forecastRoute);
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

@@ -1,12 +1,11 @@
 const express = require('express');
-const cors = require('cors');
 const router = express.Router();
 const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
 
 // Supabase setup
 const supabaseUrl = "https://cayfvgjakympxwknatco.supabase.co";
-const supabaseKey = 'eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNheWZ2Z2pha3ltcHh3a25hdGNvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyMzc4MDI3MCwiZXhwIjoyMDM5MzU2MjcwfQ';  // Always use environment variables for sensitive data
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNheWZ2Z2pha3ltcHh3a25hdGNvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyMzc4MDI3MCwiZXhwIjoyMDM5MzU2MjcwfQ.Wr1jpEbcUhAhfoWz4bH2FYvlz8kIgIKEcDIK7mjGq78';  // Use environment variables for sensitive data
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const totalRooms = 20;

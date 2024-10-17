@@ -5,10 +5,13 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Supabase setup
 const supabaseUrl = "https://cayfvgjakympxwknatco.supabase.co";
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNheWZ2Z2pha3ltcHh3a25hdGNvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyMzc4MDI3MCwiZXhwIjoyMDM5MzU2MjcwfQ.Wr1jpEbcUhAhfoWz4bH2FYvlz8kIgIKEcDIK7mjGq78'; // Replace with your Supabase key
+const supabaseKey = process.env.SUPABASE_KEY;  // Ensure you're using environment variables for sensitive data
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const totalRooms = 100;
+
+// Get the Flask API URL from environment variables
+const flaskApiUrl = process.env.FLASK_API_URL || 'http://localhost:5000'; // Default to localhost
 
 router.post('/forecast-occupancy', async (req, res) => {
   try {
@@ -76,7 +79,7 @@ router.post('/forecast-occupancy', async (req, res) => {
     });
 
     // Step 6: Send the occupancy rate data to the Python Flask service for forecasting
-    const response = await axios.post('http://localhost:5000/forecast', occupancyRates); // Send to Flask
+    const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates);  // Use the dynamic URL
     console.log('Forecast Response:', response.data);
 
     // Step 7: Return the historical + forecasted data to frontend

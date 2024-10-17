@@ -11,7 +11,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const totalRooms = 100;
 
 // Get the Flask API URL from environment variables
-const flaskApiUrl = process.env.FLASK_API_URL || 'http://localhost:5000'; // Default to localhost
+const flaskApiUrl = process.env.FLASK_API_URL || 'https://light-house-system-h74t-server.vercel.app';
+
 
 router.post('/manager_forecast', async (req, res) => {
   try {

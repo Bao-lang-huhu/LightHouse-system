@@ -1,24 +1,16 @@
 const express = require('express');
+const cors = require('cors');
 const router = express.Router();
 const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
 
 // Supabase setup
 const supabaseUrl = "https://cayfvgjakympxwknatco.supabase.co";
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNheWZ2Z2pha3ltcHh3a25hdGNvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyMzc4MDI3MCwiZXhwIjoyMDM5MzU2MjcwfQ.Wr1jpEbcUhAhfoWz4bH2FYvlz8kIgIKEcDIK7mjGq78';  // Ensure you're using environment variables for sensitive data
+const supabaseKey = 'YOUR_SUPABASE_KEY';  // Always use environment variables for sensitive data
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-
-const app = express();
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json()); // Ensure JSON parsing
-
-
 const totalRooms = 20;
-
-// Get the Flask API URL from environment variables
 const flaskApiUrl = process.env.FLASK_API_URL || 'https://light-house-system-h74t-server.vercel.app';
-
 
 router.post('/manager_forecast', async (req, res) => {
   try {

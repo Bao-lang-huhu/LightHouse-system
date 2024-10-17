@@ -4,7 +4,7 @@ from prophet import Prophet
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, origins=["https://light-house-system-df35-front.vercel.app"])
+CORS(app, resources={r"/*": {"origins": "*"}}) # Ensure this line is in your Flask app
 
 @app.route('/forecast', methods=['POST'])
 def forecast():

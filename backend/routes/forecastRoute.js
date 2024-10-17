@@ -13,7 +13,7 @@ const totalRooms = 100;
 // Get the Flask API URL from environment variables
 const flaskApiUrl = process.env.FLASK_API_URL || 'http://localhost:5000'; // Default to localhost
 
-router.post('/forecast-occupancy', async (req, res) => {
+router.post('/manager_forecast', async (req, res) => {
   try {
     // Step 1: Fetch the latest room_check_in_date from ROOM_RESERVATION
     const { data: latestReservation, error: latestError } = await supabase

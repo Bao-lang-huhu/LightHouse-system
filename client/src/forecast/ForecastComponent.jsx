@@ -11,7 +11,7 @@ const ForecastComponent = () => {
   // Function to fetch data from the backend
   const fetchForecastData = async () => {
     try {
-      const response = await axios.post('/api/forecast-occupancy');  // Call your backend API route
+      const response = await axios.post('/api/manager_forecast');  // Call your backend API route
       const data = response.data;
 
 /*

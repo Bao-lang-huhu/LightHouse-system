@@ -70,6 +70,7 @@ import BProceedBarOrder from "./bar_pages/B_ProceedBar";
 import FCheckInTable from "./frontdesk_pages/F_CheckIn";
 
 import ForecastComponent from "./forecast/ForecastComponent";
+import MEventForecastComponent from "./forecast/M_EventForecastPage";
 
 function App() {
   return (
@@ -120,6 +121,7 @@ function App() {
         <Route path = "/manager_report_room_occupancy_rate" element ={<MReportRoomOccupancy/>}/>
         <Route path = "/manager_report_forecasting" element ={<MReportForecasting/>}/>
         <Route path = "/manager_forecast" element ={<MForecast/>}/>
+        <Route path = "/manager_event_forecast" element ={<MEventForecastComponent/>}/>
 
         <Route path = "/frontdesk_dashboard" element ={<FDashboard/>}/>
         <Route path = "/frontdesk_home" element ={<FHome/>}/>

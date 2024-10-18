@@ -11,7 +11,7 @@ const ForecastComponent = () => {
   // Function to fetch data from the backend
   const fetchForecastData = async () => {
     try {
-      const response = await axios.post('https://light-house-system-h74t-server.vercel.app/manager_forecast');
+      const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/manager_forecast');
   // Use the correct backend URL
 
       const data = response.data;

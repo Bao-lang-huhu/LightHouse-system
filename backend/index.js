@@ -38,18 +38,6 @@ app.use(cors({
 }));
 
 // Handle preflight requests for all routes
-app.options('*', cors({
-    origin: [
-        'http://localhost:3000',
-        'https://light-house-system-df35-front.vercel.app'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
-}));
-
-
-// Handle preflight requests for all routes
 app.options('*', (req, res) => {
     const allowedOrigins = [
         'http://localhost:3000',

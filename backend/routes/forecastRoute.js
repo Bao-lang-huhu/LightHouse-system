@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { supabase } = require('../supabaseClient'); // Ensure this path matches your file structure
-require('dotenv').config(); // Load environment variables
 
 const totalRooms = 20;
 const flaskApiUrl = process.env.FLASK_API_URL || 'https://light-house-system-h74t-server.vercel.app';
@@ -70,30 +69,26 @@ router.post('/manager_forecast', async (req, res) => {
       const daysInMonth = new Date(parseInt(month.split('-')[0]), parseInt(month.split('-')[1]), 0).getDate();
       const occupancyRate = (roomsOccupied / (totalRooms * daysInMonth)) * 100;
       return {
-        ds: `${month}-01`,  // Prophet expects 'ds' as the date in YYYY-MM-DD format
+        ds: `${month}-01`,
         y: occupancyRate,
-        isHistorical: true // Mark this data as historical
+        isHistorical: true
       };
     });
 
     // Step 6: Send the occupancy rate data to the Python Flask service for forecasting
     try {
-      const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates);  // Use the dynamic URL
+      const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates);
       console.log('Forecast Response:', response.data);
 
-      // Step 7: Return the historical + forecasted data to frontend
       res.json([...occupancyRates, ...response.data]);
     } catch (axiosError) {
       if (axiosError.response) {
-        // Request made and server responded
         console.error('Response error:', axiosError.response.data);
         console.error('Status:', axiosError.response.status);
         console.error('Headers:', axiosError.response.headers);
       } else if (axiosError.request) {
-        // Request made but no response received
         console.error('No response received:', axiosError.request);
       } else {
-        // Something happened in setting up the request that triggered an Error
         console.error('Axios Error:', axiosError.message);
       }
       res.status(500).json({ error: 'Failed to fetch forecast' });

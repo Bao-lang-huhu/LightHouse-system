@@ -11,25 +11,17 @@ const ForecastComponent = () => {
   // Function to fetch data from the backend
   const fetchForecastData = async () => {
     try {
-      const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/manager_forecast');
-  // Use the correct backend URL
+      // Switch between local and production backend URL
+      const baseUrl = process.env.NODE_ENV === 'development' 
+          ? 'http://localhost:3001' // for local development
+          : 'https://light-house-system-h74t-server.vercel.app'; // for production
 
+      const response = await axios.post(`${baseUrl}/api/manager_forecast`);
       const data = response.data;
 
-/*
-const currentDate = new Date();
-// Calculate the date from 5 months ago
-const fiveMonthsAgo = new Date();
-fiveMonthsAgo.setMonth(currentDate.getMonth() - 5);
-
-// Filter the data based on the last 5 months
-const historical = data.filter(item => new Date(item.ds) >= fiveMonthsAgo && new Date(item.ds) < currentDate);
-const forecasted = data.filter(item => new Date(item.ds) >= currentDate);
-*/
-
       // Separate historical and forecasted data
-      const historical = data.filter(item => new Date(item.ds) < new Date('2025-01-01'));  // Historical data
-      const forecasted = data.filter(item => new Date(item.ds) >= new Date('2025-01-01'));  // Forecasted data
+      const historical = data.filter(item => new Date(item.ds) < new Date('2025-01-01')); // Historical data
+      const forecasted = data.filter(item => new Date(item.ds) >= new Date('2025-01-01')); // Forecasted data
 
       // Sort historical and forecasted data by date
       const sortedHistorical = historical.sort((a, b) => new Date(a.ds) - new Date(b.ds));
@@ -58,7 +50,6 @@ const forecasted = data.filter(item => new Date(item.ds) >= currentDate);
       <ResponsiveContainer width={700} height={400}>
         <LineChart>
           <CartesianGrid strokeDasharray="3 3" />
-          {/* Format XAxis to show months */}
           <XAxis
             dataKey="ds"
             type="number"
@@ -66,11 +57,9 @@ const forecasted = data.filter(item => new Date(item.ds) >= currentDate);
             tickFormatter={(tick) => new Date(tick).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
             scale="time"
           />
-          <YAxis
-            tickFormatter={(value) => `${value}%`}  // Add percent symbol to Y-axis labels
-          />
+          <YAxis tickFormatter={(value) => `${value}%`} />
           <Tooltip
-            formatter={(value) => `${value}%`}  // Add percent symbol to tooltip values
+            formatter={(value) => `${value}%`}
             labelFormatter={(label) => new Date(label).toLocaleDateString('en-GB')}
             content={({ payload }) => {
               if (payload && payload.length) {
@@ -90,8 +79,6 @@ const forecasted = data.filter(item => new Date(item.ds) >= currentDate);
             }}
           />
           <Legend />
-
-          {/* Historical Data Line */}
           <Line
             data={historyData.map(item => ({ ...item, ds: new Date(item.ds).getTime(), isForecast: false }))}
             type="monotone"
@@ -100,41 +87,18 @@ const forecasted = data.filter(item => new Date(item.ds) >= currentDate);
             stroke="#8884d8"
             activeDot={{ r: 8 }}
           />
-          
-          {/* Forecasted Data Line */}
           <Line
             data={forecastData.map(item => ({ ...item, ds: new Date(item.ds).getTime(), isForecast: true }))}
             type="monotone"
             dataKey="yhat"
             name="Forecasted Data"
             stroke="#82ca9d"
-            strokeDasharray="5 5"  // Dashed line for forecast
+            strokeDasharray="5 5"
             activeDot={{ r: 8 }}
-            dot={false}  // Disable dot for forecast start to keep it clean
+            dot={false}
           />
         </LineChart>
       </ResponsiveContainer>
-
-      {/* Table to display the data */}
-      <h2>Data Table</h2>
-      <table style={{ width: '700px', margin: '20px 0', border: '1px solid #ddd', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Date</th>
-            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Occupancy Rate (%)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...historyData, ...forecastData].map((item, index) => (
-            <tr key={index}>
-              <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                {new Date(item.ds).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
-              </td>
-              <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.yhat ? `${item.yhat}%` : `${item.y}%`}</td> {/* Add percent symbol to table */}
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 };

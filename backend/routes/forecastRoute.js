@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { supabase } = require('../supabaseClient'); // Ensure this path matches your file structure
+require('dotenv').config(); // Load environment variables
 
 const totalRooms = 20;
 const flaskApiUrl = process.env.FLASK_API_URL || 'https://light-house-system-h74t-server.vercel.app';
@@ -16,7 +17,8 @@ router.post('/manager_forecast', async (req, res) => {
       .limit(1);
 
     if (latestError) {
-      throw new Error(`Supabase ROOM_RESERVATION error: ${latestError.message}`);
+      console.error('Supabase ROOM_RESERVATION error:', latestError.message);
+      return res.status(500).json({ error: `Supabase ROOM_RESERVATION error: ${latestError.message}` });
     }
 
     if (!latestReservation || latestReservation.length === 0) {
@@ -36,7 +38,8 @@ router.post('/manager_forecast', async (req, res) => {
       .gt('room_check_in_date', fiveMonthsAgo.toISOString());
 
     if (reservationError) {
-      throw new Error(`Supabase ROOM_RESERVATION error: ${reservationError.message}`);
+      console.error('Supabase ROOM_RESERVATION error:', reservationError.message);
+      return res.status(500).json({ error: `Supabase ROOM_RESERVATION error: ${reservationError.message}` });
     }
 
     // Step 4: Calculate the number of days each guest stayed

@@ -37,7 +37,7 @@ import MReportMenuOp from "./manager_pages/M_ReportMenuOp";
 import MReportForecasting from "./manager_pages/M_ReportForecasting";
 import MReportRoomOccupancy from "./manager_pages/M_ReportRoomOccupancy";
 import MForecast from "./forecast/M_FocastPage";
-
+import MSales from "./forecast/M_Sales";
 import FDashboard from "./frontdesk_pages/F_Dashboard";
 import FHome from "./frontdesk_pages/F_Home";
 import FRoomWalkIn from "./frontdesk_pages/F_RoomWalkIn";
@@ -122,6 +122,8 @@ function App() {
         <Route path = "/manager_report_forecasting" element ={<MReportForecasting/>}/>
         <Route path = "/manager_forecast" element ={<MForecast/>}/>
         <Route path = "/manager_event_forecast" element ={<MEventForecastComponent/>}/>
+        <Route path = "/manager_sales" element ={<MSales/>}/>
+
 
         <Route path = "/frontdesk_dashboard" element ={<FDashboard/>}/>
         <Route path = "/frontdesk_home" element ={<FHome/>}/>

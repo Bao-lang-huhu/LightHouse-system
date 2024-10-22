@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { supabase } = require('../supabaseClient'); // Ensure this path matches your file structure
-require('dotenv').config(); // Load environment variables
-  
+const { supabase } = require('../supabaseClient');
+require('dotenv').config();
+
 const totalRooms = 20;
-const flaskApiUrl = 'https://chic-endurance-production.up.railway.app'; //'https://lighthouse-flask-app-production.up.railway.app/forecast' || 
+const flaskApiUrl = 'https://chic-endurance-production.up.railway.app';
 
 router.post('/manager_forecast', async (req, res) => {
   try {
@@ -26,8 +26,6 @@ router.post('/manager_forecast', async (req, res) => {
     }
 
     const latestDate = new Date(latestReservation[0].room_check_in_date);
-
-    // Step 2: Calculate the date from five months ago
     const fiveMonthsAgo = new Date(latestDate);
     fiveMonthsAgo.setMonth(latestDate.getMonth() - 5);
 
@@ -42,7 +40,6 @@ router.post('/manager_forecast', async (req, res) => {
       return res.status(500).json({ error: `Supabase ROOM_RESERVATION error: ${reservationError.message}` });
     }
 
-    // Step 4: Calculate the number of days each guest stayed
     const dailyOccupancy = {};
     reservationsData.forEach(reservation => {
       const checkInDate = new Date(reservation.room_check_in_date);
@@ -54,7 +51,6 @@ router.post('/manager_forecast', async (req, res) => {
       }
     });
 
-    // Step 5: Aggregate the data by month and calculate the occupancy rate
     const monthlyOccupancy = {};
     Object.keys(dailyOccupancy).forEach(dateStr => {
       const date = new Date(dateStr);
@@ -67,7 +63,6 @@ router.post('/manager_forecast', async (req, res) => {
       monthlyOccupancy[monthYear] += dailyOccupancy[dateStr];
     });
 
-    // Calculate the occupancy rate per month
     const occupancyRates = Object.entries(monthlyOccupancy).map(([month, roomsOccupied]) => {
       const daysInMonth = new Date(parseInt(month.split('-')[0]), parseInt(month.split('-')[1]), 0).getDate();
       const occupancyRate = (roomsOccupied / (totalRooms * daysInMonth)) * 100;
@@ -78,22 +73,19 @@ router.post('/manager_forecast', async (req, res) => {
       };
     });
 
-    // Step 6: Send the occupancy rate data to the Python Flask service for forecasting
     try {
       const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates);
-      console.log('Forecast Response:', response.data);
+      const forecastedData = response.data.map(forecast => ({
+        ...forecast,
+        y: forecast.yhat,  // Ensure `y` is consistent
+        isHistorical: false // Set forecasted data flag
+      }));
 
-      res.json([...occupancyRates, ...response.data]);
+      console.log('Forecast Response:', forecastedData);
+
+      res.json([...occupancyRates, ...forecastedData]);
     } catch (axiosError) {
-      if (axiosError.response) {
-        console.error('Response error:', axiosError.response.data);
-        console.error('Status:', axiosError.response.status);
-        console.error('Headers:', axiosError.response.headers);
-      } else if (axiosError.request) {
-        console.error('No response received:', axiosError.request);
-      } else {
-        console.error('Axios Error:', axiosError.message);
-      }
+      console.error('Failed to fetch forecast:', axiosError.message);
       res.status(500).json({ error: 'Failed to fetch forecast' });
     }
   } catch (error) {

@@ -3,9 +3,9 @@ const router = express.Router();
 const axios = require('axios');
 const { supabase } = require('../supabaseClient'); // Ensure this path matches your file structure
 require('dotenv').config(); // Load environment variables
-
+  
 const totalRooms = 20;
-const flaskApiUrl = process.env.FLASK_API_URL || 'https://light-house-system-h74t-server.vercel.app';
+const flaskApiUrl = 'https://chic-endurance-production.up.railway.app'; //'https://lighthouse-flask-app-production.up.railway.app/forecast' || 
 
 router.post('/manager_forecast', async (req, res) => {
   try {

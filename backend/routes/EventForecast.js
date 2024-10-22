@@ -8,7 +8,7 @@ const supabaseUrl = "https://cayfvgjakympxwknatco.supabase.co";
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNheWZ2Z2pha3ltcHh3a25hdGNvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyMzc4MDI3MCwiZXhwIjoyMDM5MzU2MjcwfQ.Wr1jpEbcUhAhfoWz4bH2FYvlz8kIgIKEcDIK7mjGq78';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const flaskApiUrl = process.env.FLASK_API_URL || 'http://localhost:5000';
+const flaskApiUrl = 'https://chic-endurance-production.up.railway.app';
 
 router.post('/event_forecast', async (req, res) => {
   console.log("Received request for event forecasting");

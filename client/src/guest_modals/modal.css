@@ -1,0 +1,9 @@
+.fonting-p{
+    font-size: 1.5rem;
+}
+
+.is-inverted-blue-back{
+    background-color:#C7F5FF;
+    color: #000000 !important;
+    border: 1px solid #fff ; 
+}

@@ -15,9 +15,9 @@ const eventsRoutes = require('./routes/eventsRoutes');
 const barRoutes = require('./routes/barRoutes');
 const verifyTokenRoute = require('./routes/token/verifyToken');
 const restaurantRoutes = require ('./routes/restaurantRoutes');
-//counts for dashboard
 const getCountsDashboardManager = require('./routes/count/getCountsDashboardManager'); 
-
+const counts = require('./routes/count/counts');
+const roomForecast = require('./routes/roomForecast');
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -27,7 +27,10 @@ app.get('/', (req, res) => {
 });
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: [
+        'http://localhost:3000',
+        'https://light-house-system-df35-front.vercel.app' // Also allow requests from production frontend
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -35,7 +38,14 @@ app.use(cors({
 
 // Handle preflight requests for all routes
 app.options('*', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'https://light-house-system-df35-front.vercel.app'
+    ];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -67,7 +77,9 @@ app.use('/api', verifyTokenRoute);
 app.use('/api', restaurantRoutes);
 
 app.use('/api', getCountsDashboardManager);
+app.use('/api', counts);
 
+app.use('/api', roomForecast);
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

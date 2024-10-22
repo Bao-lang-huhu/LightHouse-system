@@ -5,7 +5,7 @@ import 'bulma/css/bulma.min.css';
 import './layouts.css';
 import '../App.css';
 
-const SidebarManager = () => {
+const SidebarManager2 = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -101,4 +101,4 @@ const SidebarManager = () => {
   );
 };
 
-export default SidebarManager;
+export default SidebarManager2;

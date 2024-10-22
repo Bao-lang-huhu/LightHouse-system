@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';    
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios'; 
 import 'bulma/css/bulma.min.css';
 import './pages.css';
 import home_hero from '../images/hero.png';
 import { Carousel } from 'react-responsive-carousel';
+import { Card, CardMedia, CardContent, Typography } from '@mui/material';
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; 
 import DatePicker from 'react-datepicker'; // Import the date picker component
 import 'react-datepicker/dist/react-datepicker.css';  // Import the CSS for the date picker
@@ -109,7 +110,7 @@ const Home = () => {
                                     selected={checkInDate}
                                     onChange={(date) => {
                                         setCheckInDate(date);
-                                        setCheckOutDate(null);  // Clear check-out date when check-in changes
+                                        setCheckOutDate(null);  
                                     }}
                                     minDate={today}
                                     maxDate={twoMonthsFromToday}
@@ -172,7 +173,7 @@ const Home = () => {
                             </div>
                         </div>
                         {/* Date Error Message */}
-                        {dateError && <p className="label has-text-centered" style={{color:"red"}}>{dateError}</p>}
+                        {dateError && <p className="label has-text-centered has-text-danger" >*{dateError}</p>}
 
                     </div>
 
@@ -188,7 +189,8 @@ const Home = () => {
 
                 </div>
             </div>
-            <div className="property-views-container">
+
+            <div className="property-views-container section-m2">
                 <h4><strong>Rooms</strong></h4>
                 <h3>LightHouse Point Hotel offers a variety of rooms.</h3>
 
@@ -198,28 +200,54 @@ const Home = () => {
                     showThumbs={false} 
                     showStatus={false}
                     dynamicHeight={false} 
+                    centerMode
+                    centerSlidePercentage={33}
                 >
                     {roomPhotos.map((room, index) => {
-                        const roomDetails = room.ROOM || {}; 
-                        return (
-                            <div key={index} className="carousel-item">
-                                <img 
-                                    src={room.room_photo_url || 'https://via.placeholder.com/300'} 
-                                    alt={`Room ${roomDetails.room_type_name || ''}`} 
-                                    className="carousel-image"
-                                    style={{ maxWidth: '100%', height: 'auto' }}
+                    const roomDetails = room.ROOM || {}; 
+                    return (
+                        <div key={index} className="carousel-item" style={{ padding: '10px' }}>
+                            <Card 
+                                sx={{ 
+                                    maxWidth: 300, 
+                                    margin: 'auto', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    justifyContent: 'center', 
+                                    alignItems: 'center' 
+                                }}
+                            >
+                                <CardMedia
+                                    component="img"
+                                    image={room.room_photo_url || 'https://via.placeholder.com/300'}
+                                    alt={`Room ${roomDetails.room_type_name || ''}`}
+                                    style={{ height: '300px', width: 'auto' }}
                                 />
-                                <div className="legend" style={{background:"#99DCEB", opacity:"1"}}>
-                                    <h2 className='label'>{`${roomDetails.room_type_name || 'N/A'}`}</h2>
-                                    <p className='label'>{`Room Number: ${roomDetails.room_number || 'N/A'}`}</p>
-                                </div>
-                            </div>
-                        );
-                    })}
+                                <CardContent 
+                                    style={{ 
+                                        backgroundColor: "#99DCEB", 
+                                        opacity: "0.9", 
+                                        textAlign: 'center' 
+                                    }}
+                                >
+                                    <Typography variant="h4" className='label'>
+                                        {roomDetails.room_type_name || 'N/A'}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    );
+                })}
                 </Carousel>
+                <div>
+                    <Link to="/virtual_tour">
+                    <button className='button is-blue is-fullwidth'>
+                        Take a Tour to our Rooms 
+                    </button></Link>
+                </div>
             </div>
 
-            <div className="property-views-container">
+            <div className="property-views-container section-m2">
                 <h4><strong>Captain Galley's Menu Items</strong></h4>
                 <h3>LightHouse Point Hotel offers a variety of delicious dishes.</h3>
 
@@ -233,21 +261,45 @@ const Home = () => {
                     centerSlidePercentage={33}
                 >
                     {foodPhotos.map((food, index) => (
-                        <div key={index} className="carousel-item">
-                            <img
-                                src={food.food_photo || 'https://via.placeholder.com/300'}
-                                alt={`Food Item: ${food.food_name}`}
-                                className="carousel-image"
-                                style={{ maxWidth: '100%', height: 'auto' }}
+                      
+                        <div key={index} className="carousel-item" style={{ padding: '10px' }}>
+                        <Card 
+                            sx={{ 
+                                maxWidth: 300, 
+                                margin: 'auto', 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                justifyContent: 'center', 
+                                alignItems: 'center' 
+                            }}
+                        >
+                            <CardMedia
+                                component="img"
+                                image={food.food_photo || 'https://via.placeholder.com/300'}
+                                alt={`Food Item:${ food.food_name || ' '}`}
+                                style={{ height: '300px', width: 'auto' }}
                             />
-                            <div className="legend" style={{ background: "#99DCEB", opacity: "1" }}>
-                                <h4 className='label'>{food.food_name || 'N/A'}</h4>
-                                <p className='label'>{`Price: ₱${food.food_final_price || 'N/A'}`}</p>
-                            </div>
+                            <CardContent 
+                                style={{ 
+                                    backgroundColor: "#99DCEB", 
+                                    opacity: "0.9", 
+                                    textAlign: 'center' 
+                                }}
+                            >
+                                <Typography variant="h4" className='label'>
+                                    {food.food_name || 'No Food'}- {`Price: ₱${food.food_final_price || 'No Price'}`}
+                                </Typography>
+                            </CardContent>
+                        </Card>
                         </div>
                     ))}
                 </Carousel>
+              
             </div>
+
+         
+
+
         </section>
     );
 };

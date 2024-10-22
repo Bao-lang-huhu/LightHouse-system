@@ -10,15 +10,15 @@ import SuccessMsg from '../messages/successMsg'; // Import Success Message Compo
 
 const ConciergeManager = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [conciergeList, setConciergeList] = useState([]); // State to store concierge data
+    const [conciergeList, setConciergeList] = useState([]); 
     const [selectedConcierge, setSelectedConcierge] = useState(null); // State for the selected concierge
-    const [searchTerm, setSearchTerm] = useState(''); // State for search term
+    const [searchTerm, setSearchTerm] = useState(''); 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isArchiving, setIsArchiving] = useState(false);
 
     // Fetch concierge data on component mount
-    useEffect(() => {
+    
         const fetchConciergeData = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/getConcierge'); // Replace with your API endpoint
@@ -30,8 +30,13 @@ const ConciergeManager = () => {
             }
         };
 
-        fetchConciergeData();
-    }, []);
+        const refreshConciergeList = () => {
+            fetchConciergeData(); 
+        };
+    
+        useEffect(() => {
+            fetchConciergeData();
+        }, []);
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -244,10 +249,19 @@ const ConciergeManager = () => {
                                                         type="text"
                                                         name="concierge_supplier"
                                                         value={selectedConcierge.concierge_supplier}
-                                                        onChange={handleDetailChange}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+
+                                                            // Only allow letters and spaces
+                                                            const cleanedValue = value.replace(/[^a-zA-Z\s]/g, '');
+
+                                                            // Update state with cleaned value
+                                                            handleDetailChange({ target: { name: 'concierge_supplier', value: cleanedValue } });
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
+
 
                                             <div className="field">
                                                 <label className="label">Concierge Supplier Contact Number</label>
@@ -257,10 +271,19 @@ const ConciergeManager = () => {
                                                         type="text"
                                                         name="concierge_phone_no"
                                                         value={selectedConcierge.concierge_phone_no}
-                                                        onChange={handleDetailChange}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+
+                                                            // Allow only digits (0-9), remove everything else
+                                                            const cleanedValue = value.replace(/[^0-9]/g, '');
+
+                                                            // Update state with cleaned value
+                                                            handleDetailChange({ target: { name: 'concierge_phone_no', value: cleanedValue } });
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -316,14 +339,47 @@ const ConciergeManager = () => {
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">Concierge Duration</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="text"
-                                                            name="concierge_duration"
-                                                            value={selectedConcierge.concierge_duration}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <div className="control is-flex is-align-items-center">
+                                                        {/* Decrease Button */}
+                                                        <button
+                                                            className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedConcierge.concierge_duration > 1) {
+                                                                    handleDetailChange({
+                                                                        target: {
+                                                                            name: 'concierge_duration',
+                                                                            value: selectedConcierge.concierge_duration - 1,
+                                                                        },
+                                                                    });
+                                                                }
+                                                            }}
+                                                            disabled={selectedConcierge.concierge_duration <= 1}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        {/* Display Current Duration */}
+                                                        <span className="button is-static">
+                                                            {selectedConcierge.concierge_duration} {selectedConcierge.concierge_duration === 1 ? 'hour' : 'hours'}
+                                                        </span>
+
+                                                        {/* Increase Button */}
+                                                        <button
+                                                            className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedConcierge.concierge_duration < 24) {
+                                                                    handleDetailChange({
+                                                                        target: {
+                                                                            name: 'concierge_duration',
+                                                                            value: selectedConcierge.concierge_duration + 1,
+                                                                        },
+                                                                    });
+                                                                }
+                                                            }}
+                                                            disabled={selectedConcierge.concierge_duration >= 24}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -333,11 +389,41 @@ const ConciergeManager = () => {
                                                     <label className="label">Concierge Final Price</label>
                                                     <div className="control">
                                                         <input
-                                                            className="input"
+                                                            className={`input`}
                                                             type="number"
                                                             name="concierge_type_price"
                                                             value={selectedConcierge.concierge_type_price}
-                                                            onChange={handleDetailChange}
+                                                            min="1" // Set the minimum value to 1
+                                                            onChange={(e) => {
+                                                                let value = e.target.value;
+
+                                                                // Prevent negative input and input starting with '0'
+                                                                if (value >= 0 && !/^0/.test(value)) {
+                                                                    setSelectedConcierge((prev) => {
+                                                                        const newPrice = parseFloat(value);
+                                                                        return {
+                                                                            ...prev,
+                                                                            concierge_type_price: newPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            onBlur={() => {
+                                                                // Ensure the value is at least 1
+                                                                const value = parseFloat(selectedConcierge.concierge_type_price);
+                                                                if (isNaN(value) || value < 1) {
+                                                                    setSelectedConcierge((prev) => ({
+                                                                        ...prev,
+                                                                        concierge_type_price: 1,
+                                                                    }));
+                                                                } else {
+                                                                    setSelectedConcierge((prev) => ({
+                                                                        ...prev,
+                                                                        concierge_type_price: value,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
@@ -414,7 +500,7 @@ const ConciergeManager = () => {
                 </div>
 
                 {/* Add the modal component */}
-                <AddConciergeModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddConciergeModal isOpen={isModalOpen} toggleModal={toggleModal} refreshConciergeList={refreshConciergeList}/>
             </div>
         </section>
     );

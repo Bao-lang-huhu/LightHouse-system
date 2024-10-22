@@ -5,7 +5,9 @@ import './components_r.css';
 import { IconButton, TextField } from '@mui/material';
 import { IoRemoveOutline, IoAddOutline, IoTrashBinOutline, IoPencil } from 'react-icons/io5';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
+import Avatar from '@mui/material/Avatar';
 
 const OrderRestaurant = () => {
   const [foodItems, setFoodItems] = useState([]);
@@ -17,17 +19,24 @@ const OrderRestaurant = () => {
   const [notes, setNotes] = useState('');
   const [showError, setShowError] = useState(false); 
   const navigate = useNavigate(); 
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchFoodItems = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await axios.get('http://localhost:3001/api/getFoodItems');
-        setFoodItems(response.data);
-        setFilteredFoodItems(response.data);
+        const nonEventFoodItems = response.data.filter(item => item.food_service_category !== 'EVENT');
+    
+        setFoodItems(nonEventFoodItems);
+        setFilteredFoodItems(nonEventFoodItems);
       } catch (error) {
         console.error('Error fetching food items:', error);
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
+
     fetchFoodItems();
 
     // Check if there are saved orders in localStorage
@@ -148,27 +157,35 @@ const OrderRestaurant = () => {
             <div className="column is-8">
               <h1 className="subtitle">Food Menu</h1>
               <div className="columns is-multiline" style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
-                {filteredFoodItems.map((item) => (
-                  <div className="column is-fullwidth-mobile is-8-tablet is-4-desktop" key={item.food_id}>
-                    <div className="box">
-                      <div className="card-image">
-                        <figure className="image is-4by3" style={{ width: "100%", height: '30%' }}>
-                          <img src={item.food_photo} alt={item.food_name} />
-                        </figure>
-                      </div>
-                      <div className="card-content">
-                        <p className="title is-6">{item.food_name}</p>
-                        <p className="subtitle is-7">₱{item.food_price.toFixed(2)}</p>
-                        <button 
-                          className="button is-small is-blue is-fullwidth" 
-                          onClick={() => handleAddFoodItem(item)}
-                        >
-                          <IoAddOutline /> Add
-                        </button>
+                {loading ? (
+                  // Show ClipLoader when loading
+                  <div className="has-text-centered" style={{ width: '100%' }}>
+                    <ClipLoader color="blue" size={50} />
+                  </div>
+                ) : (
+                  // Render food items once loaded
+                  filteredFoodItems.map((item) => (
+                    <div className="column is-fullwidth-mobile is-8-tablet is-4-desktop" key={item.food_id}>
+                      <div className="box">
+                        <div className="card-image">
+                          <figure className="image is-4by3" style={{ width: "100%", height: '30%' }}>
+                            <img src={item.food_photo} alt={item.food_name} />
+                          </figure>
+                        </div>
+                        <div className="card-content">
+                          <p className="title is-6">{item.food_name}</p>
+                          <p className="subtitle is-7">₱{item.food_price.toFixed(2)}</p>
+                          <button
+                            className="button is-small is-blue is-fullwidth"
+                            onClick={() => handleAddFoodItem(item)}
+                          >
+                            <IoAddOutline /> Add
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -207,9 +224,18 @@ const OrderRestaurant = () => {
                     {foodOrders.map((item) => (
                       <tr key={item.food_id}>
                         <td>
-                          <figure className="image is-64x64">
-                            <img src={item.food_photo} alt={item.food_name} />
-                          </figure>
+                        <Avatar
+                          src={item.food_photo || 'https://via.placeholder.com/64'}
+                          alt={item.food_name}
+                          style={{
+                            width: 64,
+                            height: 64,
+                            margin: 'auto',
+                            objectFit: 'cover',
+                            borderRadius: '8px'
+                          }}
+                          imgProps={{ style: { objectFit: 'cover' } }}
+                        />
                         </td>
                         <td>{item.food_name}</td>
                         <td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
@@ -217,15 +243,15 @@ const OrderRestaurant = () => {
                             <IconButton className='button is-blue' onClick={() => handleQuantityChange(item.food_id, -1)}>
                               <IoRemoveOutline />
                             </IconButton>
-                            <TextField 
-                              type="number"  
-                              value={item.quantity}
-                              InputProps={{
-                                readOnly: true,
-                                style: { textAlign: 'center' }
-                              }} 
-                              style={{ width: '60px' }} 
-                            />
+                                <TextField 
+                                  type="number"  
+                                  value={item.quantity}
+                                  InputProps={{
+                                    readOnly: true,
+                                    style: { textAlign: 'center' }
+                                  }} 
+                                  style={{ width: '60px' }} 
+                                />
                             <IconButton className='button is-blue' onClick={() => handleQuantityChange(item.food_id, 1)} >
                               <IoAddOutline />
                             </IconButton>

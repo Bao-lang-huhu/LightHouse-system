@@ -17,8 +17,6 @@ const LaundryManager = () => {
     const [success, setSuccess] = useState(''); // State for success messages
     const [isArchiving, setIsArchiving] = useState(false); // State for archive confirmation
 
-    // Fetch laundry data on component mount
-    useEffect(() => {
         const fetchLaundry = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/getLaundry'); // Replace with your API endpoint
@@ -29,7 +27,13 @@ const LaundryManager = () => {
             }
         };
 
+
+    const refreshLaundryList = () => {
         fetchLaundry(); 
+    };
+
+    useEffect(() => {
+        fetchLaundry();
     }, []);
 
     const toggleModal = () => {
@@ -219,18 +223,54 @@ const LaundryManager = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="field">
-                                                <label className="label">Laundry Price</label>
-                                                <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        name="laundry_ironing_price"
-                                                        value={selectedLaundry.laundry_ironing_price}
-                                                        onChange={handleDetailChange}
-                                                    />
-                                                </div>
+
+                                        <div className="field">
+                                            <label className="label">Laundry Price</label>
+                                            <div className="control">
+                                                <input
+                                                    className="input"
+                                                    type="text" // Using text for better control
+                                                    name="laundry_ironing_price"
+                                                    value={selectedLaundry.laundry_ironing_price}
+                                                    onChange={(e) => {
+                                                        let value = e.target.value;
+
+                                                        // Allow only digits (0-9), prevent symbols, negative signs, and leading zeros
+                                                        if (/^\d*$/.test(value)) { // Allow only digits (including empty string temporarily)
+                                                            if (value === "" || parseInt(value, 10) > 0) { // Allow editing but prevent leading zeros
+                                                                handleDetailChange({
+                                                                    target: {
+                                                                        name: 'laundry_ironing_price',
+                                                                        value, // Keep the input as is for now
+                                                                    },
+                                                                });
+                                                            }
+                                                        }
+                                                    }}
+                                                    onBlur={() => {
+                                                        // Ensure the value is at least 1 when the user leaves the input field
+                                                        let value = parseInt(selectedLaundry.laundry_ironing_price, 10);
+                                                        if (isNaN(value) || value < 1) {
+                                                            handleDetailChange({
+                                                                target: {
+                                                                    name: 'laundry_ironing_price',
+                                                                    value: 1, // Default to 1 if invalid or empty
+                                                                },
+                                                            });
+                                                        } else {
+                                                            handleDetailChange({
+                                                                target: {
+                                                                    name: 'laundry_ironing_price',
+                                                                    value: value.toString(), // Store the valid number as a string
+                                                                },
+                                                            });
+                                                        }
+                                                    }}
+                                                    required
+                                                />
                                             </div>
+                                        </div>
+
                                         </div>
                                     </div>
                                     {/* Second Column */}
@@ -310,7 +350,7 @@ const LaundryManager = () => {
                 </div>
 
                 {/* Add the modal component */}
-                <AddLaundryModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddLaundryModal isOpen={isModalOpen} toggleModal={toggleModal} refreshLaundryList={refreshLaundryList}/>
             </div>
         </section>
     );

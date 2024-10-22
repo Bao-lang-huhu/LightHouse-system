@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bulma/css/bulma.min.css';
 import '../App.css';
 import './components_m.css';
-import { IoAdd, IoPerson, IoSearchCircle } from 'react-icons/io5';
+import { IoAdd, IoPerson, IoSearchCircle, IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import AddStaffModal from '../manager_modals/AddStaffModal';
 import ErrorMsg from '../messages/errorMsg';
 import SuccessMsg from '../messages/successMsg';
@@ -17,21 +17,33 @@ const AccountManager = () => {
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false); 
     const [newPassword, setNewPassword] = useState('');
     const [isArchiving, setIsArchiving] = useState(false); // State to manage the archiving confirmation
 
-    useEffect(() => {
-        const fetchStaffData = async () => {
-            try {
-                const response = await axios.get('http://localhost:3001/api/getStaffs');
-                setStaffList(response.data.filter(staff => staff.staff_status !== 'DELETE'));
-            } catch (error) {
-                console.error('Error fetching staff data:', error);
-            }
-        };
+    // Define the function to fetch staff data
+    const fetchStaffData = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/getStaffs');
+            setStaffList(response.data.filter(staff => staff.staff_status !== 'DELETE'));
+        } catch (error) {
+            console.error('Error fetching staff data:', error);
+        }
+    };
 
+    // Define a function to refresh the staff list
+    const refreshStaffList = () => {
+        fetchStaffData(); // Fetch the staff data again
+    };
+
+    // Fetch data initially when the component mounts
+    useEffect(() => {
         fetchStaffData();
     }, []);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
 
     const handlePhotoChange = (event) => {
         const file = event.target.files[0];
@@ -70,12 +82,17 @@ const AccountManager = () => {
             setError('');
             setSuccess('');
     
-            const requiredFields = ['staff_fname', 'staff_lname', 'staff_username', 'staff_email', 'staff_phone_no', 'staff_acc_role', 'staff_status'];
-            for (const field of requiredFields) {
-                if (!selectedStaff[field] || selectedStaff[field].trim() === '') {
-                    setError(`Please fill in the ${field.replace('staff_', '').replace('_', ' ')} field.`);
-                    return; 
+            const requiredFields = ['staff_fname', 'staff_lname', 'staff_username', 'staff_email', 'staff_acc_role', 'staff_status'];
+            const invalidFields = requiredFields.filter(
+                (field) => {
+                    const value = selectedStaff[field];
+                    return typeof value !== 'string' || value.trim() === '';
                 }
+            );
+    
+            if (invalidFields.length > 0) {
+                setError(`Please fill in the required fields correctly: ${invalidFields.join(', ')}`);
+                return;
             }
     
             const updatedStaff = {
@@ -116,6 +133,7 @@ const AccountManager = () => {
             setSuccess('');
         }
     };
+    
     
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -371,23 +389,23 @@ const AccountManager = () => {
                                             <div className="staff-space">
                                                 <div className="control-form">
                                                     <label className="label">Staff ID</label>
-                                                    <p>{selectedStaff.staff_id}</p>
+                                                    <p className='ml-2'>{selectedStaff.staff_id}</p>
                                                 </div>
                                                 <div className="control-form">
                                                     <label className="label">Name</label>
-                                                    <p>{selectedStaff.staff_fname} {selectedStaff.staff_lname}</p>
+                                                    <p className='ml-2'>{selectedStaff.staff_fname} {selectedStaff.staff_lname}</p>
                                                 </div>
                                                 <div className="control-form">
                                                     <label className="label">Email</label>
-                                                    <p>{selectedStaff.staff_email}</p>
+                                                    <p className='ml-2'>{selectedStaff.staff_email}</p>
                                                 </div>
                                                 <div className="control-form">
                                                     <label className="label">Gender</label>
-                                                    <p>{selectedStaff.staff_gender}</p>
-                                                </div>
+                                                    <p className='ml-2'>{selectedStaff.staff_gender}</p>
+                                                </div >
                                                 <div className="control-form">
                                                     <label className="label">Contact Number</label>
-                                                    <p>{selectedStaff.staff_phone_no}</p>
+                                                    <p className='ml-2'>{selectedStaff.staff_phone_no}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -516,18 +534,27 @@ const AccountManager = () => {
                                                 <strong>Change Password</strong>
                                             </h1>
                                         </div>
+                                        <p className='m-1 has-text-grey is-size-6'>For security reasons, current passwords cannot be viewed. Managers can reset it instead.</p>
+                                       
+
                                         <div className="columns is-multiline is-mobile">
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">New Password</label>
-                                                    <div className="control">
+                                                    <div className="control is-flex">
                                                         <input 
                                                             className="input" 
-                                                            type="password" 
+                                                            type={showPassword ? "text" : "password"} 
                                                             placeholder="Enter new password" 
                                                             value={newPassword}
                                                             onChange={(e) => setNewPassword(e.target.value)}
-                                                        />
+                                                        /> <button
+                                                            type="button" // Button to toggle password visibility
+                                                            className="button is-blue ml-2" // Bulma button with some margin-left
+                                                            onClick={togglePasswordVisibility}
+                                                        >
+                                                            {showPassword ? <IoEyeOffSharp /> : <IoEyeSharp />} {/* Toggle icons */}
+                                                    </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -585,7 +612,7 @@ const AccountManager = () => {
                 </div> 
 
                 {/* Add the modal component */}
-                <AddStaffModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddStaffModal isOpen={isModalOpen} toggleModal={toggleModal} refreshStaffList={refreshStaffList}  />
             </div>
         </section>
     );

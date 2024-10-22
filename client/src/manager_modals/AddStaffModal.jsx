@@ -4,8 +4,9 @@ import './modals_m.css';
 import axios from 'axios';
 import ErrorMsg from '../messages/errorMsg'; 
 import SuccessMsg from '../messages/successMsg'; 
+import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5'; 
 
-const AddStaffModal = ({ isOpen, toggleModal }) => {
+const AddStaffModal = ({ isOpen, toggleModal, refreshStaffList }) => {
     const [staff, setStaff] = useState({
         staff_fname: '',
         staff_lname: '',
@@ -26,6 +27,7 @@ const AddStaffModal = ({ isOpen, toggleModal }) => {
     const [error, setError] = useState(''); 
     const [success, setSuccess] = useState(''); 
     const [erroredFields, setErroredFields] = useState({}); 
+    const [showPassword, setShowPassword] = useState(false); 
 
     useEffect(() => {
         if (isOpen) {
@@ -34,6 +36,11 @@ const AddStaffModal = ({ isOpen, toggleModal }) => {
             setErroredFields({});
         }
     }, [isOpen]);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
 
     const handleClose = () => {
         setStaff({
@@ -142,6 +149,8 @@ const AddStaffModal = ({ isOpen, toggleModal }) => {
             if (response.status === 201) {
                 setSuccess('Staff registered successfully!');
                 setError('');
+
+                refreshStaffList(); 
     
                 setTimeout(() => {
                     handleClose(); // Close modal after successful submission
@@ -276,17 +285,23 @@ const AddStaffModal = ({ isOpen, toggleModal }) => {
 
                             <div className="field">
                                 <label className="label">Password</label>
-                                <div className="control">
+                                <div className="control is-flex">
                                 <input
                                     className={`input ${erroredFields.staff_password ? 'is-danger' : ''}`}
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="staff_password"
                                     placeholder="Enter new password"
                                     value={staff.staff_password}
                                     onChange={handleChange}
                                     required
                                     disabled={false} 
-                                />
+                                />   <button
+                                        type="button" 
+                                        className="button is-blue ml-2" 
+                                        onClick={togglePasswordVisibility}
+                                    >
+                                        {showPassword ? <IoEyeOffSharp /> : <IoEyeSharp />} {/* Toggle icons */}
+                                    </button>
 
                                     {erroredFields.staff_password&& <p className="help is-danger">Password must be at least 8 characters long.</p>}
                                 </div>

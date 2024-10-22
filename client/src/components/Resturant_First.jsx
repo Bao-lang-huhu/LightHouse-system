@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bulma/css/bulma.min.css';
 import './pages.css';
 import '../App.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Breadcrumbs from '../layouts/Breadcrumbs';
@@ -10,7 +10,6 @@ import axios from 'axios';
 
 import bar from '../images/guest_home/restaurant.jpg';
 import al from '../images/guest_home/garden.jpg';
-import alen from '../images/guest_home/lobby.jpg';
 
 function Resturant_First() {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -21,16 +20,14 @@ function Resturant_First() {
   const [availabilityMessage, setAvailabilityMessage] = useState('');
   const navigate = useNavigate();
 
-  // Function to get tomorrow's date
   const getTomorrowDate = () => {
     const today = new Date();
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1); // Move to the next day
+    tomorrow.setDate(today.getDate() + 1);
     return tomorrow;
   };
 
   useEffect(() => {
-    // Fetch available seat quantities from getTables API
     const fetchSeatQuantities = async () => {
       try {
         const response = await axios.get('http://localhost:3001/api/getTables');
@@ -62,7 +59,7 @@ function Resturant_First() {
       setCurrentIndex(prevIndex =>
         prevIndex === images.length - 1 ? 0 : prevIndex + 1
       );
-    }, 3000); // Change image every 3 seconds
+    }, 3000); 
 
     return () => clearInterval(interval);
   }, [images.length]);
@@ -82,9 +79,9 @@ function Resturant_First() {
   
     try {
       const adjustedDate = new Date(selectedDate);
-      adjustedDate.setDate(adjustedDate.getDate() + 1 ); // Subtract 1 day
+      adjustedDate.setDate(adjustedDate.getDate() + 1 );
   
-      const reservationDate = adjustedDate.toISOString().split('T')[0]; // Convert to 'YYYY-MM-DD' format
+      const reservationDate = adjustedDate.toISOString().split('T')[0]; 
   
       localStorage.setItem('table_reservation_date', reservationDate);
       localStorage.setItem('table_reservation_time', selectedTime);
@@ -116,8 +113,8 @@ function Resturant_First() {
   return (
     <section className='section-m1'>
       <div>
-        <div className="hero-body" style={{ backgroundImage: `url(${bar})`, margin: '2%' }}>
-          <div className="container has-text-centered" style={{ padding: '5%' }}>
+        <div className="hero-body" style={{ backgroundImage: `url(${al})`, margin: '2%' }}>
+          <div className="container has-text-centered" style={{ padding: '2%' }}>
             <h1 className="title has-text-white">Restaurant Table Reservation</h1>
           </div>
         </div>
@@ -166,7 +163,6 @@ function Resturant_First() {
                 <div className="field">
                   <label className="label">Select Time:</label>
 
-                  {/* Morning Time Slots */}
                   <div className="control">
                     <p className="subtitle">Morning</p>
                     <div className="buttons">
@@ -205,6 +201,9 @@ function Resturant_First() {
 
                 <div className="field">
                   <label className="label">Number of Guests:</label>
+                  <p className="m-1 has-text-grey is-size-7">
+                    Choose a table with a seating capacity that fits within the available options.
+                  </p>
                   <div className="control">
                     <div className="select is-fullwidth">
                       <select
@@ -213,7 +212,9 @@ function Resturant_First() {
                       >
                         <option value="" disabled>Select number of guests</option>
                         {availableSeatQuantities.map(seatQty => (
-                          <option key={seatQty} value={seatQty}>{seatQty} Guests</option>
+                          <option key={seatQty} value={seatQty}>
+                            {seatQty === 8 ? 'Large groups (8 or more guests)' : `${seatQty} Guests`}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -222,6 +223,8 @@ function Resturant_First() {
                     )}
                   </div>
                 </div>
+
+
               </div>
 
               <div className="buttons is-centered">

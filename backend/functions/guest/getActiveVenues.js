@@ -7,7 +7,7 @@ const getActiveVenues = async (req, res) => {
         const { data: venues, error } = await supabase
             .from('EVENT_VENUE')
             .select('event_venue_id, venue_name, venue_description, venue_max_pax, venue_price, venue_final_price')
-            .eq('venue_status', 'ACTIVE'); // Only select active venues
+            .eq('venue_status', 'ACTIVE'); 
 
         if (error) {
             console.error('Error fetching active venues:', error);

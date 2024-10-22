@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode'; // Correct named import
 import 'bulma/css/bulma.min.css';
+import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import SuccessMsg from '../messages/successMsg';
 import ErrorMsg from '../messages/errorMsg';
 import axios from 'axios';
@@ -12,6 +13,7 @@ function LoginStaff() {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState(''); // Message for error/success
     const [isSuccess, setIsSuccess] = useState(false); // Boolean to track success state
+    const [showPassword, setShowPassword] = useState(false); // New state for password visibility
     const [isRedirecting, setIsRedirecting] = useState(false); // Boolean to track redirect state
     const navigate = useNavigate();
 
@@ -78,6 +80,10 @@ function LoginStaff() {
         setMessage(''); // Clear the message on any input change
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <section>
             <div className="login-page">
@@ -104,19 +110,26 @@ function LoginStaff() {
 
                                 <div className="field">
                                     <label className="label" htmlFor="password">Password:</label>
-                                    <div className="control">
+                                    <div className="control is-flex">
                                         <input
                                             className="input"
-                                            type="password"
+                                            type={showPassword ? 'text' : 'password'}
                                             id="password"
                                             name="password"
                                             placeholder="Enter your password"
                                             value={password}
-                                            onChange={handleInputChange(setPassword)} // Call handleInputChange
+                                            onChange={handleInputChange(setPassword)}
                                             required
                                         />
+                                        <button
+                                            type="button"
+                                            className="button is-blue ml-2"
+                                            onClick={togglePasswordVisibility}>
+                                            {showPassword ? <IoEyeOffSharp /> : <IoEyeSharp />} {/* Toggle icons */}
+                                        </button>
                                     </div>
                                 </div>
+
                             </div>
 
                             <div className="buttons is-centered">

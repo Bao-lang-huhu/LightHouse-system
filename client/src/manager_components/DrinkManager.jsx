@@ -19,7 +19,6 @@ const DrinkManager = () => {
     const [success, setSuccess] = useState(''); 
     const [isArchiving, setIsArchiving] = useState(false);
 
-    useEffect(() => {
         const fetchDrinks = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/getDrinks');
@@ -29,8 +28,15 @@ const DrinkManager = () => {
             }
         };
 
-        fetchDrinks(); 
-    }, []);
+        const refreshDrinkList = () => {
+            fetchDrinks(); 
+        };
+    
+        useEffect(() => {
+            fetchDrinks();
+        }, []);
+
+     
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -263,18 +269,27 @@ const DrinkManager = () => {
                                                     />
                                                 </div>
                                             </div>
+                
                                             <div className="field">
-                                                <label className="label">Drink Category</label>
-                                                <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="text"
+                                            <label className="label">Drink Category</label>
+                                            <div className="control">
+                                                <div className="select is-fullwidth">
+                                                    <select
                                                         name="bar_category_name"
                                                         value={selectedDrink.bar_category_name}
                                                         onChange={handleDetailChange}
-                                                    />
+                                                        required
+                                                    >
+                                                        <option value="">Select Category</option>
+                                                        <option value="WHISKEY">Whiskey</option>
+                                                        <option value="WINE">Wine</option>
+                                                        <option value="BEER">Beer</option>
+                                                        <option value="COCKTAIL">Cocktail</option>
+                                                        <option value="NON-ALCOHOLIC">Non-Alcoholic</option>
+                                                    </select>
                                                 </div>
                                             </div>
+                                        </div>
                                         </div>
                                     </div>
 
@@ -337,9 +352,8 @@ const DrinkManager = () => {
                                                             className="input"
                                                             type="number"
                                                             name="drink_final_price"
-                                                            value={selectedDrink.drink_final_price}
-                                                            onChange={handleDetailChange}
                                                             readOnly
+                                                            value={selectedDrink.drink_final_price}
                                                         />
                                                     </div>
                                                 </div>
@@ -350,11 +364,51 @@ const DrinkManager = () => {
                                                     <label className="label">Drink Price</label>
                                                     <div className="control">
                                                         <input
-                                                            className="input"
+                                                            className={`input`}
                                                             type="number"
                                                             name="drink_price"
                                                             value={selectedDrink.drink_price}
-                                                            onChange={handleDetailChange}
+                                                            min="1" // Set the minimum value to 1
+                                                            onChange={(e) => {
+                                                                let value = e.target.value;
+
+                                                                // Prevent negative input and input starting with '0'
+                                                                if (value >= 0 && !/^0/.test(value)) {
+                                                                    setSelectedDrink((prev) => {
+                                                                        const newDrinkPrice = parseFloat(value);
+                                                                        const newFinalPrice = calculateFinalPrice(newDrinkPrice, prev.drink_disc_percentage);
+                                                                        return {
+                                                                            ...prev,
+                                                                            drink_price: newDrinkPrice,
+                                                                            drink_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            onBlur={() => {
+                                                                // Ensure the value is at least 1
+                                                                const value = parseFloat(selectedDrink.drink_price);
+                                                                if (isNaN(value) || value < 1) {
+                                                                    setSelectedDrink((prev) => {
+                                                                        const newFinalPrice = calculateFinalPrice(1, prev.drink_disc_percentage);
+                                                                        return {
+                                                                            ...prev,
+                                                                            drink_price: 1,
+                                                                            drink_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                } else {
+                                                                    setSelectedDrink((prev) => {
+                                                                        const newFinalPrice = calculateFinalPrice(value, prev.drink_disc_percentage);
+                                                                        return {
+                                                                            ...prev,
+                                                                            drink_price: value,
+                                                                            drink_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
@@ -363,17 +417,57 @@ const DrinkManager = () => {
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">Drink Discount Percentage</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="drink_disc_percentage"
-                                                            value={selectedDrink.drink_disc_percentage}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <div className="control is-flex is-align-items-center">
+                                                        {/* Decrease Button */}
+                                                        <button
+                                                            className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedDrink.drink_disc_percentage > 0) {
+                                                                    setSelectedDrink((prev) => {
+                                                                        const newDiscount = prev.drink_disc_percentage - 1;
+                                                                        const newFinalPrice = calculateFinalPrice(prev.drink_price, newDiscount);
+                                                                        return {
+                                                                            ...prev,
+                                                                            drink_disc_percentage: newDiscount,
+                                                                            drink_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            disabled={selectedDrink.drink_disc_percentage <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        {/* Display Current Discount Percentage */}
+                                                        <span className="button is-static">
+                                                            {selectedDrink.drink_disc_percentage}%
+                                                        </span>
+
+                                                        {/* Increase Button */}
+                                                        <button
+                                                            className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedDrink.drink_disc_percentage < 100) {
+                                                                    setSelectedDrink((prev) => {
+                                                                        const newDiscount = prev.drink_disc_percentage + 1;
+                                                                        const newFinalPrice = calculateFinalPrice(prev.drink_price, newDiscount);
+                                                                        return {
+                                                                            ...prev,
+                                                                            drink_disc_percentage: newDiscount,
+                                                                            drink_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            disabled={selectedDrink.drink_disc_percentage >= 100}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
+
 
                                             <div className="column is-6">
                                                 <div className="field">
@@ -444,7 +538,7 @@ const DrinkManager = () => {
                         )}
                     </main>
                 </div>
-                <AddDrinkModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddDrinkModal isOpen={isModalOpen} toggleModal={toggleModal} refreshDrinkList={refreshDrinkList}/>
             </div>
         </section>
     );

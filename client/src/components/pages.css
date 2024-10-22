@@ -59,8 +59,22 @@ label {
   flex-wrap: wrap; 
   flex-direction: row;
   width: 100%;
-  gap: 20px;
   align-items: center;
+}
+
+.auth_spaceRegister {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  width: 100%;
+  margin: auto;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.auth_spaceRegister .field {
+  flex: 1 1 45%;
+  min-width: 200px; 
 }
 
 /*Login Guest-----------------------------------------------*/
@@ -102,10 +116,6 @@ label {
   transform: translate(-50%, -50%); 
   width: 40%;
 }
-
-
-
-  
 .container-white, .about-white {
   background-color: #ffffff; 
   padding: 20px; 
@@ -173,6 +183,14 @@ input[type="text"]{
   gap: 20px;
 }
 
+.property-views-container h4{
+  font-size: 22px;
+}
+
+.property-views-container h3{
+  font-size: 20px;
+}
+
 .property-images {
   display: flex;
   justify-content: space-between;
@@ -226,7 +244,7 @@ input[type="text"]{
   word-wrap: break-word;
 }
 .about-space{
-  padding: 5px 10px;
+  padding: 1rem 10px;
 }
 .container .h2, .about-space p{
   line-height: 2.0rem;
@@ -242,8 +260,15 @@ input[type="text"]{
 .card {
   display: flex;
   gap: 10px;
-  padding: 10px;
+  padding: 1.5rem;
   width: 30%;
+  margin: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+}
+.card:hover{
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
 }
 
 .info {
@@ -447,6 +472,10 @@ input[type="text"]{
   margin-bottom: 1rem;
 }
 
+.details p {
+  font-size: 16px;
+}
+
 .details li h4, .details li p {
   margin: 0;
   margin-left: 1rem;
@@ -502,6 +531,16 @@ input[type="text"]{
   object-fit: cover; /* Ensures image is cropped appropriately */
 }
 
+.carousel-item {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carousel-item:hover {
+  transform: scale(1.05); /* Slightly enlarges the item */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow */
+}
+
+
 .legend {
   background: rgba(7, 116, 240, 0.9); /* Semi-transparent background */
   color: white; 
@@ -521,17 +560,18 @@ input[type="text"]{
 }
 
 .event-bg-style{
-  background-color: #00B4D7;
+  background-color: #e7e7e7;
   padding: 1rem;
-  
+  border-radius: 1rem;
 }
 
 .event-padding-style{
  padding: 4%;
 }
 .event-color-table{
-  background-color: #001fac;
-  border-radius: 3% 3%;
+  background-color: #162360;
+  border-radius: 1.5rem;
+  padding: 1rem;
   
 }
 .event-inside-style{
@@ -563,9 +603,11 @@ input[type="text"]{
 
 .button.is-selected {
   background-color: #ffffff !important;
-  color: #0077B7 !important;
-  border-color: #0392df !important;
+  color: #000000 !important;
+  border-color: #0d8efe !important;
+  box-shadow: 0 4px 8px rgb(255, 255, 255); 
 }
+
 
 .table-container {
   position: relative;
@@ -576,7 +618,7 @@ input[type="text"]{
 }
 
 .table-circle {
-  width: 100px;
+  width: 120px;
   height: 100px;
   border-radius: 30%;
   overflow: hidden;
@@ -586,6 +628,10 @@ input[type="text"]{
   align-items: center;
   justify-content: center;
   z-index: 1;
+}
+
+.table-circle:hover {
+  border: 1px solid #fff;
 }
 
 /* Center the whole layout */
@@ -765,6 +811,59 @@ input[type="text"]{
   line-height: 1.5em; /* Adjust line height */
   margin-bottom: 0.5em; /* Space between list items */
 }
+
+/*Profile-------------------------------*/
+.blue-profile{
+  background-color: #f1f9fb;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  flex-wrap: wrap;
+  border: 0.2rem solid #a8efff;
+}
+
+
+.tabs ul li a {
+  color: #0077B7;
+  padding: 0.75rem 1rem;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tabs ul li a:hover {
+  background-color: #006195;  /* Custom background */
+  color: #006195;                /* Custom text color */
+  border-color: #015a8b;  
+}
+
+/* Custom active class for the tab */
+.is-active-blue a {
+  background-color: #0077B7;  /* Custom background */
+  color: #fff;                /* Custom text color */
+  border-color: #0077B7;      /* Optional border color */
+}
+
+.is-active-blue a:hover {
+  background-color: #006195;  /* Custom background */
+  color: #fff;                /* Custom text color */
+  border-color: #015a8b;       /* Optional border color */
+}
+
+/* Override the default Bulma is-active class */
+.tabs ul li.is-active-blue a {
+  background-color: #0077B7;  /* Your custom background */
+  color: #fff;                /* Your custom text color */
+  border-color: #0077B7;      /* Optional border color */
+}
+
+.tabs ul li.is-active-blue a:hover {
+  background-color: #006195;  /* Custom background */
+  color: #fff;                /* Custom text color */
+  border-color: #015a8b;   /* Optional border color */
+}
+
 
 
 

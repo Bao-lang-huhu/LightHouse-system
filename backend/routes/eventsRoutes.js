@@ -45,7 +45,7 @@ router.get('/getActiveFoodPackages', getActiveFoodPackages);
 
 router.get('/getEventReservationsAll', getEventReservationsAll);
 
-router.get('/getEventReservationsByGuestId',getEventReservationsByGuestId)
+router.get('/getEventReservationsByGuestId',getEventReservationsByGuestId);
 module.exports = router;
 
 

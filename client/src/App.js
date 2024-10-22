@@ -16,7 +16,9 @@ import GRoomSearch from "./pages/G_RoomSearch";
 import GRoomDetails from "./pages/G_RoomDetails";
 import GReservations from "./pages/G_Reservations";
 import GRoomReservation from "./pages/G_RoomReservation";
+import GReservationsEventDetails from "./pages/G_EventReservationsEventDetails";
 import GReservationsRoomDetails from "./pages/G_RoomReservationsRoomDetails";
+
 import GVirtualTour from "./pages/G_VirtualTour";
 
 import ALogin from "./manager_pages/A_Login";
@@ -36,6 +38,16 @@ import MReportSales from "./manager_pages/M_ReportSales";
 import MReportMenuOp from "./manager_pages/M_ReportMenuOp";
 import MReportForecasting from "./manager_pages/M_ReportForecasting";
 import MReportRoomOccupancy from "./manager_pages/M_ReportRoomOccupancy";
+import MADashboard from "./manager_pages/MA_Dashboard";
+import MAAccounts from "./manager_pages/MA_Accounts";
+import MARooms from "./manager_pages/MA_Rooms";
+import MAFoods from "./manager_pages/MA_Foods";
+import MADrinks from "./manager_pages/MA_Drinks";
+import MAConcierges from "./manager_pages/MA_Concierge";
+import MALaundry from "./manager_pages/MA_Laundry";
+import MAPackages from "./manager_pages/MA_Packages";
+import MAVenues from "./manager_pages/MA_Venues";
+
 
 import FDashboard from "./frontdesk_pages/F_Dashboard";
 import FHome from "./frontdesk_pages/F_Home";
@@ -78,11 +90,12 @@ function App() {
         <Route path="/profile_guest" element={<GProfile/>}/>
 
         <Route path="/room_search" element={<GRoomSearch/>}/>
-        <Route path="/room_search/room_details" element={<GRoomDetails/>}/>
+        <Route path="/room_details/:roomId" element={<GRoomDetails/>}/>
         <Route path="/room_search/book_room_reservations" element={<GRoomReservation/>}/>
 
         <Route path="/reservations" element={<GReservations/>}/>
         <Route path="/reservations/room_reservation_details/:room_reservation_id" element={<GReservationsRoomDetails/>}/>
+        <Route path="/reservations/event_reservation_details/:event_reservation_id" element={<GReservationsEventDetails/>}/>
         <Route path = "/virtual_tour" element ={<GVirtualTour/>}/>
 
 
@@ -116,6 +129,17 @@ function App() {
         <Route path = "/manager_report_menu_optimization" element ={<MReportMenuOp/>}/>
         <Route path = "/manager_report_room_occupancy_rate" element ={<MReportRoomOccupancy/>}/>
         <Route path = "/manager_report_forecasting" element ={<MReportForecasting/>}/>
+
+        <Route path = "/manager_archive_dashboard" element ={<MADashboard/>}/>
+        <Route path = "/manager_archive_accounts" element ={<MAAccounts/>}/>
+        <Route path = "/manager_archive_rooms" element ={<MARooms/>}/>
+        <Route path = "/manager_archive_foods" element ={<MAFoods/>}/>
+        <Route path = "/manager_archive_drinks" element ={<MADrinks/>}/>
+        <Route path = "/manager_archive_concierges" element ={<MAConcierges/>}/>
+        <Route path = "/manager_archive_laundry" element ={<MALaundry/>}/>
+        <Route path = "/manager_archive_packages" element ={<MAPackages/>}/>
+        <Route path = "/manager_archive_venues" element ={<MAVenues/>}/>
+
 
 
         <Route path = "/frontdesk_dashboard" element ={<FDashboard/>}/>

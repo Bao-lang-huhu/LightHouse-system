@@ -18,7 +18,6 @@ const FoodPackageManager = () => {
     const [isArchiving, setIsArchiving] = useState(false); // State for archive confirmation
 
     // Fetch food packages data on component mount
-    useEffect(() => {
         const fetchFoodPackages = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/getFoodPackage'); // Replace with your API endpoint
@@ -29,7 +28,14 @@ const FoodPackageManager = () => {
             }
         };
 
+
+
+    const refreshPackagesList = () => {
         fetchFoodPackages(); 
+    };
+
+    useEffect(() => {
+        fetchFoodPackages();
     }, []);
 
     const toggleModal = () => {
@@ -92,7 +98,7 @@ const FoodPackageManager = () => {
         try {
             setError('');
             setSuccess('');
-            const response = await axios.put(`http://localhost:3001/api/updateFoodIPackage/${selectedPackage.event_fd_pckg_id}`, 
+            const response = await axios.put(`http://localhost:3001/api/updateFoodPackage/${selectedPackage.event_fd_pckg_id}`, 
                 { event_fd_status: 'DELETE' });
 
             if (response.status === 200) {
@@ -100,7 +106,7 @@ const FoodPackageManager = () => {
                 // Remove from list
                 setFoodPackages((prev) =>
                     prev.map((pkg) =>
-                        pkg.event_fd_pckg_id --- selectedPackage.event_fd_pckg_id
+                        pkg.event_fd_pckg_id === selectedPackage.event_fd_pckg_id
                             ? { ...pkg, event_fd_status: 'DELETE' } 
                             : pkg
                     )
@@ -223,18 +229,6 @@ const FoodPackageManager = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="field">
-                                                <label className="label">Main Dish Limit</label>
-                                                <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        name="event_fd_main_dish_lmt"
-                                                        value={selectedPackage.event_fd_main_dish_lmt}
-                                                        onChange={handleDetailChange}
-                                                    />
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
 
@@ -246,27 +240,42 @@ const FoodPackageManager = () => {
                                                 <div className="control">
                                                     <input
                                                         className="input"
-                                                        type="number"
+                                                        type="text" // Use text to handle better input control
                                                         name="event_fd_pckg_final_price"
                                                         value={selectedPackage.event_fd_pckg_final_price}
-                                                        onChange={handleDetailChange}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="field">
-                                                <label className="label">Pasta Limit</label>
-                                                <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        name="event_fd_pasta_lmt"
-                                                        value={selectedPackage.event_fd_pasta_lmt}
-                                                        onChange={handleDetailChange}
+                                                        onChange={(e) => {
+                                                            let value = e.target.value;
+
+                                                            // Allow only digits and prevent starting with '0' or negative symbols
+                                                            if (/^\d*$/.test(value) && !/^0/.test(value)) {
+                                                                setSelectedPackage((prev) => ({
+                                                                    ...prev,
+                                                                    event_fd_pckg_final_price: value, // Keep it as string for editing
+                                                                }));
+                                                            }
+                                                        }}
+                                                        onBlur={() => {
+                                                            // Ensure the value is at least 1 when the user leaves the input field
+                                                            const value = parseFloat(selectedPackage.event_fd_pckg_final_price);
+                                                            if (isNaN(value) || value < 1) {
+                                                                setSelectedPackage((prev) => ({
+                                                                    ...prev,
+                                                                    event_fd_pckg_final_price: 1, // Default to 1 if invalid or empty
+                                                                }));
+                                                            } else {
+                                                                setSelectedPackage((prev) => ({
+                                                                    ...prev,
+                                                                    event_fd_pckg_final_price: value,
+                                                                }));
+                                                            }
+                                                        }}
+                                                        required
                                                     />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                                 {/* Separator Line */}
                                 <hr />
@@ -278,48 +287,209 @@ const FoodPackageManager = () => {
                                                 <strong>Food Package Information</strong>
                                             </h1>
                                         </div>
+                                        <div className='columns is-multiline'>
+                                            {/* Main Dish Limit */}
+                                            <div className='column is-6'>
+                                                <div className="field">
+                                                    <label className="label">Main Dish Limit</label>
+                                                    <div className="control is-flex is-align-items-center">
+                                                        {/* Decrease Button */}
+                                                        <button
+                                                            className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_main_dish_lmt > 0) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_main_dish_lmt: prev.event_fd_main_dish_lmt - 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_main_dish_lmt <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        {/* Display Current Limit */}
+                                                        <span className="button is-static">
+                                                            {selectedPackage.event_fd_main_dish_lmt}
+                                                        </span>
+
+                                                        {/* Increase Button */}
+                                                        <button
+                                                            className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_main_dish_lmt < 5) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_main_dish_lmt: prev.event_fd_main_dish_lmt + 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_main_dish_lmt >= 5}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Pasta Limit */}
+                                            <div className='column is-6'>
+                                                <div className="field">
+                                                    <label className="label">Pasta Limit</label>
+                                                    <div className="control is-flex is-align-items-center">
+                                                        {/* Decrease Button */}
+                                                        <button
+                                                            className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_pasta_lmt > 0) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_pasta_lmt: prev.event_fd_pasta_lmt - 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_pasta_lmt <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        {/* Display Current Limit */}
+                                                        <span className="button is-static">
+                                                            {selectedPackage.event_fd_pasta_lmt}
+                                                        </span>
+
+                                                        {/* Increase Button */}
+                                                        <button
+                                                            className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_pasta_lmt < 5) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_pasta_lmt: prev.event_fd_pasta_lmt + 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_pasta_lmt >= 5}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div className="columns is-multiline">
+                                            {/* Rice Limit */}
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">Rice Limit</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="event_fd_rice_lmt"
-                                                            value={selectedPackage.event_fd_rice_lmt}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <div className="control is-flex is-align-items-center">
+                                                        <button className="button is-blue mr-2" 
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_rice_lmt > 0) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_rice_lmt: prev.event_fd_rice_lmt - 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_rice_lmt <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="button is-static">
+                                                            {selectedPackage.event_fd_rice_lmt}
+                                                        </span>
+                                                        <button className="button is-blue ml-2" 
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_rice_lmt < 5) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_rice_lmt: prev.event_fd_rice_lmt + 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_rice_lmt >= 5}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
 
+                                            {/* Dessert Limit */}
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">Dessert Limit</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="event_fd_dessert_lmt"
-                                                            value={selectedPackage.event_fd_dessert_lmt}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <div className="control is-flex is-align-items-center">
+                                                        <button className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_dessert_lmt > 0) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_dessert_lmt: prev.event_fd_dessert_lmt - 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_dessert_lmt <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="button is-static">
+                                                            {selectedPackage.event_fd_dessert_lmt}
+                                                        </span>
+                                                        <button className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_dessert_lmt < 5) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_dessert_lmt: prev.event_fd_dessert_lmt + 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_dessert_lmt >= 5}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
 
+                                            {/* Drink Limit */}
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">Drink Limit</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="event_fd_drinks_lmt"
-                                                            value={selectedPackage.event_fd_drinks_lmt}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <div className="control is-flex is-align-items-center">
+                                                        <button className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_drinks_lmt > 0) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_drinks_lmt: prev.event_fd_drinks_lmt - 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_drinks_lmt <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="button is-static">
+                                                            {selectedPackage.event_fd_drinks_lmt}
+                                                        </span>
+                                                        <button className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedPackage.event_fd_drinks_lmt < 5) {
+                                                                    setSelectedPackage((prev) => ({
+                                                                        ...prev,
+                                                                        event_fd_drinks_lmt: prev.event_fd_drinks_lmt + 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedPackage.event_fd_drinks_lmt >= 5}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -341,15 +511,17 @@ const FoodPackageManager = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div className="columns">
-                                            <div className="column is-12 is-left">
-                                                <button className="button is-blue" onClick={handleUpdatePackage}>Save Changes</button>
+                                            <div className="columns">
+                                                <div className="column is-12 is-left">
+                                                    <button className="button is-blue" onClick={handleUpdatePackage}>Save Changes</button>
+                                                </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
+
                                 <hr />
 
                                 <div className="columns">
@@ -397,7 +569,7 @@ const FoodPackageManager = () => {
                 </div>
 
                 {/* Add the modal component */}
-                <AddFoodPackageModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddFoodPackageModal isOpen={isModalOpen} toggleModal={toggleModal} refreshPackagesList= {refreshPackagesList}/>
             </div>
         </section>
     );

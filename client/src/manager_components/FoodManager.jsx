@@ -32,14 +32,12 @@ const FoodManager = () => {
         }
     };
 
-    // Function to calculate the final price based on price and discount percentage
     const calculateFinalPrice = (price, discount) => {
-        const discountAmount = price * (discount / 100);
+        const discountAmount = (price * discount) / 100;
         return price - discountAmount;
     };
 
     // Fetch food data on component mount
-    useEffect(() => {
         const fetchFoods = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/getFoodItems'); // Replace with your API endpoint
@@ -49,9 +47,15 @@ const FoodManager = () => {
             }
         };
 
-        fetchFoods();
-    }, []);
+        const refreshFoodList = () => {
+            fetchFoods(); 
+        };
+    
+        useEffect(() => {
+            fetchFoods();
+        }, []);
 
+      
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -76,7 +80,6 @@ const FoodManager = () => {
         setSelectedFood((prev) => {
             const updatedFood = { ...prev, [name]: value };
 
-            // Update the final price whenever price or discount percentage changes
             if (name === 'food_price' || name === 'food_disc_percentage') {
                 updatedFood.food_final_price = calculateFinalPrice(
                     parseFloat(updatedFood.food_price) || 0,
@@ -276,6 +279,9 @@ const FoodManager = () => {
                                                             <option value="PORK">PORK</option>
                                                             <option value="BREAKFAST">BREAKFAST</option>
                                                             <option value="MEAL">MEAL</option>
+                                                            <option value="DESSERT">DESSERT</option>
+                                                            <option value="DRINK">DRINK (EVENT)</option>
+                                                            <option value="MAIN">MAIN (EVENT)</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -354,7 +360,7 @@ const FoodManager = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="column is-6">
+                                            <div className="column is-6"> 
                                                 <div className="field">
                                                     <label className="label">Food Final Price</label>
                                                     <div className="control">
@@ -364,7 +370,6 @@ const FoodManager = () => {
                                                             name="food_final_price"
                                                             readOnly
                                                             value={selectedFood.food_final_price}
-                                                            onChange={handleDetailChange}
                                                         />
                                                     </div>
                                                 </div>
@@ -375,12 +380,51 @@ const FoodManager = () => {
                                                     <label className="label">Food Price</label>
                                                     <div className="control">
                                                         <input
-                                                            className="input"
+                                                            className={`input`}
                                                             type="number"
                                                             name="food_price"
-        
                                                             value={selectedFood.food_price}
-                                                            onChange={handleDetailChange}
+                                                            min="1" // Set the minimum value to 1
+                                                            onChange={(e) => {
+                                                                let value = e.target.value;
+
+                                                                // Prevent negative input and input starting with '0'
+                                                                if (value >= 0 && !/^0/.test(value)) {
+                                                                    setSelectedFood((prev) => {
+                                                                        const newFoodPrice = parseFloat(value);
+                                                                        const newFinalPrice = calculateFinalPrice(newFoodPrice, prev.food_disc_percentage);
+                                                                        return {
+                                                                            ...prev,
+                                                                            food_price: newFoodPrice,
+                                                                            food_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            onBlur={() => {
+                                                                // Ensure the value is at least 1
+                                                                const value = parseFloat(selectedFood.food_price);
+                                                                if (isNaN(value) || value < 1) {
+                                                                    setSelectedFood((prev) => {
+                                                                        const newFinalPrice = calculateFinalPrice(1, prev.food_disc_percentage);
+                                                                        return {
+                                                                            ...prev,
+                                                                            food_price: 1,
+                                                                            food_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                } else {
+                                                                    setSelectedFood((prev) => {
+                                                                        const newFinalPrice = calculateFinalPrice(value, prev.food_disc_percentage);
+                                                                        return {
+                                                                            ...prev,
+                                                                            food_price: value,
+                                                                            food_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
@@ -389,17 +433,53 @@ const FoodManager = () => {
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">Food Discount Percentage</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="food_disc_percentage"
-                                                            step="0.01"
-                                                            min="0"
-                                                            max="100"
-                                                            value={selectedFood.food_disc_percentage}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <div className="control is-flex is-align-items-center">
+                                                        {/* Decrease Button */}
+                                                        <button
+                                                            className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedFood.food_disc_percentage > 0) {
+                                                                    setSelectedFood((prev) => {
+                                                                        const newDiscount = prev.food_disc_percentage - 1;
+                                                                        const newFinalPrice = calculateFinalPrice(prev.food_price, newDiscount);
+                                                                        return {
+                                                                            ...prev,
+                                                                            food_disc_percentage: newDiscount,
+                                                                            food_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            disabled={selectedFood.food_disc_percentage <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        {/* Display Current Discount Percentage */}
+                                                        <span className="button is-static">
+                                                            {selectedFood.food_disc_percentage}%
+                                                        </span>
+
+                                                        {/* Increase Button */}
+                                                        <button
+                                                            className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedFood.food_disc_percentage < 100) {
+                                                                    setSelectedFood((prev) => {
+                                                                        const newDiscount = prev.food_disc_percentage + 1;
+                                                                        const newFinalPrice = calculateFinalPrice(prev.food_price, newDiscount);
+                                                                        return {
+                                                                            ...prev,
+                                                                            food_disc_percentage: newDiscount,
+                                                                            food_final_price: newFinalPrice,
+                                                                        };
+                                                                    });
+                                                                }
+                                                            }}
+                                                            disabled={selectedFood.food_disc_percentage >= 100}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -477,8 +557,7 @@ const FoodManager = () => {
                     </main>
                 </div>
 
-                {/* Add the modal component */}
-                <AddFoodModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddFoodModal isOpen={isModalOpen} toggleModal={toggleModal} refreshFoodList = {refreshFoodList}/>
             </div>
         </section>
     );

@@ -1,6 +1,5 @@
 const { supabase } = require('../../supabaseClient'); // Import Supabase client
 
-// API to cancel a reservation
 const cancelReservation = async (req, res) => {
     const { room_reservation_id, cancel_reason } = req.body;
 

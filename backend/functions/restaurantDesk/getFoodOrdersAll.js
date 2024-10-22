@@ -11,7 +11,9 @@ const getFoodOrdersAll = async (req, res) => {
         staff_id,
         STAFF (
           staff_id,
-          staff_username
+          staff_username,
+          staff_fname,
+          staff_lname
         ),
         check_in_id,
         f_payment_method,
@@ -113,8 +115,8 @@ const getFoodOrdersAll = async (req, res) => {
           ...item,
           food_name: item.FOOD_ITEM?.food_name || 'Unknown' // Include food name or default to 'Unknown'
         })),
-        guest_fname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_fname || 'N/A',
-        guest_lname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_lname || 'N/A',
+        guest_fname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_fname || 'Restaurant ',
+        guest_lname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_lname || 'Guest',
         room_number: roomInfo?.ROOM?.room_number || 'N/A',
         room_type_name: roomInfo?.ROOM?.room_type_name || 'N/A'
       };

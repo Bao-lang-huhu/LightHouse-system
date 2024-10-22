@@ -95,7 +95,7 @@ function RegisterGuest() {
                         <form onSubmit={handleSubmit}>
                             <div className="container-white">
                                 <h1 className='login-title'><strong>Sign-up</strong></h1>
-                                <div className='auth_space'>
+                                <div className='auth_spaceRegister'>
                                     <div className="field"> 
                                         <label className="label" htmlFor="guest_fname">First name:</label>
                                         <div className="control">
@@ -140,7 +140,7 @@ function RegisterGuest() {
 
                                 </div>
 
-                                <div className='auth_space'>
+                                <div className='auth_spaceRegister'>
                                     <div className="field">
                                         <label className="label">Gender:</label>
                                         <div className="control">
@@ -149,9 +149,8 @@ function RegisterGuest() {
                                                     <option value="">Select Gender</option>
                                                     <option value="MALE">Male</option>
                                                     <option value="FEMALE">Female</option>
-                                                    <option value="Non-Binary">Non-Binary</option>
-                                                    <option value="Other">Other</option>
-                                                    <option value="Prefer Not To Say">Prefer Not To Say</option>
+                                                    <option value="NON-BINARY">Non-Binary</option>
+                                                    <option value="PREFER NOT TO SAY">Prefer Not To Say</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -174,7 +173,7 @@ function RegisterGuest() {
                                     </div>
                                 </div>
 
-                                <div className='auth_space'>
+                                <div className='auth_spaceRegister'>
                                     <div className="field">
                                         <label className="label" htmlFor="guest_address">Address:</label>
                                         <div className="control">
@@ -240,7 +239,7 @@ function RegisterGuest() {
 
                                 </div>
 
-                                <div className='auth_space'>
+                                <div className='auth_spaceRegister'>
                                 <div className="field">
                                     <label className="label" htmlFor="guest_phone_no">Contact Number:</label>
                                         <div className="control">
@@ -282,7 +281,7 @@ function RegisterGuest() {
 
                                 </div>
 
-                                <div className="auth_space">
+                                <div className="auth_spaceRegister">
                                     <div className="field">
                                         <label className="label" htmlFor="guest_password">Password:</label>
                                         <div className="field">
@@ -299,7 +298,7 @@ function RegisterGuest() {
                                                 />
                                                 <button
                                                     type="button" // Button to toggle password visibility
-                                                    className="button is-light ml-2" // Bulma button with some margin-left
+                                                    className="button is-blue ml-2" // Bulma button with some margin-left
                                                     onClick={togglePasswordVisibility}
                                                 >
                                                     {showPassword ? <IoEyeOffSharp /> : <IoEyeSharp />} {/* Toggle icons */}

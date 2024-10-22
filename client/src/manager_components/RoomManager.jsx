@@ -6,6 +6,9 @@ import { IoAdd, IoAddCircleOutline, IoBedOutline, IoPencilOutline, IoSearchCircl
 import AddRoomModal from '../manager_modals/AddRoomModal';
 import AddRoomPhotos from '../manager_modals/AddRoomPhotos';
 import EditRoomPhotos from  '../manager_modals/EditRoomPhotos';
+
+import AddRoomVTModal from '../manager_modals/AddRoomVTModal';
+import EditRoomVTModal from '../manager_modals/EditRoomVTModal';
 import ErrorMsg from '../messages/errorMsg';
 import SuccessMsg from '../messages/successMsg';
 import axios from 'axios';
@@ -14,15 +17,20 @@ const RoomManager = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isRoomPhotosModalOpen, setIsRoomPhotosModalOpen] = useState(false);
     const [isEditRoomPhotosModalOpen, setIsEditRoomPhotosModalOpen] = useState(false);
+    const [isRoomVTModalOpen, setIsRoomVTModalOpen] = useState(false);
+    const [isEditRoomVTModalOpen, setIsEditRoomVTModalOpen] = useState(false);
     const [currentRoomId, setCurrentRoomId] = useState(null);
+    const [currentRoomTypeName, setCurrentRoomTypeName] = useState(null);
     const [rooms, setRooms] = useState([]); // State to store room data
-    const [selectedRoom, setSelectedRoom] = useState(null); // State for the selected room
+    const [selectedRoom, setSelectedRoom] = useState(null); 
     const [searchTerm, setSearchTerm] = useState(''); // State for search term
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isArchiving, setIsArchiving] = useState(false); // State for archiving confirmation
+    const [virtualTours, setVirtualTours] = useState([]);
+    const [isLoading, setIsLoading] = useState(true); // State to track loading status
 
-    // Fetch room data on component mount
+
     useEffect(() => {
         fetchRooms();
     }, []);
@@ -37,6 +45,49 @@ const RoomManager = () => {
         }
     };
 
+    const refreshRoomList = () => {
+        fetchRooms(); 
+    };
+
+    useEffect(() => {
+        fetchRooms();
+    }, []);
+
+
+ 
+    useEffect(() => {
+    const fetchVirtualTours = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/getTours');
+            const groupedData = response.data;
+
+            setIsLoading(true); // Set loading to true when starting fetch
+            await fetchRooms(); // Fetch the room data or other needed data
+            setIsLoading(false);
+            
+            // Convert grouped data into a flat array
+            const toursArray = Object.values(groupedData).flat();
+            setVirtualTours(Array.isArray(toursArray) ? toursArray : []);
+        } catch (error) {
+            console.error('Error fetching virtual tours:', error);
+            setVirtualTours([]); // Ensure virtualTours is always an array
+        }
+    }; fetchVirtualTours();
+}, []);
+    
+
+    const hasVirtualTourForRoomType = (roomTypeName) => {
+        // Check if there exists any tour with the same `room_type_name`
+        return virtualTours.some(tour => tour.ROOM.room_type_name === roomTypeName);
+    };
+    
+    const hasVirtualTourForRoomId = (roomId) => {
+        // Check if there is an exact match for the room_id
+        return virtualTours.some(tour => tour.room_id === roomId);
+    };
+    
+
+
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -49,6 +100,18 @@ const RoomManager = () => {
     const toggleEditRoomPhotosModal = () => {
         setCurrentRoomId(selectedRoom ? selectedRoom.room_id : null);
         setIsEditRoomPhotosModalOpen(!isEditRoomPhotosModalOpen);  // Toggle the modal open/close
+    };
+
+    const toggleRoomVTModal = () => {
+        setCurrentRoomId(selectedRoom ? selectedRoom.room_id : null);
+        setCurrentRoomTypeName(selectedRoom ? selectedRoom.room_type_name : null); // Set room_type_name
+        setIsRoomVTModalOpen(!isRoomVTModalOpen);
+    };
+
+    const toggleEditRoomVTModal = () => {
+        setCurrentRoomId(selectedRoom ? selectedRoom.room_id : null);
+        setCurrentRoomTypeName(selectedRoom ? selectedRoom.room_type_name : null); // Set room_type_nam
+        setIsEditRoomVTModalOpen(!isEditRoomVTModalOpen);  // Toggle the modal open/close
     };
     
     
@@ -68,36 +131,51 @@ const RoomManager = () => {
         }
     };
 
+
     const handleRoomClick = (room) => {
-        setSelectedRoom(room); 
-         setCurrentRoomId(room ? room.room_id : null);
+        setSelectedRoom(room);
+        setCurrentRoomId(room ? room.room_id : null);
+        setCurrentRoomTypeName(room ? room.room_type_name : null); 
         setError('');
-        setSuccess('');
+        setSuccess('');// Set the room type name
     };
 
-          // Function to calculate the final price based on price and discount percentage
-          const calculateFinalPrice = (price, discount) => {
-            const discountAmount = price * (discount / 100);
-            return price - discountAmount;
-        };
-    
-            // Handle input change in the detail view
-         const handleDetailChange = (e) => {
-                const { name, value } = e.target;
-                setSelectedRoom((prev) => {
-                    const updatedRoom = { ...prev, [name]: value };
-        
-                    // Update the final price whenever price or discount percentage changes
-                    if (name === 'room_rate' || name === 'room_disc_percentage') {
-                        updatedRoom.room_final_rate = calculateFinalPrice(
-                            parseFloat(updatedRoom.room_rate) || 0,
-                            parseFloat(updatedRoom.room_disc_percentage) || 0
-                        );
-                    }
-        
-                    return updatedRoom;
-                });
-            };
+
+
+    const calculateFinalPrice = (price, discount) => {
+        const discountAmount = price * (discount / 100);
+        return price - discountAmount;
+    };
+
+    useEffect(() => {
+        if (selectedRoom) {
+            const { room_rate, room_disc_percentage } = selectedRoom;
+            if (room_rate !== undefined && room_disc_percentage !== undefined) {
+                const finalRate = calculateFinalPrice(room_rate, room_disc_percentage);
+                setSelectedRoom((prev) => ({
+                    ...prev,
+                    room_final_rate: finalRate,
+                }));
+            }
+        }
+    }, [selectedRoom?.room_disc_percentage, selectedRoom?.room_rate]);
+
+    const handleDetailChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedRoom((prev) => {
+            const updatedRoom = { ...prev, [name]: value };
+
+            if (name === 'room_rate' || name === 'room_disc_percentage') {
+                updatedRoom.room_final_rate = calculateFinalPrice(
+                    parseFloat(updatedRoom.room_rate) || 0,
+                    parseFloat(updatedRoom.room_disc_percentage) || 0
+                );
+            }
+
+            return updatedRoom;
+        });
+    };
+
 
     const handleSaveChanges = async () => {
         try {
@@ -129,7 +207,7 @@ const RoomManager = () => {
     };
 
     const handleArchive = async () => {
-        setIsArchiving(false); // Hide the confirmation dialog
+        setIsArchiving(false); 
 
         try {
             setError('');
@@ -146,7 +224,6 @@ const RoomManager = () => {
                 setSuccess('Room archived successfully!');
                 setError('');
 
-                // Remove the archived room from the list
                 setRooms(prevRooms => prevRooms.filter(room => room.room_id !== selectedRoom.room_id));
                 setSelectedRoom(null);
 
@@ -220,7 +297,7 @@ const RoomManager = () => {
                                     <IoBedOutline style={{ marginRight: '5px', textAlign: 'center' }} />
                                     <div className="column is-flex is-align-items-center">
                                         <h3 style={{ marginRight: "8px" }}>
-                                            {room.room_type_name}
+                                            {room.room_type_name} - {room.room_number}
                                         </h3>
                                         <div
                                             className="status-circle"
@@ -255,29 +332,17 @@ const RoomManager = () => {
                                     {/* First Column */}
                                     <div className="column is-one-half">
                                         <div className="staff-space">
-                                            <div className="field">
-                                                <label className="label">Room Type</label>
+                                            <div className="field "> 
                                                 <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="text"
-                                                        name="room_type_name"
-                                                        value={selectedRoom.room_type_name}
-                                                        onChange={handleDetailChange}
-                                                    />
+                                                    <p className="label has-text-grey m-0">Room Type</p>
+                                                    <p className='label is-size-4 ml-1'>{selectedRoom.room_type_name}</p>
                                                 </div>
                                             </div>
 
-                                            <div className="field">
-                                                <label className="label">Room Number</label>
+                                            <div className="field is-flex">
                                                 <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        name="room_number"
-                                                        value={selectedRoom.room_number}
-                                                        onChange={handleDetailChange}
-                                                    />
+                                                    <p className="label has-text-grey m-0">Room Number</p>
+                                                    <p className='label is-size-4 ml-1'>{selectedRoom.room_number}</p>   
                                                 </div>
                                             </div>
                                             <div className="field">
@@ -291,6 +356,7 @@ const RoomManager = () => {
                                                     ></textarea>
                                                 </div>
                                             </div>
+                                            <label className='label'>Room Photos and Virtual Tour</label>
                                             <div className="field is-grouped is-flex is-flex-wrap-wrap is-flex-direction-row-mobile is-flex-direction-column-tablet">
                                                 <div className="control">
                                                     <button className="button is-blue mb-2 mr-2 is-fullwidth-tablet" onClick={toggleRoomPhotosModal}>
@@ -305,6 +371,35 @@ const RoomManager = () => {
                                                     </button>
                                                 </div>
 
+                                            </div>
+
+                                            <div className="field is-grouped is-flex is-flex-wrap-wrap is-flex-direction-row-mobile is-flex-direction-column-tablet">
+                                                {/* Show loading indicator when fetching data */}
+                                                {isLoading ? (
+                                                    <p>Loading...</p>
+                                                ) : (
+                                                    <>
+                                                        {/* Render "Add Virtual Room Photo" only if no tour exists for the room type */}
+                                                        {!hasVirtualTourForRoomType(selectedRoom?.room_type_name) && (
+                                                            <div className="control">
+                                                                <button className="button is-blue mb-2 mr-2 is-fullwidth-tablet" onClick={toggleRoomVTModal}>
+                                                                    <span className="mr-1"><IoAddCircleOutline /></span>
+                                                                    <span>Add Virtual Room Photo</span>
+                                                                </button>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Render "Edit Virtual Room Photo" if a tour exists for the specific room ID */}
+                                                        {hasVirtualTourForRoomType(selectedRoom?.room_type_name) && hasVirtualTourForRoomId(selectedRoom?.room_id) && (
+                                                            <div className="control">
+                                                                <button className="button is-inverted-blue mb-2 is-fullwidth-tablet" onClick={toggleEditRoomVTModal}>
+                                                                    <span className="mr-1"><IoPencilOutline /></span>
+                                                                    <span>Edit Virtual Room Photo</span>
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
                                             </div>
 
 
@@ -324,31 +419,77 @@ const RoomManager = () => {
 
                                         <div className="columns is-multiline">
                                             <div className="column is-6">
-                                                <div className="field">
-                                                    <label className="label">Room PAX Maximum</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="room_pax_max"
-                                                            value={selectedRoom.room_pax_max}
-                                                            onChange={handleDetailChange}
-                                                        />
-                                                    </div>
+                                            <div className="field">
+                                                <label className="label">Room PAX Minimum</label>
+                                                <div className="control is-flex is-align-items-center">
+                                                    <button
+                                                        className="button is-blue mr-2"
+                                                        onClick={() => {
+                                                            if (selectedRoom.room_pax_min > 1) {
+                                                                setSelectedRoom((prev) => ({
+                                                                    ...prev,
+                                                                    room_pax_min: prev.room_pax_min - 1,
+                                                                }));
+                                                            }
+                                                        }}
+                                                        disabled={selectedRoom.room_pax_min <= 1}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <span className="button is-static">{selectedRoom.room_pax_min} Guests</span>
+                                                    <button
+                                                        className="button is-blue ml-2"
+                                                        onClick={() => {
+                                                            if (selectedRoom.room_pax_min < 10) {
+                                                                setSelectedRoom((prev) => ({
+                                                                    ...prev,
+                                                                    room_pax_min: prev.room_pax_min + 1,
+                                                                }));
+                                                            }
+                                                        }}
+                                                        disabled={selectedRoom.room_pax_min >= 10}
+                                                    >
+                                                        +
+                                                    </button>
                                                 </div>
                                             </div>
 
+                                            </div>
+
                                             <div className="column is-6">
+                                                
                                                 <div className="field">
-                                                    <label className="label">Room PAX Minimum</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="room_pax_min"
-                                                            value={selectedRoom.room_pax_min}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <label className="label">Room PAX Maximum</label>
+                                                    <div className="control is-flex is-align-items-center">
+                                                        <button
+                                                            className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedRoom.room_pax_max > 1) {
+                                                                    setSelectedRoom((prev) => ({
+                                                                        ...prev,
+                                                                        room_pax_max: prev.room_pax_max - 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedRoom.room_pax_max <= 1}
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="button is-static">{selectedRoom.room_pax_max} Guests</span>
+                                                        <button
+                                                            className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedRoom.room_pax_max < 10) {
+                                                                    setSelectedRoom((prev) => ({
+                                                                        ...prev,
+                                                                        room_pax_max: prev.room_pax_max + 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedRoom.room_pax_max >= 10}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -362,23 +503,82 @@ const RoomManager = () => {
                                                             type="number"
                                                             name="room_rate"
                                                             value={selectedRoom.room_rate}
-                                                            onChange={handleDetailChange}
+                                                            min="1" // Set the minimum value to 1
+                                                            onChange={(e) => {
+                                                                let value = e.target.value;
+                                                                
+                                                                // Prevent negative input and input starting with '0'
+                                                                if (value >= 0 && !/^0/.test(value)) {
+                                                                    setSelectedRoom((prev) => ({
+                                                                        ...prev,
+                                                                        room_rate: value,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            onBlur={() => {
+                                                                // Ensure the value is at least 1
+                                                                const value = parseFloat(selectedRoom.room_rate);
+                                                                if (isNaN(value) || value < 1) {
+                                                                    setSelectedRoom((prev) => ({
+                                                                        ...prev,
+                                                                        room_rate: 1,
+                                                                    }));
+                                                                } else {
+                                                                    setSelectedRoom((prev) => ({
+                                                                        ...prev,
+                                                                        room_rate: value,
+                                                                    }));
+                                                                }
+                                                            }}
                                                         />
                                                     </div>
                                                 </div>
                                             </div>
 
+
+
+
+
                                             <div className="column is-6">
                                                 <div className="field">
                                                     <label className="label">Room Discount</label>
-                                                    <div className="control">
-                                                        <input
-                                                            className="input"
-                                                            type="number"
-                                                            name="room_disc_percentage"
-                                                            value={selectedRoom.room_disc_percentage}
-                                                            onChange={handleDetailChange}
-                                                        />
+                                                    <div className="control is-flex is-align-items-center">
+                                                        {/* Decrease Button */}
+                                                        <button
+                                                            className="button is-blue mr-2"
+                                                            onClick={() => {
+                                                                if (selectedRoom.room_disc_percentage > 0) {
+                                                                    setSelectedRoom((prev) => ({
+                                                                        ...prev,
+                                                                        room_disc_percentage: prev.room_disc_percentage - 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedRoom.room_disc_percentage <= 0}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        {/* Display Current Discount */}
+                                                        <span className="button is-static">
+                                                            {selectedRoom.room_disc_percentage}%
+                                                        </span>
+
+                                                        {/* Increase Button */}
+                                                        <button
+                                                            className="button is-blue ml-2"
+                                                            onClick={() => {
+                                                                if (selectedRoom.room_disc_percentage < 100) {
+                                                                    setSelectedRoom((prev) => ({
+                                                                        ...prev,
+                                                                        room_disc_percentage: prev.room_disc_percentage + 1,
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            disabled={selectedRoom.room_disc_percentage >= 100}
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -391,8 +591,8 @@ const RoomManager = () => {
                                                             className="input"
                                                             type="number"
                                                             name="room_final_rate"
-                                                            value={selectedRoom.room_final_rate}
-                                                            onChange={handleDetailChange}
+                                                            value={selectedRoom.room_final_rate.toFixed(2)} // Display as a fixed decimal
+                                                            readOnly // Make the field read-only to prevent manual editing
                                                         />
                                                     </div>
                                                 </div>
@@ -427,7 +627,6 @@ const RoomManager = () => {
                                                                 onChange={handleDetailChange}
                                                             >
                                                                 <option value="AVAILABLE">AVAILABLE</option>
-                                                                <option value="NOT AVAILABLE">NOT AVAILABLE</option>
                                                                 <option value="UNDER MAINTENANCE">UNDER MAINTENANCE</option>
                                                                 <option value="OCCUPIED">OCCUPIED</option>
                                                             </select>
@@ -436,17 +635,6 @@ const RoomManager = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="column is-6">
-                                                <div className="field">
-                                                    <label className="label">Edit Virtual Tour Room</label>
-                                                    <figure className="image is-fullwidth">
-                                                        <img src="https://via.placeholder.com/128x128" alt="Virtual Tour" style={{ height: '128px' }} />
-                                                    </figure>
-                                                    <div className="container">
-                                                        <button className="button is-blue is-fullwidth">Edit Virtual Tour Details</button>
-                                                    </div>
-                                                </div>
-                                            </div>
 
                                         </div>
 
@@ -503,12 +691,22 @@ const RoomManager = () => {
                         )}
                     </main>
                 </div>
-                <AddRoomModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddRoomModal isOpen={isModalOpen} toggleModal={toggleModal} refreshRoomList = {refreshRoomList} />
                 <AddRoomPhotos isOpen={isRoomPhotosModalOpen} toggleModal={toggleRoomPhotosModal}  roomId={currentRoomId}/>
                 {isEditRoomPhotosModalOpen && (
-                <EditRoomPhotos isOpen={isEditRoomPhotosModalOpen}  toggleModal={toggleEditRoomPhotosModal}  roomId={currentRoomId}  // Pass the current roomId to the modal
+                <EditRoomPhotos isOpen={isEditRoomPhotosModalOpen}  toggleModal={toggleEditRoomPhotosModal}  roomId={currentRoomId}  
+                />)}
+                <AddRoomVTModal 
+                    isOpen={isRoomVTModalOpen} 
+                    toggleModal={toggleRoomVTModal}  
+                    roomId={currentRoomId} 
+                    roomTypeName={currentRoomTypeName} // Pass the correct state
                 />
-            )}
+
+                {isEditRoomVTModalOpen && (
+                <EditRoomVTModal isOpen={isEditRoomVTModalOpen}  toggleModal={toggleEditRoomVTModal}  roomId={currentRoomId}  roomTypeName={currentRoomTypeName}
+                />)}
+
             </div>
         </section>
     );

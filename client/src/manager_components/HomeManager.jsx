@@ -4,7 +4,7 @@ import logo from '../images/logo.png';
 import '../App.css';
 import './components_m.css';
 import { Link } from 'react-router-dom';
-import { IoGridSharp, IoSettings } from 'react-icons/io5';
+import { IoGridSharp, IoSettings, IoSave } from 'react-icons/io5';
 import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
 
 const HomeManager = () => {
@@ -52,6 +52,11 @@ const HomeManager = () => {
               <Link to="/manager_dashboard_reports" className="button is-dark-blue">
                 <IoGridSharp style={{ textAlign: 'center', margin: '5px' }} /> Service Reports
               </Link>
+              <Link to="/manager_archive_dashboard" className="button is-inverted-blue">
+                <IoSave style={{ textAlign: 'center', margin: '5px' }} /> Archives
+              </Link>
+
+            
             </div>
           </div>
         </div>

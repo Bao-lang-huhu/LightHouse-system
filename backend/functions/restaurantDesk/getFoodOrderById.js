@@ -13,7 +13,9 @@ const getFoodOrderById = async (req, res) => {
         staff_id,
         STAFF (
           staff_id,
-          staff_username
+          staff_username,
+          staff_fname,
+          staff_lname
         ),
         check_in_id,
         f_payment_method,

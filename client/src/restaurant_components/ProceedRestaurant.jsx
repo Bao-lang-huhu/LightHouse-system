@@ -7,7 +7,7 @@ import axios from 'axios';
 import {jwtDecode} from 'jwt-decode'; 
 import ErrorMsg from '../messages/errorMsg'; 
 import SuccessMsg from '../messages/successMsg'; 
-
+import Avatar from '@mui/material/Avatar'; 
 const ProceedRestaurant = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const ProceedRestaurant = () => {
   const [currentStaff, setCurrentStaff] = useState({});
   const [orderSuccess, setOrderSuccess] = useState(''); // State for success message
   const [orderError, setOrderError] = useState(''); // State for error message
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -100,6 +101,108 @@ const ProceedRestaurant = () => {
   };
 
   const numberOfItems = foodOrders.length;
+
+
+  const printOrderDirectly = () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    iframe.style.display = 'none';
+
+    const printDocument = iframe.contentDocument || iframe.contentWindow.document;
+    printDocument.write(`
+      <html>
+        <head>
+          <style>
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+              }
+              .print-container {
+                width: 100%;
+                padding: 20px;
+                background-color: white;
+              }
+              .table {
+                width: 90%;
+                border-collapse: collapse;
+              }
+              .table th, .table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              .table th {
+                background-color: #f2f2f2;
+              }
+              .table, .print-container, tr, td {
+                page-break-inside: avoid;
+              }
+              .no-print-btn, .cancel-btn {
+                display: none;
+              }
+              @page {
+                size: A4;
+                margin: 10mm;
+              }
+            }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          <div class="print-container">
+            <h1 class="subtitle"><strong>Order Line</strong></h1>
+            <p><strong>Staff:</strong> ${currentStaff.staff_name}</p>
+            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+            ${selectedCheckInId && paymentMethod === 'ROOM' ? 
+                `<p><strong>Room:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_number || 'Not Available'}</p>` : ''}
+            ${selectedCheckInId && paymentMethod === 'ROOM' ? 
+                  (() => {
+                    const guest = checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId);
+                    return `<p><strong>Guest:</strong> ${guest ? `${guest.guest_fname} ${guest.guest_lname}` : 'Not Available'}</p>`;
+                  })() : ''}
+                   ${selectedCheckInId && paymentMethod === 'ROOM' ? 
+                `<p><strong>Room Type:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_type_name || 'Not Available'}</p>` : ''}
+                 
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Food Item</th>
+                  <th>Quantity</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${foodOrders.map(item => `
+                  <tr>
+                    <td>${item.food_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₱${(item.food_price * item.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <div style="margin-top: 15px;">
+              <p><strong>Notes:</strong> ${notes.trim() ? notes : "No Notes..."}</p> <!-- Show 'No Notes...' when none are present -->
+            </div>
+            <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+          </div>
+        </body>
+      </html>
+    `);
+
+    printDocument.close();
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+
+    setTimeout(() => {
+        document.body.removeChild(iframe);
+    }, 1000);
+};
+
+  
+  
 
   return (
     <section className="section-p1">
@@ -217,9 +320,18 @@ const ProceedRestaurant = () => {
                     {foodOrders.map((item) => (
                       <tr key={item.food_id}>
                         <td>
-                          <figure className="image is-64x64">
-                            <img src={item.food_photo} alt={item.food_name} />
-                          </figure>
+                        <Avatar
+                            src={item.food_photo || 'https://via.placeholder.com/64'}
+                            alt={item.food_name}
+                            style={{
+                              width: 64,
+                              height: 64,
+                              margin: 'auto',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
+                            }}
+                            imgProps={{ style: { objectFit: 'cover' } }}
+                          />
                         </td>
                         <td>{item.food_name}</td>
                         <td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
@@ -260,11 +372,18 @@ const ProceedRestaurant = () => {
                   style={{ width: '100%', minHeight: '100px' }}
                 />
               </div>
+              <button className="button is-blue is-fullwidth" onClick={printOrderDirectly}>Print Order</button>
               <button className="button is-dark-blue is-fullwidth" onClick={handlePlaceOrder}> Print and Confirm Order</button>
             </div>
           </div>
         </div>
       </div>
+
+     
+
+
+
+
     </section>
   );
 };

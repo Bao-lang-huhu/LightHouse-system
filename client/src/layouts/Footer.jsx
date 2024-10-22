@@ -1,8 +1,8 @@
 import React from 'react';
-import logo from "../images/logo.png";
+import logo from "../images/guest_home/logo-new.png";
 import { Link } from 'react-router-dom';
 import '../App.css';
-import { FaFacebook, FaInstagram, FaYoutube } from 'react-icons/fa';
+import { FaFacebook, FaInstagram} from 'react-icons/fa';
 
 const Footer = () => {
   return (
@@ -10,7 +10,6 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-col">
         <Link to = "/" ><img src={logo} alt="LightHouse Point Hotel"  /></Link>
-          <h4>Contact Us</h4>
           <p><strong>Address:</strong>Airport Highway, Brgy. 40a Hibbard Ave, Dumaguete City, 6200 Negros Oriental</p>
           <p><strong>Phone:</strong> +63 912 2345 342 / +63 955 1850 136</p>
           <p><strong>Email:</strong> lighthousepoint@gmail.com</p>

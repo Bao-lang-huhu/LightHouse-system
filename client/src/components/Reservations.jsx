@@ -1,9 +1,8 @@
-import React ,{ useState } from 'react';
+import React, { useState } from 'react';
 import 'bulma/css/bulma.min.css';
 import './pages.css';
 import '../App.css';
 import Breadcrumbs from '../layouts/Breadcrumbs';
-import ReservationsAccordion from './ReservationsAccordion';
 import ReservationsRoom from './ReservationsRoom';
 import ReservationsTable from './ReservationsTable';
 import ReservationsEvent from './ReservationsEvent';
@@ -14,23 +13,21 @@ const Reservations = () => {
         { label: 'Reservations' },
     ];
 
-    // State to manage which reservation detail is active
-    const [activeSection, setActiveSection] = useState(null);
+    // State to manage the active tab
+    const [activeTab, setActiveTab] = useState('room');
 
-    // Function to render the right side details based on the active section
     const renderActiveSection = () => {
-        switch (activeSection) {
+        switch (activeTab) {
             case 'room':
                 return <ReservationsRoom />;
             case 'table':
                 return <ReservationsTable />;
             case 'event':
-                return <ReservationsEvent />; 
+                return <ReservationsEvent />;
             default:
                 return <ReservationsRoom />;
         }
     };
-
 
     return (
         <section className="section-m1">
@@ -45,37 +42,48 @@ const Reservations = () => {
                 <Breadcrumbs items={breadcrumbItems} />
             </div>
 
-            <div className='m-2'>
-                <div className='m-1'>
-                    <h1 className='subtitle'>My Reservations</h1>
-                </div>
+          
+            <div className="m-2">
+  {/* Tab navigation */}
+  <div className="tabs is-toggle is-fullwidth">
+    <ul className="is-flex-direction-column-mobile">
+      {/* Room Reservation */}
+      <li className={activeTab === 'room' ? 'is-active-blue' : ''}>
+        <a onClick={() => setActiveTab('room')}>
+          <span>Room Reservation</span>
+        </a>
+      </li>
 
-            <div className="columns">
-                {/* Sidebar Accordion */}
-                <div className="column is-one-quarter">
-                    <ReservationsAccordion
-                        style={{color:"#0077B7"}}
-                        title="Room Reservation"
-                        onClick={() => setActiveSection('room')}
-                    />
-                    <ReservationsAccordion
-                        title="Table Reservation"
-                        onClick={() => setActiveSection('table')}
-                    />
-                    <ReservationsAccordion
-                        title="Event Reservation"
-                        onClick={() => setActiveSection('event')}
-                    />
-                </div>
+      {/* Table Reservation */}
+      <li className={activeTab === 'table' ? 'is-active-blue' : ''}>
+        <a onClick={() => setActiveTab('table')}>
+          <span>Table Reservation</span>
+        </a>
+      </li>
 
-                {/* Details or other content based on the active section */}
-                <div className="column" >
-                    <div className="box" style={{backgroundColor:"#0077B7"}}>
-                        {renderActiveSection()}
-                    </div>
-                </div>
-            </div>
-            </div>
+      {/* Event Reservation */}
+      <li className={activeTab === 'event' ? 'is-active-blue' : ''}>
+        <a onClick={() => setActiveTab('event')}>
+          <span>Event Reservation</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  {/* Container for the tab content */}
+  <div className="box" style={{ backgroundColor: "#0077B7" }}>
+    {renderActiveSection()}
+  </div>
+</div>
+
+
+
+
+
+
+     
+         
+
         </section>
     );
 };

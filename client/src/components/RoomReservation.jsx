@@ -6,11 +6,15 @@ import '../App.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Breadcrumbs from '../layouts/Breadcrumbs';
+import { IoPencil, IoPerson, IoReceipt } from 'react-icons/io5';
+import { Snackbar, Alert } from '@mui/material'; 
+import SuccessModal from '../messages/successModal';
+import ErrorModal from '../messages/errorModal';
 
 const RoomReservation = () => {
     const breadcrumbItems = [
         { label: 'Home', link: '/' },
-        { label: 'Room Search' },
+        { label: 'Room Search', link:'/room_search' },
         { label: 'Room Reservation' },
     ];
 
@@ -19,25 +23,33 @@ const RoomReservation = () => {
     const [roomIsBreakfast, setRoomIsBreakfast] = useState(false);
     const [roomCompany, setRoomCompany] = useState('');
     const [roomPax, setRoomPax] = useState(1);
-    const [termsAccepted, setTermsAccepted] = useState(false); // New state for terms acceptance
+    const [termsAccepted, setTermsAccepted] = useState(false); 
     const location = useLocation();
     const navigate = useNavigate();
 
     const { room, checkInDate, checkOutDate } = location.state || {};
     const [totalNights, setTotalNights] = useState(0);
     const [totalCost, setTotalCost] = useState(0);
+    
+    const [notification, setNotification] = useState({
+        open: false,
+        message: '',
+        severity: 'success', 
+    });
+
+    const [showSuccessModal, setShowSuccessModal] = useState(false); 
+    const [showErrorModal, setShowErrorModal] = useState(false);
 
     useEffect(() => {
         const fetchGuestDetails = async () => {
-            const token = localStorage.getItem('token'); // Assuming token contains guest data
-            const savedRoomPax = localStorage.getItem('totalGuests'); // Retrieve roomPax from localStorage
+            const token = localStorage.getItem('token'); 
+            const savedRoomPax = localStorage.getItem('totalGuests'); 
 
             if (!token) {
-                console.error("No token found.");
+                setNotification({ open: true, message: "No token found.", severity: "error" });
                 return;
             }
 
-            // Set roomPax from localStorage
             if (savedRoomPax) {
                 setRoomPax(parseInt(savedRoomPax, 10)); // Convert to integer and store in state
             }
@@ -49,68 +61,68 @@ const RoomReservation = () => {
                     },
                 });
 
-                setGuestInfo(response.data); // Set guestInfo with the fetched data
+                setGuestInfo(response.data); 
             } catch (error) {
-                console.error('Error fetching guest details:', error);
+                setNotification({ open: true, message: 'Error fetching guest details.', severity: 'error' });
             }
         };
 
         fetchGuestDetails();
     }, []);
 
-    // Calculate total nights and cost
+
+
     useEffect(() => {
         if (checkInDate && checkOutDate && room) {
             const checkIn = new Date(checkInDate);
             const checkOut = new Date(checkOutDate);
-            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)); // Calculate number of nights
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)); 
             setTotalNights(nights);
-            setTotalCost(nights * room.room_final_rate); // Calculate total cost
+            setTotalCost(nights * room.room_final_rate); 
         }
     }, [checkInDate, checkOutDate, room]);
 
     const handleReservation = async () => {
         if (!termsAccepted) {
-            alert("Please accept the terms and conditions before proceeding.");
+            setNotification({ open: true, message: "Please accept the terms and conditions before proceeding.", severity: "warning" });
             return;
         }
 
         try {
             if (!room || !checkInDate || !checkOutDate || !guestInfo?.guest_id) {
-                alert("Room, date, or guest details are missing. Please try again.");
+                setNotification({ open: true, message: "Room, date, or guest details are missing.", severity: "error" });
                 return;
             }
 
-            // Prepare reservation data including roomPax and room_company
             const reservationData = {
                 guest_id: guestInfo.guest_id,
                 room_id: room.room_id,
-                room_reservation_date: new Date().toISOString(),
+                room_reservation_date: new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }),
                 room_check_in_date: checkInDate,
                 room_check_out_date: checkOutDate,
                 reservation_status: 'CONFIRMED',
                 room_notes: additionalNotes,
                 room_is_breakfast: roomIsBreakfast,
                 room_pax: roomPax,
-                room_company: roomCompany || guestInfo.company || null, // Optional company field
+                room_company: roomCompany || guestInfo.company || null, 
                 cancel_reservation_request: null,
                 total_cost: totalCost,
             };
 
             console.log('Reservation Data:', reservationData);
 
-            // Send POST request to backend API
             const response = await axios.post('http://localhost:3001/api/registerRoomReservation', reservationData);
 
             if (response.status === 201) {
-                alert('Reservation confirmed!');
-                navigate('/');
+                setNotification({ open: true, message: 'Reservation confirmed!', severity: 'success' });
+                setShowSuccessModal(true);
             } else {
-                alert('Failed to confirm reservation.');
+                setNotification({ open: true, message: 'Failed to confirm reservation.', severity: 'error' });
+                setShowErrorModal(true); 
             }
         } catch (error) {
-            console.error('Error registering reservation:', error);
-            alert('Failed to register reservation.');
+            setNotification({ open: true, message: 'Failed to register reservation.', severity: 'error' });
+            setShowErrorModal(true); 
         }
     };
 
@@ -118,8 +130,28 @@ const RoomReservation = () => {
         return <div>Loading guest details...</div>;
     }
 
+    const handleCloseNotification = () => {
+        setNotification({ ...notification, open: false });
+    };
+
     return (
-        <section className='section-m1'>
+        <section className='section-m1' >
+           <Snackbar
+                open={notification.open}
+                autoHideDuration={3000}
+                onClose={handleCloseNotification}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                sx={{ width: '400px' }}  >
+                <Alert
+                    onClose={handleCloseNotification}
+                    severity={notification.severity}
+                    style={{ fontSize: '1.2rem', padding: '20px' }} 
+                >
+                    {notification.message}
+                </Alert>
+            </Snackbar>
+
+
             <div className="contact-hero-image">
                 <div className="text-content-title">
                     <h1 className='title'>Room Booking Review</h1>
@@ -130,82 +162,79 @@ const RoomReservation = () => {
                 <Breadcrumbs items={breadcrumbItems} />
             </div>
 
-            <div className='box section-p1 m-2'>
-                <div className="columns">
+            <div className='box section' style={{ margin: '1rem auto', maxWidth: '1200px' }}>
+                <div className="columns is-variable is-8 is-multiline">
                     {/* Guest Information Section */}
                     <div className="column is-one-third">
                         <div className="field">
-                            <label className="subtitle">Guest Information</label>
+                            <label className="subtitle"><IoPerson className='mr-2'/>Guest Information</label>
                         </div>
                         <div className="field">
-                            <label className="label">ID:</label>
-                            <p>{guestInfo.guest_id || 'N/A'}</p>
+                            <label className="label" style={{ color: '#7f8c8d' }}>Name: <strong>{guestInfo.guest_fname || 'N/A'} {guestInfo.guest_lname || 'N/A'}</strong></label>
                         </div>
                         <div className="field">
-                            <label className="label">First Name:</label>
-                            <p>{guestInfo.guest_fname || 'N/A'}</p>
+                            <label className="label" style={{ color: '#7f8c8d' }}>Address: <strong>{guestInfo.guest_address || 'N/A'}</strong></label>
                         </div>
                         <div className="field">
-                            <label className="label">Last Name:</label>
-                            <p>{guestInfo.guest_lname || 'N/A'}</p>
+                            <label className="label" style={{ color: '#7f8c8d' }}>Country: <strong>{guestInfo.guest_country || 'N/A'}</strong></label>
                         </div>
                         <div className="field">
-                            <label className="label">Address:</label>
-                            <p>{guestInfo.guest_address || 'N/A'}</p>
-                        </div>
-                        <div className="field">
-                            <label className="label">Country:</label>
-                            <p>{guestInfo.guest_country || 'N/A'}</p>
-                        </div>
-                        <div className="field">
-                            <label className="label">Contact Number:</label>
-                            <p>{guestInfo.guest_phone_no || 'N/A'}</p>
+                            <label className="label" style={{ color: '#7f8c8d' }}>Contact Number: <strong>{guestInfo.guest_phone_no || 'N/A'}</strong></label>
                         </div>
                     </div>
 
                     {/* Reservation Information Section */}
                     <div className="column is-one-third">
                         <div className="field">
-                            <label className="subtitle">Reservation Info</label>
+                            <label className="subtitle"><IoReceipt className='mr-2' />Reservation Information</label>
                         </div>
                         <div className="field">
-                            <label className="label">Number of Nights:</label>
-                            <p>{totalNights}</p>
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Number of Nights: <strong>{totalNights}</strong>
+                            </label>
                         </div>
                         <div className="field">
-                            <label className="label">Rate per Night:</label>
-                            <p>₱{room ? room.room_final_rate : 'N/A'}</p>
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Rate per Night: <strong>₱{room ? room.room_final_rate : 'N/A'}</strong>
+                            </label>
                         </div>
                         <div className="field">
-                            <label className="label">Total Cost (Rate x Nights):</label>
-                            <p>₱{totalCost}</p>
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Total Cost (Rate x Nights): <strong>₱{totalCost}</strong>
+                            </label>
+                        </div>
+                        <div className="field">
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Check-In Date: <strong>{checkInDate || 'N/A'}</strong>
+                            </label>
+                        </div>
+                        <div className="field">
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Check-Out Date: <strong>{checkOutDate || 'N/A'}</strong>
+                            </label>
+                        </div>
+                        <div className="field">
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Room Type: <strong>{room ? room.room_type_name : 'N/A'}</strong>
+                            </label>
+                        </div>
+                        <div className="field">
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Room Number: <strong>{room ? room.room_number : 'N/A'}</strong>
+                            </label>
+                        </div>
+                        <div className="field">
+                            <label className="label" style={{ color: '#7f8c8d' }}>
+                                Room Pax: <strong>{roomPax}</strong>
+                            </label>
                         </div>
                     </div>
+
 
                     {/* Booking Summary Section */}
                     <div className="column is-one-third">
                         <div className="field">
-                            <label className="subtitle">Booking Summary</label>
-                        </div>
-                        <div className="field">
-                            <label className="label">Check-In Date:</label>
-                            <p>{checkInDate || 'N/A'}</p>
-                        </div>
-                        <div className="field">
-                            <label className="label">Check-Out Date:</label>
-                            <p>{checkOutDate || 'N/A'}</p>
-                        </div>
-                        <div className="field">
-                            <label className="label">Room Type:</label>
-                            <p>{room ? room.room_type_name : 'N/A'}</p>
-                        </div>
-                        <div className="field">
-                            <label className="label">Room Number:</label>
-                            <p>{room ? room.room_number : 'N/A'}</p>
-                        </div>
-                        <div className="field">
-                            <label className="label">Room Pax:</label>
-                            <p>{roomPax}</p> {/* Display the roomPax value */}
+                            <label className="subtitle"> <IoPencil className='mr-2'/>Other Queries</label>
                         </div>
 
                         {/* Room Company */}
@@ -251,18 +280,19 @@ const RoomReservation = () => {
 
                 {/* Terms and Conditions */}
                 <div className="field mt-5">
-                    <label className="label">
-                            Please review and agree to our Terms and Conditions, Data Policy, and Cancellation Policy before proceeding with your reservation.
-                        </label>
-                    <label className="checkbox">
-                        <input 
-                            type="checkbox" 
-                            checked={termsAccepted} // Controlled component
-                            onChange={() => setTermsAccepted(!termsAccepted)} // Toggle state
-                        /> I agree to the <Link to="/terms_and_conditions">Terms and Conditions</Link>, <Link to="/cancel_policy">Cancellation Policy</Link> and <Link to="/website_data_policy">Data Policy</Link>
+                    <label className="label" style={{ color: '#2c3e50' }}>
+                        Please review and agree to our Terms and Conditions, Data Policy, and Cancellation Policy before proceeding with your reservation.
                     </label>
+                    <div className="control">
+                        <label className="checkbox" style={{ color: '#7f8c8d' }}>
+                            <input
+                                type="checkbox"
+                                checked={termsAccepted}
+                                onChange={(e) => setTermsAccepted(e.target.checked)}
+                            />{' '}I agree to the <Link to="/terms_and_conditions" style={{ textDecoration: 'underline' }}>Terms and Conditions</Link>, <Link to="/cancel_policy" style={{ textDecoration: 'underline' }}>Cancellation Policy</Link> and <Link to="/website_data_policy" style={{ textDecoration: 'underline' }}>Data Policy</Link>
+                        </label>
+                    </div>
                 </div>
-
 
                 <div className="field is-flex is-justify-content-flex-end">
                     <button 
@@ -274,6 +304,10 @@ const RoomReservation = () => {
                     </button>
                 </div>
             </div>
+
+            <SuccessModal isOpen={showSuccessModal} toggleModal={() => setShowSuccessModal(false)} />
+            <ErrorModal isOpen={showErrorModal} toggleModal={() => setShowErrorModal(false)} />
+
         </section>
     );
 };

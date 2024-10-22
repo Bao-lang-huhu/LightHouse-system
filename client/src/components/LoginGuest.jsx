@@ -1,6 +1,7 @@
 import React, { useState } from 'react'; 
 import { Link, useNavigate } from 'react-router-dom';
 import 'bulma/css/bulma.min.css';
+import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import SuccessMsg from '../messages/successMsg';
 import ErrorMsg from '../messages/errorMsg';
 import axios from 'axios';
@@ -10,19 +11,19 @@ function LoginGuest() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const [isSuccess, setIsSuccess] = useState(false); // Track message type
+    const [isSuccess, setIsSuccess] = useState(false); 
     const [isRedirecting, setIsRedirecting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); // New state for password visibility
     const navigate = useNavigate();
 
-    // Reset message when email or password changes
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
-        setMessage(''); // Clear message on input change
+        setMessage(''); 
     };
 
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
-        setMessage(''); // Clear message on input change
+        setMessage(''); 
     };
 
     const handleLogin = async (e) => {
@@ -51,8 +52,13 @@ function LoginGuest() {
         } catch (error) {
             console.error('Login error:', error);
             setMessage('Failed to login. Please check your email and password.');
-            setIsSuccess(false); // Set error message
+            setIsSuccess(false);
         }
+    };
+
+    // Toggle password visibility
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     return (
@@ -81,10 +87,10 @@ function LoginGuest() {
 
                                 <div className="field">
                                     <label className="label" htmlFor="password">Password:</label>
-                                    <div className="control">
+                                    <div className="control is-flex">
                                         <input
                                             className="input"
-                                            type="password"
+                                            type={showPassword ? 'text' : 'password'} // Toggle between password and text
                                             id="password"
                                             name="password"
                                             placeholder="Enter your password"
@@ -92,6 +98,12 @@ function LoginGuest() {
                                             onChange={handlePasswordChange}
                                             required
                                         />
+                                          <button
+                                                type="button"
+                                                className="button is-blue ml-2" 
+                                                onClick={togglePasswordVisibility}>
+                                                {showPassword ? <IoEyeOffSharp /> : <IoEyeSharp />} {/* Toggle icons */}
+                                        </button>
                                     </div>
                                 </div>
 

@@ -5,7 +5,7 @@ import axios from 'axios';
 import ErrorMsg from '../messages/errorMsg';
 import SuccessMsg from '../messages/successMsg';
 
-const AddFoodModal = ({ isOpen, toggleModal }) => {
+const AddFoodModal = ({ isOpen, toggleModal, refreshFoodList }) => {
     const [food, setFood] = useState({
         food_category_name: '',
         food_name: '',
@@ -52,17 +52,42 @@ const AddFoodModal = ({ isOpen, toggleModal }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFood({ ...food, [name]: value });
-
-        setErroredFields((prev) => ({ ...prev, [name]: false }));
-
+    
+        // Handle numeric inputs (like food_price) separately from select inputs
         if (name === 'food_price' || name === 'food_disc_percentage') {
-            const price = name === 'food_price' ? parseFloat(value) : food.food_price;
-            const discount = name === 'food_disc_percentage' ? parseFloat(value) : food.food_disc_percentage;
-            const finalPrice = price - (price * (discount / 100));
-            setFood({ ...food, [name]: value, food_final_price: finalPrice.toFixed(2) });
+            let updatedValue = parseFloat(value);
+    
+            setErroredFields((prev) => ({ ...prev, [name]: false }));
+    
+            if (name === 'food_price') {
+                if (isNaN(updatedValue) || updatedValue <= 0) {
+                    setErroredFields((prev) => ({ ...prev, food_price: true }));
+                    return;
+                }
+            }
+    
+            setFood((prev) => ({
+                ...prev,
+                [name]: updatedValue,
+            }));
+        } else {
+            // Handle string inputs (like selects and text inputs)
+            setFood((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
         }
     };
+    
+    useEffect(() => {
+        // Automatically recalculate the final price when food price or discount changes
+        const finalPrice = food.food_price - (food.food_price * (food.food_disc_percentage / 100));
+        setFood((prev) => ({
+            ...prev,
+            food_final_price: finalPrice.toFixed(2),
+        }));
+    }, [food.food_price, food.food_disc_percentage]);
+    
 
     const handlePhotoChange = (event) => {
         const file = event.target.files[0];
@@ -98,29 +123,67 @@ const AddFoodModal = ({ isOpen, toggleModal }) => {
             setError('');
             setSuccess('');
             setErroredFields({});
-
+    
+            // Validate required fields
+            let hasError = false;
+            const newErroredFields = {};
+    
+            if (!food.food_name || food.food_name.trim() === '') {
+                newErroredFields.food_name = true;
+                hasError = true;
+            }
+    
+            if (!food.food_price || parseFloat(food.food_price) <= 0) {
+                newErroredFields.food_price = true;
+                hasError = true;
+            }
+    
+            if (!food.food_description || food.food_description.trim() === '') {
+                newErroredFields.food_description = true;
+                hasError = true;
+            }
+    
             if (!food.food_photo) {
                 setError('Please upload a food photo.');
+                hasError = true;
+            }
+    
+            if (!food.food_category_name || food.food_category_name.trim() === '') {
+                newErroredFields.food_category_name = true;
+                hasError = true;
+            }
+    
+            if (!food.food_service_category || food.food_service_category.trim() === '') {
+                newErroredFields.food_service_category = true;
+                hasError = true;
+            }
+    
+            // If there are any errors, update the state and return early
+            if (hasError) {
+                setErroredFields(newErroredFields);
                 return;
             }
-
+    
+            // Make the API request if all validations pass
             const response = await axios.post('http://localhost:3001/api/registerFoodItem', food);
-
+    
             if (response.status === 201) {
                 setSuccess('Food item registered successfully!');
                 setError('');
                 setErroredFields({});
 
+                refreshFoodList();
+    
                 setTimeout(() => {
                     handleClose(); // Close the modal after success message
                 }, 3000);
             }
         } catch (error) {
             console.error('Error registering food item:', error.response?.data || error.message);
-
+    
             setError('Failed to register food item: ' + (error.response?.data?.error || error.message));
             setSuccess('');
-
+    
             if (error.response?.data?.erroredFields) {
                 const fields = error.response.data.erroredFields.reduce((acc, field) => {
                     acc[field] = true;
@@ -130,6 +193,7 @@ const AddFoodModal = ({ isOpen, toggleModal }) => {
             }
         }
     };
+    
 
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`}>
@@ -171,14 +235,18 @@ const AddFoodModal = ({ isOpen, toggleModal }) => {
                                             required
                                         >
                                             <option value="">Select Food Category</option>
-                                            <option value="CHICKEN">Chicken</option>
-                                            <option value="BEEF">Beef</option>
-                                            <option value="BURGER">Burger</option>
-                                            <option value="SALAD">Salad</option>
-                                            <option value="PASTA">Pasta</option>
-                                            <option value="PORK">Pork</option>
-                                            <option value="BREAKFAST">Breakfast</option>
-                                            <option value="MEAL">Meal</option>
+                                            <option value="CHICKEN">CHICKEN</option>
+                                           <option value="BEEF">BEEF</option>
+                                            <option value="BURGER">BURGER</option>
+                                            <option value="SALAD">SALAD</option>
+                                            <option value="PASTA">PASTA</option>
+                                            <option value="PORK">PORK</option>
+                                            <option value="BREAKFAST">BREAKFAST</option>
+                                            <option value="MEAL">MEAL</option>
+                                            <option value="DESSERT">DESSERT</option>
+                                            <option value="DRINK">DRINK (EVENT)</option>
+                                            <option value="MAIN">MAIN (EVENT)</option>
+                                            
                                         </select>
                                     </div>
                                     {erroredFields.food_category_name && <p className="help is-danger">Please select a valid food category.</p>}
@@ -252,52 +320,117 @@ const AddFoodModal = ({ isOpen, toggleModal }) => {
                         </div>
 
                         {/* Third Column: Pricing Information */}
-                        <div className="column is-4">
-                            <div className="field">
-                                <label className="label">Food Price</label>
-                                <div className="control">
-                                    <input
-                                        className={`input ${erroredFields.food_price ? 'is-danger' : ''}`}
-                                        type="number"
-                                        name="food_price"
-                                        placeholder="Enter food price"
-                                        value={food.food_price}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {erroredFields.food_price && <p className="help is-danger">Please enter a valid food price.</p>}
-                                </div>
-                            </div>
-                            <div className="field">
-                                <label className="label">Discount Percentage</label>
-                                <div className="control">
-                                    <input
-                                        className={`input ${erroredFields.food_disc_percentage ? 'is-danger' : ''}`}
-                                        type="number"
-                                        name="food_disc_percentage"
-                                        placeholder="Enter discount percentage"
-                                        value={food.food_disc_percentage}
-                                        onChange={handleChange}
-                                    />
-                                    {erroredFields.food_disc_percentage && <p className="help is-danger">Please enter a valid discount percentage.</p>}
-                                </div>
-                            </div>
-                            <div className="field">
-                                <label className="label">Final Price</label>
-                                <div className="control">
-                                    <input
-                                        className={`input ${erroredFields.food_final_price ? 'is-danger' : ''}`}
-                                        type="number"
-                                        name="food_final_price"
-                                        placeholder="Enter final price"
-                                        value={food.food_final_price}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {erroredFields.food_final_price && <p className="help is-danger">Please enter a valid final price.</p>}
-                                </div>
-                            </div>
-                        </div>
+
+                       <div className="column is-4">
+    <div className="field">
+        <label className="label">Food Price</label>
+        <div className="control">
+            <input
+                className={`input ${erroredFields.food_price ? 'is-danger' : ''}`}
+                type="number"
+                name="food_price"
+                value={food.food_price}
+                min="1" // Set the minimum value to 1
+                onChange={(e) => {
+                    let value = e.target.value;
+
+                    // Prevent negative input and input starting with '0'
+                    if (value >= 0 && !/^0/.test(value)) {
+                        setFood((prev) => ({
+                            ...prev,
+                            food_price: value,
+                        }));
+                    }
+                }}
+                onBlur={() => {
+                    // Ensure the value is at least 1
+                    const value = parseFloat(food.food_price);
+                    if (isNaN(value) || value < 1) {
+                        setFood((prev) => ({
+                            ...prev,
+                            food_price: 1,
+                        }));
+                    } else {
+                        setFood((prev) => ({
+                            ...prev,
+                            food_price: value,
+                        }));
+                    }
+                }}
+                required
+            />
+            {erroredFields.food_price && (
+                <p className="help is-danger">Please enter a valid food price.</p>
+            )}
+        </div>
+    </div>
+
+    <div className="field">
+        <label className="label">Discount Percentage</label>
+        <div className="control is-flex is-align-items-center">
+            {/* Decrease Button */}
+            <button
+                className={`button is-blue mr-2 ${erroredFields.food_disc_percentage ? 'is-danger' : ''}`}
+                onClick={() => {
+                    if (food.food_disc_percentage > 0) {
+                        setFood((prev) => ({
+                            ...prev,
+                            food_disc_percentage: prev.food_disc_percentage - 1,
+                        }));
+                    }
+                }}
+                disabled={food.food_disc_percentage <= 0}
+            >
+                -
+            </button>
+
+            {/* Display Current Discount Percentage */}
+            <span className="button is-static">
+                {food.food_disc_percentage}%
+            </span>
+
+            {/* Increase Button */}
+            <button
+                className={`button is-blue ml-2 ${erroredFields.food_disc_percentage ? 'is-danger' : ''}`}
+                onClick={() => {
+                    if (food.food_disc_percentage < 100) {
+                        setFood((prev) => ({
+                            ...prev,
+                            food_disc_percentage: prev.food_disc_percentage + 1,
+                        }));
+                    }
+                }}
+                disabled={food.food_disc_percentage >= 100}
+            >
+                +
+            </button>
+        </div>
+
+        {/* Error Message */}
+        {erroredFields.food_disc_percentage && (
+            <p className="help is-danger">Please enter a valid discount percentage.</p>
+        )}
+    </div>
+
+    <div className="field">
+        <label className="label">Final Price</label>
+        <div className="control">
+            <input
+                className={`input ${erroredFields.food_final_price ? 'is-danger' : ''}`}
+                type="number"
+                name="food_final_price"
+                placeholder="Enter final price"
+                value={parseFloat(food.food_final_price).toFixed(2)} // Display final price with 2 decimal places
+                readOnly // Make the field read-only as it is auto-calculated
+            />
+            {erroredFields.food_final_price && (
+                <p className="help is-danger">Please enter a valid final price.</p>
+            )}
+        </div>
+    </div>
+</div>
+
+
                     </div>
                 </section>
 

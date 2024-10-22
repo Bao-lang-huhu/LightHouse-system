@@ -5,10 +5,10 @@ import './modals_m.css';
 import ErrorMsg from '../messages/errorMsg';
 import SuccessMsg from '../messages/successMsg';
 
-const AddLaundryModal = ({ isOpen, toggleModal }) => {
+const AddLaundryModal = ({ isOpen, toggleModal, refreshLaundryList }) => {
     const [laundry, setLaundry] = useState({
         laundry_item: '',
-        laundry_ironing_price: 0,
+        laundry_ironing_price: '',
         laundry_status: 'ACTIVE',
     });
 
@@ -27,7 +27,7 @@ const AddLaundryModal = ({ isOpen, toggleModal }) => {
     const handleClose = () => {
         setLaundry({
             laundry_item: '',
-            laundry_ironing_price: 0,
+            laundry_ironing_price: '',
             laundry_status: 'ACTIVE',
         });
         setError('');
@@ -38,9 +38,17 @@ const AddLaundryModal = ({ isOpen, toggleModal }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setLaundry({ ...laundry, [name]: value });
 
-        // Remove the errored field once user starts typing again
+        // For the ironing price, apply custom validation to allow only numbers
+        if (name === 'laundry_ironing_price') {
+            if (/^\d*$/.test(value) && !/^0/.test(value)) { // Allow only digits, no leading zeros
+                setLaundry({ ...laundry, [name]: value });
+            }
+        } else {
+            setLaundry({ ...laundry, [name]: value });
+        }
+
+        // Remove the errored field once the user starts typing again
         setErroredFields((prev) => ({ ...prev, [name]: false }));
     };
 
@@ -50,12 +58,29 @@ const AddLaundryModal = ({ isOpen, toggleModal }) => {
             setSuccess('');
             setErroredFields({});
 
+            // Validate all required fields before submission
+            const newErroredFields = {};
+            if (!laundry.laundry_item.trim()) {
+                newErroredFields.laundry_item = true;
+            }
+            if (!laundry.laundry_ironing_price || parseInt(laundry.laundry_ironing_price, 10) < 1) {
+                newErroredFields.laundry_ironing_price = true;
+            }
+
+            // If there are validation errors, show them and stop submission
+            if (Object.keys(newErroredFields).length > 0) {
+                setErroredFields(newErroredFields);
+                return;
+            }
+
             const response = await axios.post('http://localhost:3001/api/registerLaundry', laundry);
 
             if (response.status === 201) {
                 setSuccess('Laundry item registered successfully!');
                 setError('');
                 setErroredFields({});
+
+                refreshLaundryList();
 
                 setTimeout(() => {
                     handleClose(); // Close the modal after success message
@@ -80,7 +105,7 @@ const AddLaundryModal = ({ isOpen, toggleModal }) => {
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`}>
             <div className="modal-background" onClick={handleClose}></div>
-            <div className="modal-card custom-modal-card">
+            <div className="modal-card">
                 <header className="modal-card-head">
                     <p className="modal-card-title">Add New Laundry Item</p>
                     <button className="delete" aria-label="close" onClick={handleClose}></button>
@@ -113,7 +138,7 @@ const AddLaundryModal = ({ isOpen, toggleModal }) => {
                                 <div className="control">
                                     <input
                                         className={`input ${erroredFields.laundry_ironing_price ? 'is-danger' : ''}`}
-                                        type="number"
+                                        type="text" // Using text to control custom validation
                                         name="laundry_ironing_price"
                                         placeholder="Enter ironing price"
                                         value={laundry.laundry_ironing_price}
@@ -125,7 +150,6 @@ const AddLaundryModal = ({ isOpen, toggleModal }) => {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </section>
 

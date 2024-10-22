@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode'; // Corrected import statement
 import Error401 from '../messages/ErrorPages/401';
+import CustomModal from '../messages/MessageModals/loginModal'; // Import the modal component
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem('token'); 
   const [isVerified, setIsVerified] = useState(null); 
   const [redirectPath, setRedirectPath] = useState('/login'); // Default redirect to login if no token
-  const [isUnauthorized, setIsUnauthorized] = useState(false); // New state for unauthorized access
+  const [isUnauthorized, setIsUnauthorized] = useState(false); // State for unauthorized access
+  const [isTokenExpired, setIsTokenExpired] = useState(false); // State for token expiration
   const navigate = useNavigate(); // Use navigate hook to navigate
 
   useEffect(() => {
@@ -20,7 +22,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
       try {
         const decodedToken = jwtDecode(token);
-        const { staff_acc_role, guest_id, staff_id } = decodedToken;
+        const { staff_acc_role, guest_id, staff_id, exp } = decodedToken;
+
+        // Check if the token is expired
+        const currentTime = Date.now() / 1000;
+        if (exp < currentTime) {
+          setIsTokenExpired(true); // Show modal when token is expired
+          return;
+        }
 
         // Handle guest access
         if (guest_id) {
@@ -50,6 +59,22 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     verifyToken();
   }, [token, allowedRoles]);
+
+  const handleLoginAgain = () => {
+    localStorage.removeItem('token'); // Remove expired token
+    navigate('/login'); // Redirect to login page
+  };
+
+  if (isTokenExpired) {
+    return (
+      <CustomModal
+      message="Your session has expired. Please log in again."
+      open={isTokenExpired} 
+      onConfirm={handleLoginAgain} 
+    />
+    
+    );
+  }
 
   if (isVerified === null) {
     return <div>Loading...</div>; // Show a loading indicator while verifying

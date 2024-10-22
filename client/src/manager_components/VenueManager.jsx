@@ -17,8 +17,6 @@ const VenueManager = () => {
     const [success, setSuccess] = useState(''); // State for success messages
     const [isArchiving, setIsArchiving] = useState(false); // State for archive confirmation
 
-    // Fetch venue data on component mount
-    useEffect(() => {
         const fetchVenues = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/getVenue'); // Replace with your API endpoint
@@ -29,7 +27,12 @@ const VenueManager = () => {
             }
         };
 
+    const refreshVenueList = () => {
         fetchVenues(); 
+    };
+
+    useEffect(() => {
+        fetchVenues();
     }, []);
 
     const toggleModal = () => {
@@ -267,45 +270,139 @@ const VenueManager = () => {
                                     {/* Second Column */}
                                     <div className="column is-one-half">
                                         <div className="staff-space">
+                                            {/* Maximum PAX with - and + Buttons */}
                                             <div className="field">
                                                 <label className="label">Maximum PAX</label>
-                                                <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        name="venue_max_pax"
-                                                        value={selectedVenue.venue_max_pax}
-                                                        onChange={handleDetailChange}
-                                                    />
+                                                <div className="control is-flex is-align-items-center">
+                                                    {/* Decrease Button */}
+                                                    <button
+                                                        className="button is-blue mr-2"
+                                                        onClick={() => {
+                                                            if (selectedVenue.venue_max_pax > 20) {
+                                                                setSelectedVenue((prev) => ({
+                                                                    ...prev,
+                                                                    venue_max_pax: prev.venue_max_pax - 1,
+                                                                }));
+                                                            }
+                                                        }}
+                                                        disabled={selectedVenue.venue_max_pax <= 20}
+                                                    >
+                                                        -
+                                                    </button>
+
+                                                    {/* Display Current PAX */}
+                                                    <span className="button is-static">
+                                                        {selectedVenue.venue_max_pax} guests
+                                                    </span>
+
+                                                    {/* Increase Button */}
+                                                    <button
+                                                        className="button is-blue ml-2"
+                                                        onClick={() => {
+                                                            if (selectedVenue.venue_max_pax < 130) {
+                                                                setSelectedVenue((prev) => ({
+                                                                    ...prev,
+                                                                    venue_max_pax: prev.venue_max_pax + 1,
+                                                                }));
+                                                            }
+                                                        }}
+                                                        disabled={selectedVenue.venue_max_pax >= 130}
+                                                    >
+                                                        +
+                                                    </button>
                                                 </div>
                                             </div>
 
-                                            <div className="field">
-                                                <label className="label">Venue Price</label>
-                                                <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        name="venue_price"
-                                                        value={selectedVenue.venue_price}
-                                                        onChange={handleDetailChange}
-                                                    />
-                                                </div>
-                                            </div>
+                                            {/* Venue Price */}
+                                    <div className="field">
+                                        <label className="label">Venue Price</label>
+                                        <div className="control">
+                                            <input
+                                                className="input"
+                                                type="text" // Use text to control validation better
+                                                name="venue_price"
+                                                value={selectedVenue.venue_price}
+                                                onChange={(e) => {
+                                                    let value = e.target.value;
 
+                                                    // Prevent negative input, symbols, and ensure no leading zeros
+                                                    if (/^\d*$/.test(value) && !/^0/.test(value)) {
+                                                        setSelectedVenue((prev) => ({
+                                                            ...prev,
+                                                            venue_price: value, // Store the input as-is to allow editing freely
+                                                            venue_final_price: value ? parseFloat(value) * (1 - selectedVenue.event_disc_percentage / 100) : 0,
+                                                        }));
+                                                    }
+                                                }}
+                                                onBlur={() => {
+                                                    // Convert to number and set at least 1 when the user leaves the input field
+                                                    const value = parseFloat(selectedVenue.venue_price);
+                                                    if (isNaN(value) || value < 1) {
+                                                        setSelectedVenue((prev) => ({
+                                                            ...prev,
+                                                            venue_price: 1, // Default to 1 if invalid or empty
+                                                            venue_final_price: 1 * (1 - selectedVenue.event_disc_percentage / 100),
+                                                        }));
+                                                    } else {
+                                                        setSelectedVenue((prev) => ({
+                                                            ...prev,
+                                                            venue_price: value, // Set the valid number
+                                                            venue_final_price: value * (1 - selectedVenue.event_disc_percentage / 100),
+                                                        }));
+                                                    }
+                                                }}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+
+                                            {/* Discount Percentage */}
                                             <div className="field">
                                                 <label className="label">Discount Percentage</label>
-                                                <div className="control">
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        name="event_disc_percentage"
-                                                        value={selectedVenue.event_disc_percentage}
-                                                        onChange={handleDetailChange}
-                                                    />
+                                                <div className="control is-flex is-align-items-center">
+                                                    {/* Decrease Button */}
+                                                    <button
+                                                        className="button is-blue mr-2"
+                                                        onClick={() => {
+                                                            if (selectedVenue.event_disc_percentage > 1) {
+                                                                setSelectedVenue((prev) => ({
+                                                                    ...prev,
+                                                                    event_disc_percentage: prev.event_disc_percentage - 1,
+                                                                    venue_final_price: prev.venue_price * (1 - (prev.event_disc_percentage - 1) / 100),
+                                                                }));
+                                                            }
+                                                        }}
+                                                        disabled={selectedVenue.event_disc_percentage <= 1}
+                                                    >
+                                                        -
+                                                    </button>
+
+                                                    {/* Display Current Discount */}
+                                                    <span className="button is-static">
+                                                        {selectedVenue.event_disc_percentage}%
+                                                    </span>
+
+                                                    {/* Increase Button */}
+                                                    <button
+                                                        className="button is-blue ml-2"
+                                                        onClick={() => {
+                                                            if (selectedVenue.event_disc_percentage < 100) {
+                                                                setSelectedVenue((prev) => ({
+                                                                    ...prev,
+                                                                    event_disc_percentage: prev.event_disc_percentage + 1,
+                                                                    venue_final_price: prev.venue_price * (1 - (prev.event_disc_percentage + 1) / 100),
+                                                                }));
+                                                            }
+                                                        }}
+                                                        disabled={selectedVenue.event_disc_percentage >= 100}
+                                                    >
+                                                        +
+                                                    </button>
                                                 </div>
                                             </div>
 
+                                            {/* Final Price */}
                                             <div className="field">
                                                 <label className="label">Final Price</label>
                                                 <div className="control">
@@ -313,13 +410,14 @@ const VenueManager = () => {
                                                         className="input"
                                                         type="number"
                                                         name="venue_final_price"
-                                                        value={selectedVenue.venue_final_price}
+                                                        value={selectedVenue.venue_final_price.toFixed(2)}
                                                         readOnly
                                                     />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
 
                                 <div className="columns">
@@ -377,7 +475,7 @@ const VenueManager = () => {
                 </div>
 
                 {/* Add the modal component */}
-                <AddVenueModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <AddVenueModal isOpen={isModalOpen} toggleModal={toggleModal} refreshVenueList={refreshVenueList} />
             </div>
         </section>
     );

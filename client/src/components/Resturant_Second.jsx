@@ -15,6 +15,8 @@ function Resturant_Second() {
   const [availableTables, setAvailableTables] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0); // Start at index 0
+  const tablesPerPage = 9; // Display 9 tables per page
 
   // Retrieve table_guest_quantity from localStorage
   const table_guest_quantity = parseInt(localStorage.getItem('table_guest_quantity'), 10) || 0;
@@ -22,11 +24,7 @@ function Resturant_Second() {
   // Check if the guest is logged in by checking guest_id in localStorage
   useEffect(() => {
     const guestId = localStorage.getItem('guest_id');
-    if (guestId) {
-      setIsLoggedIn(true); // User is logged in
-    } else {
-      setIsLoggedIn(false); // User is not logged in
-    }
+    setIsLoggedIn(!!guestId); // Set login state based on guest_id presence
   }, []);
 
   // Function to fetch tables and their reservation statuses
@@ -37,12 +35,10 @@ function Resturant_Second() {
 
     try {
       const response = await axios.get('http://localhost:3001/api/getTableReservations2', {
-        params: {
-          table_reservation_date,
-          table_time,
-        },
+        params: { table_reservation_date, table_time },
       });
-      setAvailableTables(response.data); // Load all tables with their statuses
+      const sortedTables = response.data.sort((a, b) => a.table_name.localeCompare(b.table_name));
+      setAvailableTables(sortedTables); // Load all tables with their statuses
     } catch (error) {
       console.error('Error fetching available tables:', error);
     } finally {
@@ -54,18 +50,6 @@ function Resturant_Second() {
   useEffect(() => {
     fetchAvailableTables();
   }, [location]);
-
-  // Toggle the modal state
-  const toggleModal = () => {
-    if (!isLoggedIn) {
-      // If the guest is not logged in, redirect to login
-      navigate('/login', {
-        state: { from: location.pathname },
-      });
-    } else {
-      setIsModalOpen(!isModalOpen); // Proceed with the modal if logged in
-    }
-  };
 
   // Handle table selection
   const handleTableSelection = (table) => {
@@ -82,7 +66,8 @@ function Resturant_Second() {
       case 4:
         return ['top-left-chair', 'top-right-chair', 'bottom-left-chair', 'bottom-right-chair'];
       case 6:
-        return ['top-left-chair', 'top-middle-chair', 'top-right-chair', 'bottom-left-chair', 'bottom-middle-chair', 'bottom-right-chair'];
+        return ['top-left-chair', 'top-middle-chair', 'top-right-chair', 
+          'bottom-left-chair', 'bottom-middle-chair', 'bottom-right-chair'];
       case 8:
         return [
           'top-left-chair', 'top-center-left-chair', 'top-center-right-chair', 'top-right-chair',
@@ -97,10 +82,47 @@ function Resturant_Second() {
     if (selectedTable === table.table_id) {
       return 'is-selected'; // Highlight selected table
     }
-    if (['PENDING', 'CONFIRMED', 'RESERVED'].includes(table.status)) {
-      return 'is-reserved'; // Dark Blue for reserved tables
+    if (table.status === 'UNAVAILABLE') {
+      return 'is-unavailable'; // Custom class for unavailable tables
+    }
+    if (table.seat_quantity !== table_guest_quantity) {
+      return 'is-disabled'; // Grey for mismatched seat quantities
+    }
+    if (table.status === 'PENDING') {
+      return 'is-warning'; // Yellow for pending tables
+    }
+    if (table.status === 'CONFIRMED') {
+      return 'is-info'; // Blue for confirmed tables
+    }
+    if (table.status === 'RESERVED') {
+      return 'is-danger'; // Red for reserved tables
     }
     return 'is-available'; // Light Blue for available tables
+  };
+  
+
+  // Carousel-style table display
+  const currentTables = availableTables.slice(currentIndex, currentIndex + tablesPerPage);
+
+  const handleNextPage = () => {
+    if (currentIndex + tablesPerPage < availableTables.length) {
+      setCurrentIndex(currentIndex + tablesPerPage);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - tablesPerPage);
+    }
+  };
+
+  // Define the toggleModal function here
+  const toggleModal = () => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: location.pathname } });
+    } else {
+      setIsModalOpen(!isModalOpen);
+    }
   };
 
   const breadcrumbItems = [
@@ -119,46 +141,114 @@ function Resturant_Second() {
 
         {/* Table Reservation Section */}
         <div className="container event-bg-style" style={{ marginBottom: '3%' }}>
-          <p className="subtitle has-text-white">LightHouse Point Hotel (Captain Galley's) - 3rd Floor</p>
           <div className="columns is-vcentered is-multiline event-padding-style">
             <div className="event-padding-style event-color-table column is-full-desktop">
-              <p className="subtitle has-text-white">Restaurant Tables (3rd Floor - Open Area)</p>
+              <p className="subtitle has-text-white">LightHouse Point Hotel (Captain Galley's) - 3rd Floor</p>
+              <div className="box p-2 label">
+                <label>Legends:</label>
+                <div className="columns is-mobile is-multiline is-gapless">
+                  <div className="column is-half-mobile is-one-fifth">
+                    <div className="is-flex is-align-items-center">
+                      <span
+                        className="is-inline-block"
+                        style={{ width: '10px', height: '10px', backgroundColor: '#FFC107', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
+                      ></span>
+                      Pending/Confirmed
+                    </div>
+                  </div>
+                  <div className="column is-half-mobile is-one-fifth">
+                    <div className="is-flex is-align-items-center">
+                      <span
+                        className="is-inline-block"
+                        style={{ width: '10px', height: '10px', backgroundColor: 'red', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
+                      ></span>
+                      Unavailable
+                    </div>
+                  </div>
+                  <div className="column is-half-mobile is-one-fifth">
+                    <div className="is-flex is-align-items-center">
+                      <span
+                        className="is-inline-block"
+                        style={{ width: '10px', height: '10px', backgroundColor: '#FFF', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
+                      ></span>
+                      Selected
+                    </div>
+                  </div>
+                  <div className="column is-half-mobile is-one-fifth">
+                    <div className="is-flex is-align-items-center">
+                      <span
+                        className="is-inline-block"
+                        style={{ width: '10px', height: '10px', backgroundColor: 'grey', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
+                      ></span>
+                      Seat Incompatibility
+                    </div>
+                  </div>
+                  <div className="column is-half-mobile is-one-fifth">
+                    <div className="is-flex is-align-items-center">
+                      <span
+                        className="is-inline-block"
+                        style={{ width: '10px', height: '10px', backgroundColor: '#C7F5FF', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
+                      ></span>
+                      Available
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
               <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                 {loading ? (
                   <p>Loading available tables...</p>
                 ) : (
-                  <div className="columns is-multiline section-p1">
-                    {availableTables.map((table) => {
-                      const chairClasses = getChairClasses(table.seat_quantity);
+                  <>
+                    <div className="columns is-multiline section-p1">
+                      {currentTables.map((table) => {
+                        const chairClasses = getChairClasses(table.seat_quantity);
+                        return (
+                          <div className="column is-full-mobile is-half-tablet is-one-third-desktop" key={table.table_id}>
+                            <div className="table-container">
+                              <div className="table-circle">
+                                <button
+                                  className={`button ${getButtonColorClass(table)}`} // Apply button styling
+                                  onClick={() => handleTableSelection(table)}
+                                  disabled={table.seat_quantity !== table_guest_quantity || table.status !== 'AVAILABLE'} // Disable for unavailable or mismatched seat quantity
+                                >
+                                  <div className="column has-text-centered is-circle">
+                                    <p className="is-4">
+                                      <strong>{table.table_name}</strong>
+                                    </p>
+                                    {/* Conditionally render seat quantity for tables with less than 8 seats */}
+                                    {table.seat_quantity < 8 && <p>({table.seat_quantity} Seats)</p>}
+                                    <p>{table.status}</p>
+                                  </div>
 
-                      return (
-                        <div className="column is-full-mobile is-half-tablet is-one-third-desktop" key={table.table_id}>
-                          <div className="table-container">
-                            <div className="table-circle">
-                              <button
-                                className={`button ${getButtonColorClass(table)}`} // Apply button styling
-                                onClick={() => handleTableSelection(table)}
-                                disabled={table.seat_quantity !== table_guest_quantity} // Disable tables with different seat quantities
-                              >
-                                <div className="column has-text-centered is-circle">
-                                  <p className="is-4">
-                                    <strong>{table.table_name}</strong>
-                                  </p>
-                                  <p>({table.seat_quantity} Seats)</p>
-                                  <p>{table.status}</p>
-                                </div>
-                              </button>
-                            </div>
-                            <div className="chairs-wrapper">
-                              {chairClasses.map((chairClass, i) => (
-                                <div key={i} className={`chair ${chairClass}`} />
-                              ))}
+                                </button>
+                              </div>
+                              <div className="chairs-wrapper">
+                                {chairClasses.map((chairClass, i) => (
+                                  <div key={i} className={`chair ${chairClass}`} />
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    <div className="pagination-controls has-text-centered">
+                      {currentIndex > 0 && (
+                        <button className="button is-small" onClick={handlePreviousPage}>
+                          Previous for Fixed tables
+                        </button>
+                      )}
+                      {currentIndex + tablesPerPage < availableTables.length && (
+                        <button className="button is-small" onClick={handleNextPage}>
+                          Next for Larger Groups
+                        </button>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
             </div>

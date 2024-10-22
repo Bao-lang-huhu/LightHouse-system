@@ -11,7 +11,9 @@ const getFoodOrders = async (req, res) => {
         staff_id,
         STAFF (
           staff_id,
-          staff_username
+          staff_username,
+          staff_fname,
+          staff_lname
         ),
         check_in_id,
         f_payment_method,
@@ -110,13 +112,15 @@ const getFoodOrders = async (req, res) => {
 
       return {
         ...order,
-        staff_username: order.STAFF?.staff_username || 'Unknown', // Include staff username or default to 'Unknown'
+        staff_username: order.STAFF?.staff_username || 'Unknown',
+        staff_fname: order.STAFF?.staff_fname || 'Unknown', 
+        staff_lname: order.STAFF?.staff_lname || 'Unknown',// Include staff username or default to 'Unknown'
         foodItems: foodItems.map(item => ({
           ...item,
           food_name: item.FOOD_ITEM?.food_name || 'Unknown' // Include food name or default to 'Unknown'
         })),
-        guest_fname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_fname || 'N/A',
-        guest_lname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_lname || 'N/A',
+        guest_fname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_fname || 'Restaurant',
+        guest_lname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_lname || 'Guest',
         room_number: roomInfo?.ROOM?.room_number || 'N/A',
         room_type_name: roomInfo?.ROOM?.room_type_name || 'N/A'
       };

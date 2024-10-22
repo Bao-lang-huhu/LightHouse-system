@@ -5,7 +5,7 @@ import axios from 'axios';
 import ErrorMsg from '../messages/errorMsg'; 
 import SuccessMsg from '../messages/successMsg'; 
 
-const AddDrinkModal = ({ isOpen, toggleModal }) => {
+const AddDrinkModal = ({ isOpen, toggleModal, refreshDrinkList }) => {
     const [drink, setDrink] = useState({
         bar_category_name: '',
         drink_name: '',
@@ -37,9 +37,21 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setDrink({ ...drink, [name]: parseFloat(value) || value });
-        setErroredFields((prev) => ({ ...prev, [name]: false }));
+    
+        // Handle the parsing based on the expected input type
+        const updatedValue = name === 'drink_price' || name === 'drink_disc_percentage' ? parseFloat(value) || 0 : value;
+    
+        setDrink((prev) => ({
+            ...prev,
+            [name]: updatedValue,
+        }));
+    
+        // Reset error state for the specific field when changed
+        if (erroredFields[name]) {
+            setErroredFields((prev) => ({ ...prev, [name]: false }));
+        }
     };
+    
 
     // Handle photo change
     const handlePhotoChange = (event) => {
@@ -59,31 +71,73 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
             setError('');
             setSuccess('');
             setErroredFields({});
+    
+            // Validate required fields
+            let hasError = false;
+            const newErroredFields = {};
+    
+            if (!drink.bar_category_name || drink.bar_category_name.trim() === '') {
+                newErroredFields.bar_category_name = true;
+                hasError = true;
+            }
+    
+            if (!drink.drink_name || drink.drink_name.trim() === '') {
+                newErroredFields.drink_name = true;
+                hasError = true;
+            }
+    
+            if (!drink.drink_price || parseFloat(drink.drink_price) <= 0) {
+                newErroredFields.drink_price = true;
+                hasError = true;
+            }
+    
+            if (!drink.drink_description || drink.drink_description.trim() === '') {
+                newErroredFields.drink_description = true;
+                hasError = true;
+            }
+    
+            if (!drink.drink_photo) {
+                setError('Please upload a drink photo.');
+                hasError = true;
+            }
+    
+            // If there are any errors, update the state and return early
+            if (hasError) {
+                setErroredFields(newErroredFields);
+                return;
+            }
+    
+            // Make the API request if all validations pass
             const response = await axios.post('http://localhost:3001/api/registerDrink', drink);
-
+    
             if (response.status === 201) {
-                setSuccess('Drink registered successfully!'); 
-                setError(''); 
+                setSuccess('Drink registered successfully!');
+                setError('');
                 setErroredFields({});
-
+    
+                // Refresh the drink list
+                refreshDrinkList();
+    
                 setTimeout(() => {
-                    handleClose(); 
-                }, 3000); 
+                    handleClose(); // Close the modal after success message
+                }, 3000);
             }
         } catch (error) {
             console.error('Error registering drink:', error.response?.data || error.message);
-            setError('Failed to register drink: ' + (error.response?.data?.error || error.message)); 
-            setSuccess(''); 
-
+            setError('Failed to register drink: ' + (error.response?.data?.error || error.message));
+            setSuccess('');
+    
             if (error.response?.data?.erroredFields) {
                 const fields = error.response.data.erroredFields.reduce((acc, field) => {
                     acc[field] = true;
                     return acc;
                 }, {});
-                setErroredFields(fields); 
+                setErroredFields(fields);
             }
         }
     };
+    
+    
 
     const handleClose = () => {
         setDrink({
@@ -118,8 +172,25 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
                     <div className="columns">
                         {/* First Column - General Information */}
                         <div className="column is-4">
+
                             <div className="field">
-                                <label className="label">Bar Category</label>
+                                <label className="label">Drink Name</label>
+                                <div className="control">
+                                    <input
+                                        className={`input ${erroredFields.drink_name ? 'is-danger' : ''}`} 
+                                        type="text"
+                                        name="drink_name"
+                                        placeholder="Enter drink name"
+                                        value={drink.drink_name}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                    {erroredFields.drink_name && <p className="help is-danger">Please enter a valid drink name.</p>}
+                                </div>
+                            </div> 
+                            
+                            <div className="field">
+                                <label className="label">Drink Category</label>
                                 <div className="control">
                                     <div className={`select is-fullwidth ${erroredFields.bar_category_name ? 'is-danger' : ''}`}>
                                         <select
@@ -140,39 +211,6 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
                                 </div>
                             </div>
 
-                            <div className="field">
-                                <label className="label">Drink Name</label>
-                                <div className="control">
-                                    <input
-                                        className={`input ${erroredFields.drink_name ? 'is-danger' : ''}`} 
-                                        type="text"
-                                        name="drink_name"
-                                        placeholder="Enter drink name"
-                                        value={drink.drink_name}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {erroredFields.drink_name && <p className="help is-danger">Please enter a valid drink name.</p>}
-                                </div>
-                            </div>
-
-                            <div className="field">
-                                <label className="label">Drink Status</label>
-                                <div className="control">
-                                    <div className={`select is-fullwidth ${erroredFields.drink_status ? 'is-danger' : ''}`}>
-                                        <select
-                                            name="drink_status"
-                                            value={drink.drink_status}
-                                            onChange={handleChange}
-                                            required
-                                        >
-                                            <option value="ACTIVE">Active</option>
-                                            <option value="INACTIVE">Inactive</option>
-                                        </select>
-                                    </div>
-                                    {erroredFields.drink_status && <p className="help is-danger">Please select a valid status.</p>}
-                                </div>
-                            </div>
                         </div>
 
                         {/* Second Column - Photo and Description */}
@@ -221,6 +259,7 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
                         </div>
 
                         {/* Third Column - Pricing Information */}
+                        
                         <div className="column is-4">
                             <div className="field">
                                 <label className="label">Drink Price</label>
@@ -231,26 +270,86 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
                                         name="drink_price"
                                         placeholder="Enter drink price"
                                         value={drink.drink_price}
-                                        onChange={handleChange}
+                                        min="1" // Set the minimum value to 1
+                                        onChange={(e) => {
+                                            let value = e.target.value;
+
+                                            // Prevent negative input and input starting with '0'
+                                            if (value >= 0 && !/^0/.test(value)) {
+                                                setDrink((prev) => ({
+                                                    ...prev,
+                                                    drink_price: value,
+                                                }));
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            // Ensure the value is at least 1
+                                            const value = parseFloat(drink.drink_price);
+                                            if (isNaN(value) || value < 1) {
+                                                setDrink((prev) => ({
+                                                    ...prev,
+                                                    drink_price: 1,
+                                                }));
+                                            } else {
+                                                setDrink((prev) => ({
+                                                    ...prev,
+                                                    drink_price: value,
+                                                }));
+                                            }
+                                        }}
                                         required
                                     />
-                                    {erroredFields.drink_price && <p className="help is-danger">Please enter a valid price.</p>}
+                                    {erroredFields.drink_price && (
+                                        <p className="help is-danger">Please enter a valid drink price.</p>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="field">
                                 <label className="label">Discount Percentage</label>
-                                <div className="control">
-                                    <input
-                                        className={`input ${erroredFields.drink_disc_percentage ? 'is-danger' : ''}`}
-                                        type="number"
-                                        name="drink_disc_percentage"
-                                        placeholder="Enter discount percentage"
-                                        value={drink.drink_disc_percentage}
-                                        onChange={handleChange}
-                                    />
-                                    {erroredFields.drink_disc_percentage && <p className="help is-danger">Please enter a valid discount percentage.</p>}
+                                <div className="control is-flex is-align-items-center">
+                                    {/* Decrease Button */}
+                                    <button
+                                        className={`button is-blue mr-2 ${erroredFields.drink_disc_percentage ? 'is-danger' : ''}`}
+                                        onClick={() => {
+                                            if (drink.drink_disc_percentage > 0) {
+                                                setDrink((prev) => ({
+                                                    ...prev,
+                                                    drink_disc_percentage: prev.drink_disc_percentage - 1,
+                                                }));
+                                            }
+                                        }}
+                                        disabled={drink.drink_disc_percentage <= 0}
+                                    >
+                                        -
+                                    </button>
+
+                                    {/* Display Current Discount Percentage */}
+                                    <span className="button is-static">
+                                        {drink.drink_disc_percentage}%
+                                    </span>
+
+                                    {/* Increase Button */}
+                                    <button
+                                        className={`button is-blue ml-2 ${erroredFields.drink_disc_percentage ? 'is-danger' : ''}`}
+                                        onClick={() => {
+                                            if (drink.drink_disc_percentage < 100) {
+                                                setDrink((prev) => ({
+                                                    ...prev,
+                                                    drink_disc_percentage: prev.drink_disc_percentage + 1,
+                                                }));
+                                            }
+                                        }}
+                                        disabled={drink.drink_disc_percentage >= 100}
+                                    >
+                                        +
+                                    </button>
                                 </div>
+
+                                {/* Error Message */}
+                                {erroredFields.drink_disc_percentage && (
+                                    <p className="help is-danger">Please enter a valid discount percentage.</p>
+                                )}
                             </div>
 
                             <div className="field">
@@ -261,13 +360,17 @@ const AddDrinkModal = ({ isOpen, toggleModal }) => {
                                         type="number"
                                         name="drink_final_price"
                                         placeholder="Enter final price"
-                                        value={drink.drink_final_price.toFixed(2)} // Display final price with 2 decimal places
+                                        value={parseFloat(drink.drink_final_price).toFixed(2)} // Display final price with 2 decimal places
                                         readOnly // Make the field read-only as it is auto-calculated
                                     />
-                                    {erroredFields.drink_final_price && <p className="help is-danger">Please enter a valid final price.</p>}
+                                    {erroredFields.drink_final_price && (
+                                        <p className="help is-danger">Please enter a valid final price.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
+
+                        
                     </div>
                 </section>
 

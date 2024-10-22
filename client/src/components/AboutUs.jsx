@@ -1,7 +1,6 @@
 import React from 'react';
 import 'bulma/css/bulma.min.css';
 import { IoBedSharp, IoFastFood, IoGlassesSharp, IoPeople, IoWalk, IoWine } from "react-icons/io5";
-import home_hero from '../images/hero.png';
 import garden from '../images/guest_home/garden.jpg';
 import garden2 from '../images/guest_home/garden 2.jpg';
 import lobby from '../images/guest_home/lobby.jpg';
@@ -9,19 +8,28 @@ import lobby2 from '../images/guest_home/lobby design.webp';
 import outside from '../images/guest_home/outside view.webp';
 import pool from '../images/guest_home/pool.webp';
 import parking from '../images/guest_home/parking.jpg';
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Import default styles
 import './pages.css';
 import '../App.css';
 
 function AboutUs() {
+    const galleryPhotos = [
+        { image: lobby, description: "Lobby" },
+        { image: lobby2, description: "Lobby 2" },
+        { image: parking, description: "Parking Lot" },
+        { image: outside, description: "Outside Terrace" },
+        { image: pool, description: "Pool on 3rd Floor" }
+    ];
     return (
       <section>
             <div className="hero is-color">
-                <div className="hero-body" style={{ backgroundImage: `url(${home_hero})` }}>
+                <div className="hero-body" style={{ backgroundImage: `url(${garden})` }}>
                 </div>
                 <div className="floating-container">
                      <div className='about-white'>
                         <div className="container is-centered">
-                            <h2 className='title has-text-centered m-3'>About LightHouse Point Hotel</h2>
+                            <h2 className='title has-text-centered m-5'>About LightHouse Point Hotel</h2>
                         </div>
                         <h3 className="about-space"><strong>Beacon of Luxury, Stay Enlightened Here.</strong></h3>
                         <div className='about-space'>
@@ -44,7 +52,7 @@ function AboutUs() {
                 <h4><strong>Services</strong></h4>
                 <h3>Unwind, Dine, and Explore – Luxury Services at Lighthouse Point Hotel</h3>
                 <div className="cards">
-                    <div className="card">
+                    <div className="card has-left-text">
                         <div className="info">
                             <IoBedSharp style={{ fontSize: '2rem' }} />
                         </div>
@@ -127,41 +135,36 @@ function AboutUs() {
                 <div className="image-placeholder"></div>
             </div>
 
-            <div className="about-us-container">
-                <div className="flex-boxes-container">
-                    <div className="flex-box-head">
-                    <h2 className="flex-box-title">A bit more about the hotel...</h2>
-                        <div className='flex-column'>
+            <div className="property-views-container section-m2">
+            <h4><strong>Gallery</strong></h4>
+            <h3>LightHouse Point Hotel offers a glimpse of our beautiful spaces and facilities.</h3>
 
-                            <div className="flex-box">
-                                <h3 className='has-text-white m-2'>Opened on 2023.</h3>
-                                    <img className="flex-image " src={lobby} alt="Lobby"/>
-                            </div>
-                            <div className="flex-box">
-                                <h3 className='has-text-white m-2'>There are 15 active rooms.</h3>
-                                    <img className="flex-image" src={lobby2} alt="Lobby"/>
-                            </div>
+            <Carousel
+                autoPlay
+                infiniteLoop
+                showThumbs={false}
+                showStatus={false}
+                dynamicHeight={false}
+                centerMode
+                centerSlidePercentage={33}
+            >
+                {galleryPhotos.map((photo, index) => (
+                    <div key={index} className="carousel-item" style={{ padding: '10px' }}>
+                        <div style={{ height: '300px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <img
+                                src={photo.image || 'https://via.placeholder.com/300'}
+                                alt={photo.description}
+                                className="carousel-image"
+                                style={{ height: '100%', width: 'auto' }}
+                            />
                         </div>
-
-                        <div className='flex-column'>
-                            <div className="flex-box">
-                                <h3 className='has-text-white m-2' > This hotel also features complimentary wireless internet access.</h3>
-                                    <img className="flex-image" src={parking} alt="Parking Lot" />
-                            </div>
-                            <div className="flex-box">
-                                <h3 className='has-text-white m-2'>Has a Relaxing Garden.</h3>
-                                    <img className="flex-image" src={outside} alt="Outside Terrance" />
-                            </div>
+                        <div className="legend" style={{ background: "#99DCEB", opacity: "1", padding: '10px', textAlign: 'center' }}>
+                            <h4 className='label'>{photo.description}</h4>
                         </div>
-
-                        <div className="flex-box">
-                                <h3 className='has-text-white m-2'>Enjoy a satisfying meal at Captain's Galley and outdoor pool.</h3>
-                                <img className="flex-image-bottom" src={pool} alt="Pool on 3rd floor" />
-                        </div>
-
                     </div>
-                </div>
-            </div>
+                ))}
+            </Carousel>
+        </div>
  
       </section>
     );

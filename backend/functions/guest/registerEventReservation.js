@@ -8,16 +8,24 @@ const registerEventReservation = async (req, res) => {
             event_name,
             event_type,
             event_date,
-            event_start_time,
-            event_end_time,
+            event_start_time,  
+            event_end_time,    
             event_no_guest,
             event_is_dpay,
             event_downpayment,
             event_total_price,
             event_venue_id,
             event_fd_pckg_id,
-            selectedFoodItems // Selected food items passed in the request body
+            selectedFoodItems 
         } = req.body;
+
+        // Check if event_date is a valid date
+        const dateObj = new Date(event_date);
+        if (isNaN(dateObj.getTime())) {
+            return res.status(400).json({ error: 'Invalid event date format. Please use YYYY-MM-DD.' });
+        }
+
+        const formattedEventDate = dateObj.toISOString().split('T')[0]; // Ensure correct date format
 
         // Step 1: Validate and check if the venue is active
         const { data: venueData, error: venueError } = await supabase
@@ -55,9 +63,9 @@ const registerEventReservation = async (req, res) => {
                 guest_id,
                 event_name,
                 event_type,
-                event_date: new Date(event_date).toISOString().split('T')[0], // Ensure correct format
-                event_start_time,
-                event_end_time,
+                event_date: formattedEventDate, // Use formatted date
+                event_start_time,  // Directly use the string without converting to Date object
+                event_end_time,    // Same here, use the string
                 event_no_guest,
                 event_is_dpay,
                 event_downpayment: event_downpayment || null,
@@ -80,7 +88,6 @@ const registerEventReservation = async (req, res) => {
         // Step 4: Insert each food item selected into EVENT_RESERVATION_LIST
         for (const [category, foodId] of Object.entries(selectedFoodItems)) {
             if (!foodId) {
-                // If any foodId is missing, return an error
                 console.error(`Missing food item for category: ${category}`);
                 return res.status(400).json({ error: `Food item is missing for ${category}.` });
             }

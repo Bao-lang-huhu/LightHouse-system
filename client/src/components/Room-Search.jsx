@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';   
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode'; // Import jwt-decode for token decoding
+import {jwtDecode} from 'jwt-decode'; 
 import 'bulma/css/bulma.min.css';
 import './pages.css';
 import '../App.css';
 import Breadcrumbs from '../layouts/Breadcrumbs';
+import { ClipLoader } from 'react-spinners';
 
 const RoomSearch = () => {
     const breadcrumbItems = [
@@ -25,7 +26,9 @@ const RoomSearch = () => {
     const checkOutDate = queryParams.get('checkOut');
     const adults = queryParams.get('adults');
     const children = queryParams.get('children');
-    const available = queryParams.get('available');  
+    const available = queryParams.get('available'); 
+    const [loading, setLoading] = useState(true);
+ 
 
     useEffect(() => {
         const token = localStorage.getItem('token'); 
@@ -72,7 +75,9 @@ const RoomSearch = () => {
             } catch (error) {
                 console.error('Error fetching rooms:', error);
                 setNoRoomsAvailable(true);  // Show message if there's an error
-            }
+            } finally {
+                setLoading(false); 
+              }
         };
 
         fetchAvailableRooms();
@@ -88,33 +93,27 @@ const RoomSearch = () => {
 
     const handleBookNow = (room) => {
         if (!isGuestLoggedIn) {
-            // Redirect to login page if not logged in
             navigate('/login', {
-                state: { from: `/room_search` }  // Save the current page to navigate back after login
+                state: { from: `/room_search` }  
             });
         } else {
-            // If guest is logged in, proceed to RoomReservation with selected room and date data
             navigate('/room_search/book_room_reservations', {
                 state: { room, checkInDate, checkOutDate }
             });
         }
     };
 
-    const getStatusLabel = (status) => {
-        switch (status) {
-            case 'OCCUPIED':
-                return 'Occupied';
-            case 'UNDER MAINTENANCE':
-                return 'Under Maintenance';
-            case 'INACTIVE':
-                return 'Inactive';
-            case 'DELETE':
-                return 'Deleted';
-            case 'AVAILABLE':
-            default:
-                return 'Available';
-        }
+    const handleViewRoomDetails = (room) => {
+        navigate(`/room_details/${room.room_id}`, {
+            state: {
+                checkInDate,
+                checkOutDate,
+                adults,
+                children
+            }
+        });
     };
+
 
     return (
         <section className='section-m1'>
@@ -127,7 +126,12 @@ const RoomSearch = () => {
                 <Breadcrumbs items={breadcrumbItems} />
             </div>
 
-            {noRoomsAvailable ? (
+        <div style={{ margin: '20px' }}>  
+            {loading ? (
+        <div className="loader-container" style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+          <ClipLoader color="#007bff" size={50} />
+        </div>
+      ) : noRoomsAvailable ? (
                 <div className="container box m-1">
                     <p>No rooms available for the selected dates. Please try different dates.</p>
                 </div>
@@ -184,23 +188,19 @@ const RoomSearch = () => {
                                         <div className="card-content">
                                             <h2 className="title">{room.room_type_name}</h2>
                                             <p className="subtitle">Room {room.room_number} </p>
-                                            <p style={{fontSize:"1.5rem"}}>Price: ₱{room.room_final_rate} per night</p>
+                                            <p style={{fontSize:"1.5rem"}}>Price: <strong>₱{room.room_final_rate}</strong> per night</p>
                                             <p className={`status-label `}>
                                                  Original rate per night :{room.room_rate}
                                             </p>
                                             <p className={`status-label `} style={{color:"red"}}>
                                                  {room.room_disc_percentage} % discount off now
                                             </p>
-                                            <p className={`status-label status-${room.room_status.toLowerCase()}`}>
-                                                Status: {getStatusLabel(room.room_status)} for reservation
-                                            </p>
-
                                             <p className='mt-1 mb-1' style={{fontSize:"1rem"}}>
-                                               Available Breakfast : {room.room_breakfast_availability}
+                                               Breakfast Availability: {room.room_breakfast_availability}
                                             </p>
 
                                             <button
-                                                className="button is-fullwidth"
+                                                className="button is-fullwidth is-blue"
                                                 onClick={() => handleBookNow(room)}
                                             >
                                                 {isGuestLoggedIn ? 'Book Now' : 'Sign in for reservation'}
@@ -211,9 +211,10 @@ const RoomSearch = () => {
                                                 <li>Max Number of Guest: {room.room_pax_max}</li>
                                                 <li>{room.room_description}</li>
                                             </ul>
-                                            <Link to={`/room_search/room_details/${room.room_id}`}>
-                                                <button className="button is-inverted-blue is-small">See Full Details</button>
-                                            </Link>
+                                           
+                                                <button className="button is-inverted-blue is-small" onClick={() => handleViewRoomDetails(room)}>See Full Details</button>
+                                         
+
                                         </div>
                                     </div>
                                 </div>
@@ -222,6 +223,8 @@ const RoomSearch = () => {
                     ))}
                 </>
             )}
+        </div>
+       
         </section>
     );
 };

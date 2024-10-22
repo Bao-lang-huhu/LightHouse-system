@@ -7,6 +7,7 @@ import logo from "../images/logo.png";
 import defaultProfilePic from '../images/guest_home/garden.jpg'; // Default profile image
 import './layouts.css';
 import '../App.css';
+import { Avatar } from '@mui/material';
 
 function Navbar() {
   const [isActive, setIsActive] = useState(false);
@@ -17,7 +18,6 @@ function Navbar() {
 
   const token = localStorage.getItem('token'); // Get token from local storage
 
-  // Toggle navbar in mobile view
   const toggleNavbar = () => {
     setIsActive(!isActive);
   };
@@ -25,7 +25,6 @@ function Navbar() {
   useEffect(() => {
     if (token) {
       try {
-        // Decode the token to check for guest_id
         const decodedToken = jwtDecode(token);
 
         // Check if the decoded token has a guest_id field, this means the user is logged in as a guest
@@ -120,9 +119,11 @@ function Navbar() {
             ) : isGuest ? (
               <div className="navbar-item has-dropdown is-hoverable">
                 <a className="navbar-link">
-                  <figure className="image is-32x32">
-                    <img className="is-rounded" src={guestPhoto || defaultProfilePic} alt="Profile" />
-                  </figure>
+                <Avatar 
+                    alt="Profile" 
+                    src={guestPhoto || defaultProfilePic} 
+                    sx={{ width: 32, height: 32 }} 
+                  />
                 </a>
                 <div className="navbar-dropdown is-right">
                   <Link to="/profile_guest" className="navbar-item">Profile</Link>
@@ -162,9 +163,11 @@ function Navbar() {
               </div>
             ) : isGuest ? (
               <div>
-                <figure className="image is-64x64 m-0">
-                  <img className="is-rounded" src={guestPhoto || defaultProfilePic} alt="Profile" />
-                </figure>
+                 <Avatar 
+                    alt="Profile" 
+                    src={guestPhoto || defaultProfilePic} 
+                    sx={{ width: 32, height: 32 }} 
+                  />
                 <div className='sidebar-item'>
                   <Link to="/profile_guest" className="sidebar-item">Profile</Link>
                   <Link to="/reservations" className="sidebar-item">Reservations</Link>

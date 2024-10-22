@@ -7,9 +7,8 @@ import 'react-calendar/dist/Calendar.css';
 import Breadcrumbs from '../layouts/Breadcrumbs';
 import AddEventReservation from '../guest_modals/AddEventReservation';
 import axios from 'axios';
-
-import al from '../images/guest_home/garden.jpg';
-import alen from '../images/guest_home/lobby.jpg';
+import { IoWarning } from 'react-icons/io5';
+import al from '../images/guest_home/pool.webp';
 
 function Event_first() {
   const [selectedDate, setSelectedDate] = useState(null); // Initially no date selected
@@ -31,7 +30,6 @@ function Event_first() {
 
   const tileDisabled = ({ date, view }) => {
     if (view === 'month') {
-      // Disable weekends and dates less than 5 days from today
       return date.getDay() === 0 || date.getDay() === 6 || date < minReservationDate;
     }
     return false;
@@ -41,11 +39,7 @@ function Event_first() {
     {
       src: al,
       title: 'Garden Image',
-    },
-    {
-      src: alen,
-      title: 'Lobby Image',
-    },
+    }
   ];
 
   useEffect(() => {
@@ -63,45 +57,49 @@ function Event_first() {
     { label: 'Event Reservation' },
   ];
 
-  const checkDateConflict = async () => {
-    if (!selectedDate) {
+
+const checkDateConflict = async () => {
+  if (!selectedDate) {
       alert("Please select a date before proceeding.");
       return;
-    }
+  }
 
-    setIsButtonLoading(true); // Set button to loading state
+  setIsButtonLoading(true); // Set button to loading state
 
-    try {
+  try {
       // Convert selected date to local date string (YYYY-MM-DD) format
       const eventDate = selectedDate.toLocaleDateString('en-CA'); // 'en-CA' outputs the date as YYYY-MM-DD
 
       // Make the GET request with the event_date as a query parameter
       const response = await axios.get('http://localhost:3001/api/getEventReservations', {
-        params: { event_date: eventDate }, // Send the date without time and in local format
+          params: { event_date: eventDate }, // Send the date without time and in local format
       });
 
-      setIsButtonLoading(false); // Reset button loading state
+      setIsButtonLoading(false); 
+
 
       if (response.data.conflict) {
-        toggleConflictModal(); // Open conflict modal if date is reserved
+          setIsModalOpen(false); 
+          setIsConflictModalOpen(true); 
       } else {
-        localStorage.setItem('event_date', selectedDate); // Save selected date in localStorage
-        toggleModal(); // Open reservation modal if no conflict
+          localStorage.setItem('event_date', eventDate);  // Save selected date in localStorage
+          setIsModalOpen(true);  // Open reservation modal if no conflict
+          setIsConflictModalOpen(false);  // Ensure the conflict modal is closed
       }
-    } catch (err) {
+  } catch (err) {
       console.error('Failed to check date conflict:', err);
       setIsButtonLoading(false); // Reset button loading state on error
-    }
-  };
+  }
+};
+
 
   return (
     <section className='section-m1'> 
-      <div>
         <div className="hero-body" style={{ backgroundImage: `url(${al})`, margin: '2%' }}>
-          <div className="container has-text-centered" style={{ padding: '5%' }}>
-            <h1 className="title has-text-white">Event Reservation</h1>
+            <div className="container has-text-centered" style={{ padding: '2%' }}>
+              <h1 className="title has-text-white">Event Reservation</h1>
+            </div>
           </div>
-        </div>
         <div>
           <Breadcrumbs items={breadcrumbItems} />
         </div>
@@ -153,24 +151,24 @@ function Event_first() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Add Event Reservation Modal */}
+     
       <AddEventReservation isOpen={isModalOpen} toggleModal={toggleModal} />
 
-      {/* Conflict Modal */}
+      
       {isConflictModalOpen && (
         <div className="modal is-active">
           <div className="modal-background" onClick={toggleConflictModal}></div>
-          <div className="modal-content">
+          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
             <div className="box">
-              <h1 className="title">Date Conflict</h1>
+              <IoWarning size={64} style={{ color: '#0077B7', marginBottom: '1rem' }} />
+              <h1 className="title is-size-5">Date Conflict</h1>
               <p>The selected date has already been reserved for another event. Please choose a different date.</p>
-              <button className="button is-danger" onClick={toggleConflictModal}>Close</button>
+              <button className="button is-blue mt-4" onClick={toggleConflictModal}>Try Again</button>
             </div>
           </div>
         </div>
       )}
+      
     </section>
   );
 }

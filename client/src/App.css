@@ -1,3 +1,4 @@
+
 /*TEXT----------------------------------------------------------------------*/
 html, body, #root {
   height: 100%;
@@ -10,37 +11,32 @@ body {
 }
 p {
   margin: 0 0 1.5em;
-  font-size: 14px;
+  font-size: 16px;
 }
 h1, h2, h3, h4, h5, h6 {
   margin: 0 0 1em;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
 }
 h1 {
   font-size: 2.5rem;
-  color: #333;
 }
 h2 {
   font-size: 2rem;
-  color: #444;
 }
 h3 {
-  font-size: 1.75rem;
-  color: #555;
+  font-size: 22px;
 }
 h4 {
   font-size: 1.5rem;
-  color: #666;
 }
 h5 {
   font-size: 1.25rem;
-  color: #777;
 }
 h6 {
   font-size: 1rem;
-  color: #888;
 }
+
 @media (max-width: 768px) {
   p{
     font-size: 12px;
@@ -72,9 +68,15 @@ h6 {
 .section-m1{
   margin: 0 40px;
 }
+
+.section-m2{
+  margin: 4rem 0;
+}
+
 .section-p1{
   padding: 20px;
 }
+
 
 
 /*--------------------------------------------------------------------------*/
@@ -82,14 +84,12 @@ h6 {
 /*LINK----------------------------------------------------------------------*/
 
 .sidebar-item:hover,
-.navbar-item:hover,
-.footer-link {
+.navbar-item:hover{
   color: #0077B7; 
 }
 
 .sidebar-item::after,
-.navbar-item::after,
-.footer-link::after {
+.navbar-item::after{
   content: ''; 
   display: block;
   position: absolute;
@@ -98,6 +98,29 @@ h6 {
   width: 100%;
   height: 2px; 
   background-color: #0077B7; 
+  opacity: 0;
+  transition: opacity 0.3s ease; 
+}
+
+.sidebar-item:hover::after,
+.navbar-item:hover::after,
+.footer-link:hover::after {
+  opacity: 1; 
+}
+
+.footer-link {
+  color: #fff; 
+}
+
+.footer-link::after {
+  content: ''; 
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: -2px; 
+  width: 100%;
+  height: 2px; 
+  background-color: #fff; 
   opacity: 0;
   transition: opacity 0.3s ease; 
 }
@@ -119,11 +142,12 @@ h6 {
 
 /*FOOTER--------------------------------------------------------------------*/
 .footer-section {
-  background-color: #b0f1ff;
+  background-color: #0078B7;
   padding: 50px 20px; 
   text-align: left;
   position: relative;
   z-index: 2;
+  color:#fff;
 }
 
 .footer-container {
@@ -138,19 +162,20 @@ h6 {
 .footer-col {
   flex: 60% 20% 20%;
   min-width: 200px;
+  color: #fff;
 }
 
-.footer-col h4 {
+.footer-col h4, .footer-col strong{
   font-size: 18px;
   margin-bottom: 20px;
-  color: #333;
+  color: #fff;
 }
 
 .footer-col p,
 .footer-col .footer-link {
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 10px;
-  color: #666;
+  color: #fff;
   text-decoration: none;
   display: block; 
 }
@@ -166,8 +191,8 @@ h6 {
   text-align: center;
   padding: 20px 0;
   background-color: #ffffff;
-  color: #333;
-  font-size: 14px;
+  color: #0078B7;
+  font-size: 16px;
   border-radius: 0 10rem 0 10rem;
 }
 
@@ -269,19 +294,37 @@ h6 {
 
 .is-available {
   background-color: #C7F5FF !important; /* Light Blue for available */
-  color: #000000 !important; /* Dark text for contrast */
+  color: #000000 !important;
+  border: 1px solid #fff ; /* Dark text for contrast */
   cursor: pointer !important;
 }
 
-.is-reserved {
-  background-color: #010069 !important; /* Dark Blue for reserved */
+.is-available:hover {
+  background-color: #010069 !important;
   color: #ffffff !important;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05); 
+  border: 1px solid #fff; 
+}
+
+.is-reserved {
+  background-color: #0400ff !important; 
+  color: V !important;
 }
 
 .is-selected {
-  background-color: #FFC107 !important; /* Yellow for selected */
-  border: 2px solid #FFEB3B !important; /* Yellow border for selected */
-  color: #000000 !important; /* Ensure text is visible */
+  background-color: #FFC107 !important; 
+  border: 2px solid #FFEB3B !important; 
+  color: #000000 !important; 
 }
+
+.is-unavailable {
+  background-color: #cc686b !important; 
+  color: #262626 !important; 
+  cursor: not-allowed !important; 
+  border: 1px solid #cccccc !important; 
+}
+
+
+
 
 /*RESTAURANT BUTTONS--------------------------------------------------------------------*/

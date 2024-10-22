@@ -24,6 +24,8 @@ const updateGuest = async (req, res) => {
             guest_photo 
         } = req.body;
 
+        console.log('Updating guest photo:', guest_photo); // Add this log to verify
+
         const { data, error } = await supabase
             .from('GUEST')
             .update({

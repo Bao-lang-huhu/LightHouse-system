@@ -4,10 +4,14 @@ import axios from 'axios';
 import './reports_m.css';
 
 const ReportForecasting = () => {
-    const [forecastData, setForecastData] = useState([]);
+    const [roomForecastData, setRoomForecastData] = useState([]);
+    const [eventForecastData, setEventForecastData] = useState([]);
+
+    const [formattedData, setFormattedData] = useState([]);
     const [historyData, setHistoryData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [activeTab, setActiveTab] = useState('room'); // State to handle active tab
 
     const fetchForecastData = async () => {
         try {
@@ -25,7 +29,7 @@ const ReportForecasting = () => {
             const condensedForecasted = condenseTo15Days(forecasted);
 
             setHistoryData(sortedHistorical);
-            setForecastData(condensedForecasted);
+            setRoomForecastData(condensedForecasted);
             setLoading(false);
         } catch (err) {
             console.error('Error fetching forecast:', err);
@@ -78,83 +82,169 @@ const ReportForecasting = () => {
         return `${parsedDate.toLocaleString('default', { month: 'short' })} ${parsedDate.getFullYear()}`;
     };
 
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+
+    useEffect(() => {
+      const fetchForecast = async () => {
+        try {
+          const response = await axios.post(`${backendUrl}/api/event_forecast`);
+          // Round forecasted values to integers
+          const adjustedData = response.data.map(item => ({
+            ...item,
+            y: item.isHistorical ? item.y : Math.round(item.y) // Only round forecasted (non-historical) data
+          }));
+          setEventForecastData(adjustedData);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching event forecast data:', error);
+          setError('Failed to fetch event forecast data');
+          setLoading(false);
+        }
+      };
+      fetchForecast();
+    }, []);
+  
+    useEffect(() => {
+      // Group the data by event type and sort by date
+      const eventTypeMap = {};
+      eventForecastData.forEach(item => {
+        const { ds, y, event_type, isHistorical } = item;
+  
+        if (!eventTypeMap[event_type]) {
+          eventTypeMap[event_type] = [];
+        }
+  
+        eventTypeMap[event_type].push({ ds, y, isHistorical });
+      });
+  
+      // Sort each event type's data by date (ascending)
+      Object.keys(eventTypeMap).forEach(type => {
+        eventTypeMap[type].sort((a, b) => new Date(a.ds) - new Date(b.ds));
+      });
+  
+      // Convert to array format for rendering
+      const formattedDataArr = Object.keys(eventTypeMap).map(type => ({
+        type,
+        data: eventTypeMap[type]
+      }));
+  
+      setFormattedData(formattedDataArr);
+    }, [eventForecastData]);
+  
+    const formatMonthYear = (date) => {
+      const parsedDate = new Date(date);
+      return `${parsedDate.toLocaleString('default', { month: 'short' })} ${parsedDate.getFullYear()}`;
+    };
+  
+
+
+    const generateDarkColor = () => {
+        // Randomly decide how much to blend blue and green
+        const blueIntensity = Math.floor(Math.random() * 100) + 155; // Range: 155 - 255 (high blue)
+        const greenIntensity = Math.floor(Math.random() * 100) + 155; // Range: 155 - 255 (high green)
+        const redIntensity = Math.floor(Math.random() * 50); // Lower range for red to keep it towards blue-green
+    
+        const redHex = redIntensity.toString(16).padStart(2, '0');
+        const greenHex = greenIntensity.toString(16).padStart(2, '0');
+        const blueHex = blueIntensity.toString(16).padStart(2, '0');
+    
+        return `#${redHex}${greenHex}${blueHex}`;
+    };
+    
+  
+    if (loading) return <p>Loading event forecast data...</p>;
+    if (error) return <p>{error}</p>;
+
+
+
+
     return (
         <section className='section-p1'>
-              <div className='mb-5 mt-4'>
-                <p className='subtitle is-3'>Hotel Occupancy Rate Forecast</p>
+             <div className='mb-5 mt-4'>
+                <p className='subtitle is-3'>Forecasting</p>
             </div>
-            <div>
-                <h1>Hotel Occupancy Rate Forecast Based on 5 Months of Data</h1>
-                <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
-                    <LineChart
-                        margin={{ top: 20, right: 30, left: 30, bottom: 40 }} // Adjusted margins for better spacing
-                    >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis
-                            dataKey="ds"
-                            tickFormatter={(value) => {
-                                if (typeof value === 'string' && value.includes('-')) {
-                                    return value; 
-                                }
-                                return formatHistoricalDate(value); 
-                            }}
-                            type="category"
-                            allowDuplicatedCategory={false}
+            <div className='tabs is-left is-boxed'>
+                <ul>
+                    <li className={activeTab === 'room' ? 'is-active' : ''} onClick={() => setActiveTab('room')}>
+                        <a>Room Forecasting</a>
+                    </li>
+                    <li className={activeTab === 'event' ? 'is-active' : ''} onClick={() => setActiveTab('event')}>
+                        <a>Event Forecasting</a>
+                    </li>
+                </ul>
+            </div>
+
+            {activeTab === 'room' && (
+                <div>
+                    <h1 className='is-size-5'>Hotel Room Occupancy Rate Forecast Based on 5 Months of Data</h1>
+                    <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
+                        <LineChart
+                            margin={{ top: 20, right: 30, left: 30, bottom: 40 }}
                         >
-                            <Label 
-                                value="Date" 
-                                offset={-20} 
-                                position="insideBottom" 
-                                style={{ fontSize: window.innerWidth < 600 ? '14px' : '18px' }} // Smaller font on small screens
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="ds"
+                                tickFormatter={(value) => {
+                                    if (typeof value === 'string' && value.includes('-')) {
+                                        return value; 
+                                    }
+                                    return formatHistoricalDate(value); 
+                                }}
+                                type="category"
+                                allowDuplicatedCategory={false}
+                            >
+                                <Label 
+                                    value="Date" 
+                                    offset={-20} 
+                                    position="insideBottom" 
+                                    style={{ fontSize: window.innerWidth < 600 ? '14px' : '18px' }}
+                                />
+                            </XAxis>
+                            <YAxis 
+                                tickFormatter={(value) => `${value.toFixed(2)}%`}
+                                width={window.innerWidth < 600 ? 50 : 80}
+                            >
+
+
+                                <Label 
+                                    value="Occupancy Rate (%)" 
+                                    angle={-90} 
+                                    position="insideLeft" 
+                                    offset={-10}
+                                    style={{ textAnchor: 'middle', fontSize: window.innerWidth < 600 ? '14px' : '18px' }}
+                                />
+                            </YAxis>
+                            <Tooltip 
+                                formatter={(value) => `${value.toFixed(2)}%`} 
+                                labelFormatter={(label) => label}
                             />
-                        </XAxis>
-                        <YAxis 
-                            tickFormatter={(value) => `${value.toFixed(2)}%`}
-                            width={window.innerWidth < 600 ? 50 : 80} // Adjust Y-axis width for smaller screens
-                        >
-                            <Label 
-                                value="Occupancy Rate (%)" 
-                                angle={-90} 
-                                position="insideLeft" 
-                                offset={-10} // Adjust offset to prevent overlap
-                                style={{ textAnchor: 'middle', fontSize: window.innerWidth < 600 ? '14px' : '18px' }}
+                            <Legend 
+                                layout="horizontal" 
+                                verticalAlign="bottom" 
+                                align="center"
+                                wrapperStyle={{ paddingTop: 30, margin: 0 }} 
                             />
-                        </YAxis>
-                        <Tooltip 
-                            formatter={(value) => `${value.toFixed(2)}%`} 
-                            labelFormatter={(label) => label}
-                        />
-                        <Legend 
-                            layout="horizontal" 
-                            verticalAlign="bottom" 
-                            align="center"
-                            wrapperStyle={{ paddingTop: 30, margin: 0 }} 
-                        />
-                        <Line
-                            data={historyData.map(item => ({ ...item, ds: new Date(item.ds), isForecast: false }))}
-                            dataKey="y"
-                            name="Historical Data"
-                            stroke="#0000CD"  
-                            strokeWidth={2}
-                            dot={{ fill: '#0000CD', r: window.innerWidth < 600 ? 2 : 4 }} 
-                        />
-                        <Line
-                            data={forecastData.map(item => ({ ...item }))}
-                            dataKey="yhat"
-                            name="Forecasted Data"
-                            stroke="#000080" 
-                            strokeWidth={2}
-                            dot={{ fill: '#000080', r: window.innerWidth < 600 ? 2 : 4 }} 
-                            strokeDasharray="5 5" 
-                        />
-                    </LineChart>
-                </ResponsiveContainer>
+                            <Line
+                                data={historyData.map(item => ({ ...item, ds: new Date(item.ds), isForecast: false }))}
+                                dataKey="y"
+                                name="Historical Data"
+                                stroke="#0000CD"
+                                strokeWidth={2}
+                                dot={{ fill: '#0000CD', r: window.innerWidth < 600 ? 2 : 4 }}
+                            />
+                            <Line
+                                data={roomForecastData.map(item => ({ ...item }))}
+                                dataKey="yhat"
+                                name="Forecasted Data"
+                                stroke="#000080"
+                                strokeWidth={2}
+                                dot={{ fill: '#000080', r: window.innerWidth < 600 ? 2 : 4 }}
+                                strokeDasharray="5 5"
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
 
-
-
-
-               {/* Flex Container for Tables */}
-            <div className="columns is-multiline">
+                    <div className="columns is-multiline">
                 {/* Historical Data Table */}
                 <div className="column is-half-tablet is-full-mobile">
                     <div className="box">
@@ -190,19 +280,112 @@ const ReportForecasting = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {forecastData.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item.ds}</td>
-                                        <td>{item.yhat.toFixed(2)}%</td>
-                                    </tr>
-                                ))}
+                            {roomForecastData.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{item.ds}</td>
+                                    <td>{item.yhat.toFixed(2)}%</td>
+                                </tr>
+                            ))}
+
+
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            </div>
+
+                </div>
+                
+            )}
+
+            {activeTab === 'event' && (
+                <div className='event-forecast-container'>
+                <h1 className='is-size-5'>Event Trends Monthly Forecast Based on Trends</h1>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="ds"
+                      type="category"
+                      scale="point"
+                      tickFormatter={formatMonthYear}
+                      allowDuplicatedCategory={false}
+                      interval={0} 
+                    >
+                      <Label value="Month" offset={-5} position="insideBottom" />
+                    </XAxis>
+                    <YAxis label={{ value: 'Number of Events', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip labelFormatter={(label) => formatMonthYear(label)} />
+                    <Legend />
+          
+                    {formattedData.map((item) => (
+                      <Line
+                        key={item.type}
+                        data={item.data}
+                        dataKey="y"
+                        name={item.type}
+                        type="monotone"
+                        stroke={generateDarkColor()} // Use darker color generator
+                        dot={false}
+                        strokeDasharray={item.data.some(d => !d.isHistorical) ? '5 5' : '0'}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+          
+                <div className="table-container">
+                  <div className="table-cell">
+                    <h2>Historical Event Data</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Event Type</th>
+                          <th>Month</th>
+                          <th>Number of Events</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {eventForecastData.filter(item => item.isHistorical).map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.event_type}</td>
+                            <td>{formatMonthYear(item.ds)}</td>
+                            <td>{item.y}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+          
+                  <div className="table-cell">
+                    <h2>Forecasted Event Data</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Event Type</th>
+                          <th>Month</th>
+                          <th>Predicted Events</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                       
+
+{eventForecastData.filter(item => !item.isHistorical).map((item, index) => (
+    <tr key={index}>
+        <td>{item.event_type}</td>
+        <td>{formatMonthYear(item.ds)}</td>
+        <td>{item.y}</td>
+    </tr>
+))}
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
         </section>
     );
 };

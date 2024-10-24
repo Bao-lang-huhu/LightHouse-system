@@ -75,11 +75,6 @@ const AddEventReservation = ({ isOpen, toggleModal}) => {
         }
     };
 
- 
-    
-    
-    
-
     const fetchFoodItems = async () => {
         try {
             const response = await axios.get('http://localhost:3001/api/getFoodItems');
@@ -165,11 +160,9 @@ const AddEventReservation = ({ isOpen, toggleModal}) => {
             const [hours, minutes] = value.split(':');
             let endHours = parseInt(hours, 10) + 5;
     
-            // Ensure both hours and minutes have two digits
             const formattedStartHours = hours.padStart(2, '0');
             const formattedStartMinutes = minutes.padStart(2, '0');
             
-            // Adjust end time, ensure two-digit format for hours and minutes
             let endTime = `${endHours > 23 ? (endHours - 24).toString().padStart(2, '0') : endHours.toString().padStart(2, '0')}:${formattedStartMinutes}`;
             
             setEventDetails(prevDetails => ({

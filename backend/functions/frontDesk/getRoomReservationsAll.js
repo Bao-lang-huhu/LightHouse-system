@@ -7,7 +7,7 @@ const getRoomReservationsAll = async (req, res) => {
         // Step 1: Fetch all reservations from ROOM_RESERVATION
         const { data: reservations, error: reservationsError } = await supabase
             .from('ROOM_RESERVATION')
-            .select('room_reservation_id, reservation_status, room_check_in_date, room_check_out_date, guest_id, total_cost');
+            .select('room_reservation_id, reservation_status, room_check_in_date,room_downpayment, room_check_out_date, guest_id, total_cost');
 
         if (reservationsError) {
             console.error('Error fetching room reservations:', reservationsError);
@@ -80,6 +80,7 @@ const getRoomReservationsAll = async (req, res) => {
 
             return {
                 ...reservation,
+                room_downpayment: reservation.room_downpayment,
                 room: roomDetails ? {
                     room_number: roomDetails.room_number,
                     room_type_name: roomDetails.room_type_name,

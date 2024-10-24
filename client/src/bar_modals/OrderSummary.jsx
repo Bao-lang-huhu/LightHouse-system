@@ -132,8 +132,7 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
                       </label>
                 </div>
               </div>
-            
-
+              
               {/* Second Column for Additional Details */}
               <div className="column is-6">
                 <div className="field">

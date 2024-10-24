@@ -73,13 +73,6 @@ const SidebarManager2 = () => {
                 </li>
 
                 <li>
-                    <Link to="/manager_report_room_occupancy_rate" title="Room Occupancy Rate">
-                    <IoBed style={{ marginRight: isSidebarOpen ? '5px' : '0', textAlign: 'center' }} />
-                    {isSidebarOpen && 'Room Occupancy Rate'}
-                    </Link>
-                </li>
-
-                <li>
                     <Link to="/manager_report_menu_optimization" title="Menu Optimization">
                     <IoFastFood style={{ marginRight: isSidebarOpen ? '5px' : '0', textAlign: 'center' }} />
                     {isSidebarOpen && 'Menu Optimization'}

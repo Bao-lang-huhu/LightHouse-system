@@ -140,37 +140,111 @@ const Home = () => {
                         </div>
 
                         <div className="room_choice">
+                            {/* Number of Adults */}
                             <div className="input-container">
                                 <p><strong>Number of Adults</strong></p>
-                                <input 
-                                    type="number" 
-                                    value={adults} 
-                                    min="1" 
-                                    onChange={(e) => setAdults(e.target.value)} 
-                                    required 
-                                />
-                            </div>
-                            <div className="input-container">
-                                <p><strong>Number of Children</strong></p>
-                                <input 
-                                    type="number" 
-                                    value={children} 
-                                    min="0" 
-                                    onChange={(e) => setChildren(e.target.value)} 
-                                    required 
-                                />
+                                <div className="control is-flex is-align-items-center">
+                                    {/* Decrease Button */}
+                                    <button
+                                        className="button is-blue mr-2"
+                                        onClick={() => {
+                                            if (adults > 1) {
+                                                setAdults((prev) => prev - 1);
+                                            }
+                                        }}
+                                        disabled={adults <= 1} // Disable button when adults are 1 or less
+                                    >
+                                        -
+                                    </button>
+
+                                    {/* Display Current Number of Adults */}
+                                    <span className="button is-static">{adults}</span>
+
+                                    {/* Increase Button */}
+                                    <button
+                                        className="button is-blue ml-2"
+                                        onClick={() => {
+                                            if (adults < 10) {
+                                                setAdults((prev) => prev + 1);
+                                            }
+                                        }}
+                                        disabled={adults >= 10} // Disable button when adults are 10 or more
+                                    >
+                                        +
+                                    </button>
+                                </div>
                             </div>
 
+                            {/* Number of Children */}
+                            <div className="input-container">
+                                <p><strong>Number of Children</strong></p>
+                                <div className="control is-flex is-align-items-center">
+                                    {/* Decrease Button */}
+                                    <button
+                                        className="button is-blue mr-2"
+                                        onClick={() => {
+                                            if (children > 0) {
+                                                setChildren((prev) => prev - 1);
+                                            }
+                                        }}
+                                        disabled={children <= 0} // Disable button when children are 0
+                                    >
+                                        -
+                                    </button>
+
+                                    {/* Display Current Number of Children */}
+                                    <span className="button is-static">{children}</span>
+
+                                    {/* Increase Button */}
+                                    <button
+                                        className="button is-blue ml-2"
+                                        onClick={() => {
+                                            if (children < 10) {
+                                                setChildren((prev) => prev + 1);
+                                            }
+                                        }}
+                                        disabled={children >= 10} // Disable button when children are 10 or more
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Number of Rooms */}
                             <div className="input-container">
                                 <p><strong>Number of Rooms</strong></p>
-                                <input 
-                                    type="number"
-                                    value={numberOfRooms}
-                                    min="1" 
-                                    onChange={(e) => setNumberOfRooms(e.target.value)}
-                                    required
-                                />
+                                <div className="control is-flex is-align-items-center">
+                                    {/* Decrease Button */}
+                                    <button
+                                        className="button is-blue mr-2"
+                                        onClick={() => {
+                                            if (numberOfRooms > 1) {
+                                                setNumberOfRooms((prev) => prev - 1);
+                                            }
+                                        }}
+                                        disabled={numberOfRooms <= 1} // Disable button when numberOfRooms is 1 or less
+                                    >
+                                        -
+                                    </button>
+
+                                    {/* Display Current Number of Rooms */}
+                                    <span className="button is-static">{numberOfRooms}</span>
+
+                                    {/* Increase Button */}
+                                    <button
+                                        className="button is-blue ml-2"
+                                        onClick={() => {
+                                            if (numberOfRooms < 5) {
+                                                setNumberOfRooms((prev) => prev + 1);
+                                            }
+                                        }}
+                                        disabled={numberOfRooms >= 5} // Disable button when numberOfRooms are 5 or more
+                                    >
+                                        +
+                                    </button>
+                                </div>
                             </div>
+
                         </div>
                         {/* Date Error Message */}
                         {dateError && <p className="label has-text-centered has-text-danger" >*{dateError}</p>}

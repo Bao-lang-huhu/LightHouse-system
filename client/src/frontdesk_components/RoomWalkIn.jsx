@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from 'react-datepicker'; 
 import 'react-datepicker/dist/react-datepicker.css'; 
-import moment from 'moment';  
+import moment from 'moment'; 
+import { Card, CardContent, CardMedia, Typography, Button, Grid } from '@mui/material';
 
 function RoomWalkIn() {
   const [checkInDate, setCheckInDate] = useState(null);
@@ -21,6 +22,7 @@ function RoomWalkIn() {
 
   const today = moment().toDate(); 
   const twoMonthsFromToday = moment().add(2, 'months').toDate(); 
+
   const handleSearch = async () => {
     setDateError('');  // Reset any previous date errors
     setNoRoomsAvailable(false); // Reset no rooms available message
@@ -61,11 +63,24 @@ function RoomWalkIn() {
     }
   };
 
+  const handleClear = () => {
+    // Reset all input fields
+    setCheckInDate(null);
+    setCheckOutDate(null);
+    setAdults(1);
+    setChildren(0);
+    setRooms([]);
+    setDateError('');
+    setError('');
+    setNoRoomsAvailable(false);
+  };
+
   const handleBookNow = (room) => {
     navigate('/frontdesk_room_walk_in/room_booking', {
-      state: { room, checkInDate, checkOutDate }
-  });
-  };
+        state: { room, checkInDate, checkOutDate }
+    });
+};
+
 
   return (
     <section className='section-p1'>
@@ -110,31 +125,74 @@ function RoomWalkIn() {
               />
               {checkOutDate && <p>{moment(checkOutDate).format('MMMM D, YYYY')}</p>}
             </div>
-          </div>
-
-          <div className="room_choice">
             <div className="input-container">
               <p><strong>Number of Adults</strong></p>
-              <input
-                type="number"
-                id="number-of-adults"
-                name="number-of-adults"
-                min="1"
-                value={adults}
-                onChange={(e) => setAdults(e.target.value)}
-              />
+              <div className="control is-flex is-align-items-center">
+                  {/* Decrease Button */}
+                  <button
+                      className="button is-blue mr-2"
+                      onClick={() => {
+                          if (adults > 1) {
+                              setAdults((prev) => prev - 1);
+                          }
+                      }}
+                      disabled={adults <= 1} // Disable button when adults are 1 or less
+                  >
+                      -
+                  </button>
+
+                  {/* Display Current Number of Adults */}
+                  <span className="button is-static">{adults}</span>
+
+                  {/* Increase Button */}
+                  <button
+                      className="button is-blue ml-2"
+                      onClick={() => {
+                          if (adults < 10) {
+                              setAdults((prev) => prev + 1);
+                          }
+                      }}
+                      disabled={adults >= 10} // Disable button when adults are 10 or more
+                  >
+                      +
+                  </button>
+              </div>
+          </div>
+
+          <div className="input-container">
+            <p><strong>Number of Children</strong></p>
+            <div className="control is-flex is-align-items-center">
+                {/* Decrease Button */}
+                <button
+                    className="button is-blue mr-2"
+                    onClick={() => {
+                        if (children > 0) {
+                            setChildren((prev) => prev - 1);
+                        }
+                    }}
+                    disabled={children <= 0} // Disable button when children are 0
+                >
+                    -
+                </button>
+
+                {/* Display Current Number of Children */}
+                <span className="button is-static">{children}</span>
+
+                {/* Increase Button */}
+                <button
+                    className="button is-blue ml-2"
+                    onClick={() => {
+                        if (children < 10) {
+                            setChildren((prev) => prev + 1);
+                        }
+                    }}
+                    disabled={children >= 10} // Disable button when children are 10 or more
+                >
+                    +
+                </button>
             </div>
-            <div className="input-container">
-              <p><strong>Number of Children</strong></p>
-              <input
-                type="number"
-                id="number-of-children"
-                name="number-of-children"
-                min="0"
-                value={children}
-                onChange={(e) => setChildren(e.target.value)}
-              />
-            </div>
+        </div>
+
           </div>
 
           {dateError && <p className="has-text-danger">{dateError}</p>}
@@ -144,48 +202,60 @@ function RoomWalkIn() {
             <button className="button is-blue search" onClick={handleSearch}>
               SEARCH
             </button>
+            <button className="button is-inverted-blue search clear" onClick={handleClear}>
+              CLEAR
+            </button>
           </div>
         </div>
         <hr />
       </header>
 
-      <div className="columns is-vcentered">
+      <div>
         {noRoomsAvailable ? (
-          <p>No rooms available for the selected dates.</p>
+          <Typography variant="body1">No rooms available for the selected dates or the number of guest.</Typography>
         ) : (
-          rooms.map((room, index) => (
-            <div key={index} className="column">
-              <div className="card is-fullwidth" style={{ width: '100%' }}>
-                <div className="card-content" style={{ padding: '0', width: '100%' }}>
-                  <div className="media" style={{ backgroundColor: 'white', margin: '0' }}>
-                    <div className="media-left">
-                      <figure className="image is-128x128">
-                        {/* Display the MAIN image or fallback to a placeholder */}
-                        <img 
-                          src={room.images.main || 'https://via.placeholder.com/128'} 
-                          alt={`Room ${room.roomNumber}`} 
-                        />
-                      </figure>
-                    </div>
-                    <div className="media-content" style={{ padding: '1rem' }}>
-                      <p className="title is-4">Room {room.room_number}</p>
-                      <p className="subtitle is-6">{room.room_type_name}</p>
-                      <p>Description: {room.room_description}</p>
-                      <p>Max People: {room.room_pax_max}</p>
-                      <p>Rate: ₱{room.room_rate}/night</p>
-                      <p>
-                        Final Rate: ₱{room.room_final_rate}/night{' '}
-                        <span className="has-text-danger">{room.room_disc_percentage}% off</span>
-                      </p>
-                      <button className="button is-blue is-fullwidth" onClick={() => handleBookNow(room)}>
-                        Book Now
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
+          <Grid container spacing={3}>
+            {rooms.map((room, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={room.images.main || 'https://via.placeholder.com/128'}
+                    alt={`Room ${room.roomNumber}`}
+                  />
+                  <CardContent>
+                    <Typography variant="h5" component="div">
+                      Room {room.room_number}
+                    </Typography>
+                    <Typography variant="subtitle1" color="textSecondary">
+                      {room.room_type_name}
+                    </Typography>
+                  
+                    <Typography variant="body2" color="textSecondary">
+                      Max People: {room.room_pax_max}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Rate: ₱{room.room_rate}/night
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Final Rate: ₱{room.room_final_rate}/night{' '}
+                      <span style={{ color: 'red' }}>{room.room_disc_percentage}% off</span>
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      onClick={() => handleBookNow(room)}
+                      style={{ marginTop: '10px' }}
+                    >
+                      Book Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         )}
       </div>
     </section>

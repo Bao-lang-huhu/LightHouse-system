@@ -11,7 +11,15 @@ const getCheckInData = async (req, res) => {
         check_in_date_time,
         initial_payment,
         payment_status,
-        check_in_status
+        check_in_status,
+        STAFF (
+          staff_id,
+          staff_fname,
+          staff_lname
+        ),
+        ROOM_RESERVATION (
+          room_downpayment
+        )
       `);
 
     if (error) {
@@ -19,11 +27,19 @@ const getCheckInData = async (req, res) => {
       return res.status(500).json({ error: 'Error fetching check-in data' });
     }
 
-    // If data is found, send it as JSON
-    res.status(200).json(checkInData);
+    // Map the response to extract and include staff details and downpayment
+    const mappedCheckInData = checkInData.map(item => ({
+      ...item,
+      staff_fname: item.STAFF?.staff_fname || 'Unknown',
+      staff_lname: item.STAFF?.staff_lname || 'Staff',
+      room_downpayment: item.ROOM_RESERVATION?.room_downpayment !== null ? item.ROOM_RESERVATION.room_downpayment : 0 // Default to 0 if null
+    }));
+
+    // Send the mapped data as JSON
+    return res.status(200).json(mappedCheckInData);
   } catch (err) {
     console.error('Error retrieving check-in data:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 

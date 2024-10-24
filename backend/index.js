@@ -19,6 +19,8 @@ const getCountsDashboardManager = require('./routes/count/getCountsDashboardMana
 const counts = require('./routes/count/counts');
 const roomForecast = require('./routes/roomForecast');
 const eventForecast = require('./routes/eventForecast');
+const roomSalesRoute = require('./routes/roomSalesRoutes');
+
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -82,6 +84,8 @@ app.use('/api', counts);
 
 app.use('/api', roomForecast);
 app.use('/api', eventForecast);
+app.use('/api', roomSalesRoute);
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

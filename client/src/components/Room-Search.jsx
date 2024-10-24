@@ -210,11 +210,8 @@ const RoomSearch = () => {
                                             <ul className="limited-bullet-list">
                                                 <li>Max Number of Guest: {room.room_pax_max}</li>
                                                 <li>{room.room_description}</li>
-                                            </ul>
-                                           
+                                            </ul>                                          
                                                 <button className="button is-inverted-blue is-small" onClick={() => handleViewRoomDetails(room)}>See Full Details</button>
-                                         
-
                                         </div>
                                     </div>
                                 </div>

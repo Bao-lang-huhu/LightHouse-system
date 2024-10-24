@@ -193,8 +193,8 @@ const AllOrdersRestaurant = () => {
                             <thead>
                                 <tr>
                                     <th className="has-text-left is-table-blue">No.</th>
-                                    <th className="has-text-left is-table-blue">Staff Username</th>
-                                    <th className="has-text-left is-table-blue">Guest Name</th>
+                                    <th className="has-text-left is-table-blue">Staff</th>
+                                    <th className="has-text-left is-table-blue">Guest</th>
                                     <th className="has-text-left is-table-blue">Date</th>
                                     <th className="has-text-left is-table-blue">Payment Method</th>
                                     <th className="has-text-left is-table-blue">Total Cost</th>
@@ -205,7 +205,6 @@ const AllOrdersRestaurant = () => {
                             <tbody>
                                 {filteredOrders.map((order, index) => (
                                     <tr className="has-text-left" key={order.food_order_id}>
-                                        {/* Use the index + 1 to start numbering from 1 */}
                                         <td>{index + 1}</td>
                                         <td>{order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'No Staff'}</td>
                                         <td>{order.guest_fname && order.guest_lname ? `${order.guest_fname} ${order.guest_lname}` : 'Resto Guest'}</td>

@@ -86,8 +86,9 @@ const OrderRestaurant = () => {
 
   const handleProceedOrder = () => {
     if (foodOrders.length === 0) {
-      // Show error message if no food items are in the order
-      setShowError(true);
+      setTimeout(() => {
+        setShowError(true);
+    }, 3000);
       return;
     }
 

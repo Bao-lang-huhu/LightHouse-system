@@ -5,6 +5,7 @@ import { IoThumbsUpOutline, IoTrashBinOutline } from 'react-icons/io5';
 import axios from 'axios';
 import SuccessMsg from '../messages/successMsg';
 import ErrorMsg from '../messages/errorMsg';
+import { ClipLoader } from 'react-spinners';
 
 const IncomingOrderBar = () => {
   const [orders, setOrders] = useState([]);
@@ -12,6 +13,7 @@ const IncomingOrderBar = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [message, setMessage] = useState('');
+  
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -66,7 +68,12 @@ const IncomingOrderBar = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    // Display ClipLoader while loading data
+    return (
+      <div className="has-text-centered mt-3">
+        <ClipLoader color="blue" size={60} />
+      </div>
+    );
   }
 
   return (
@@ -91,12 +98,9 @@ const IncomingOrderBar = () => {
                     {index + 1}
                   </div>
 
-                  <div className='card-content'>
+                  <div className='card-content'> 
                     <p>
-                      <strong>Order ID:</strong> {order.bar_order_id}
-                    </p>
-                    <p>
-                      <strong>Staff Username:</strong> {order.staff_username}
+                      <strong>Staff Name:</strong> {order.staff_fname} {order.staff_lname}
                     </p>
                     {order.check_in_id ? (
                       <>
@@ -119,7 +123,7 @@ const IncomingOrderBar = () => {
                       <strong>Date:</strong> {new Date(order.b_order_date).toLocaleDateString()}
                     </p>
                     <p>
-                      <strong>Total Cost:</strong> ₱{order.b_order_total.toFixed(2)}
+                      <strong>Total Cost:</strong><span className='is-size-4'> ₱{order.b_order_total.toFixed(2)}</span>
                     </p>
 
                     {/* Table with Drink and Quantity */}

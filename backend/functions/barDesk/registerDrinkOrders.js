@@ -7,7 +7,8 @@ const registerDrinkOrder = async (req, res) => {
     check_in_id,
     b_payment_method,
     b_order_total,
-    drinkItems
+    drinkItems,
+    
   } = req.body;
 
   if (!staff_id || !b_payment_method || !b_order_total || !drinkItems.length) {

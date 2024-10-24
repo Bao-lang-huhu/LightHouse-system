@@ -223,7 +223,7 @@ const VirtualTour = () => {
   useEffect(() => {
     const fetchTours = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/getTours');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getTours');
         setRoomTypes(response.data);
       } catch (error) {
         console.error('Error fetching room types:', error);

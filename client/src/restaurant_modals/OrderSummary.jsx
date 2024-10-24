@@ -10,6 +10,100 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
   const numberOfItems = foodItems.length;
   const total = foodItems.reduce((sum, item) => sum + item.f_order_subtotal, 0);
 
+  const printOrderDirectly = () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    iframe.style.display = 'none';
+
+    const printDocument = iframe.contentDocument || iframe.contentWindow.document;
+    printDocument.open();
+    printDocument.write(`
+      <html>
+        <head>
+          <style>
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+              }
+              .print-container {
+                width: 100%;
+                padding: 20px;
+                background-color: white;
+              }
+              .table {
+                width: 90%;
+                border-collapse: collapse;
+              }
+              .table th, .table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              .table th {
+                background-color: #f2f2f2;
+              }
+              .table, .print-container, tr, td {
+                page-break-inside: avoid;
+              }
+              .no-print-btn, .cancel-btn {
+                display: none;
+              }
+              @page {
+                size: A4;
+                margin: 10mm;
+              }
+            }
+          </style>
+        </head>
+        <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
+          <div class="print-container">
+            <h1 class="subtitle"><strong>Order Line</strong></h1>
+            <p><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'Not Available'}</p>
+            <p><strong>Order Date:</strong> ${new Date(order.f_order_date).toLocaleDateString()}</p>
+            ${order.f_payment_method === 'ROOM' ? 
+                `<p><strong>Room:</strong> ${order.room_number || 'Not Available'}</p>` : ''}
+            ${order.f_payment_method === 'ROOM' ? 
+                `<p><strong>Guest:</strong> ${order.guest_fname} ${order.guest_lname}</p>` : ''}
+                 
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Food Item</th>
+                  <th>Quantity</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.foodItems.map(item => `
+                  <tr>
+                    <td>${item.food_name}</td>
+                    <td>${item.f_order_qty}</td>
+                    <td>₱${item.f_order_subtotal.toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <div style="margin-top: 15px;">
+              <p><strong>Notes:</strong> ${order.f_notes ? order.f_notes : "No Notes..."}</p>
+            </div>
+            <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+          </div>
+        </body>
+      </html>
+    `);
+    printDocument.close();
+
+    iframe.onload = () => {
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+        }, 1000);
+    };
+};
+
+
   return (
     <section className="section-p1">
       {/* Modal for Order Summary */}
@@ -25,7 +119,7 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
               {/* First Column for Order Details */}
               <div className="column is-6 mb-1">
                   {/* Only show "Charged To" if the order status is "ROOM" */}
-                  {order.f_order_status === 'ROOM' && (
+                  {order.f_payment_method === 'ROOM' && (
                       <div className="field">
                           <label className="label has-text-grey">
                               Charged To: <strong>{`${guest_fname} ${guest_lname}`}</strong>
@@ -37,6 +131,11 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
                           Order Date: <strong>{new Date(f_order_date).toLocaleDateString()}</strong>
                       </label>
                   </div>
+                  <div className="field">
+                      <label className="label has-text-grey">
+                          Payment Method: <strong>{order.f_payment_method}</strong>
+                      </label>
+                  </div>
               </div>
 
               <div className="column is-6 m-0">
@@ -46,7 +145,7 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
                       </label>
                   </div>
                   {/* Only show "Room Number" if the order status is "ROOM" */}
-                  {order.f_order_status === 'ROOM' && (
+                  {order.f_payment_method === 'ROOM' && (
                       <div className="field">
                           <label className="label has-text-grey">
                               Room Number: <strong>{room_number || 'Outside Guest'}</strong>
@@ -117,7 +216,7 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
               <IoArrowUndo style={{ marginRight: '0.5rem' }} />
               Back
             </button>
-            <button className="button is-primary">
+            <button className="button is-inverted-blue" onClick={printOrderDirectly}>
               <IoPrintOutline style={{ marginRight: '0.5rem' }} />
               Print
             </button>

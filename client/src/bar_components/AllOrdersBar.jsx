@@ -7,7 +7,7 @@ import axios from 'axios';
 import DrinkOrderSummary from '../bar_modals/OrderSummary'; // Assuming you have a modal for bar orders
 import ErrorMsg from '../messages/errorMsg'; // Import Error Message Component
 import SuccessMsg from '../messages/successMsg'; // Import Success Message Component
-
+import { ClipLoader } from 'react-spinners';
 const AllOrdersBar = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -19,10 +19,12 @@ const AllOrdersBar = () => {
   const [archiveOrderId, setArchiveOrderId] = useState(null); // State to store the order ID to be archived
   const [archiveSuccess, setArchiveSuccess] = useState(''); // State for archiving success message
   const [archiveError, setArchiveError] = useState(''); // State for archiving error message
- 
+  const [loading, setLoading] = useState(true);
+
   // Fetch bar orders from backend excluding 'DELETE' status
   useEffect(() => {
     const fetchOrders = async () => {
+      setLoading(true); // Set loading to true when fetching starts
       try {
         const response = await axios.get('http://localhost:3001/api/getDrinkOrdersAll'); // Use getDrinkOrdersAll
         const activeOrders = response.data.filter(order => order.b_order_status !== 'DELETE');
@@ -30,11 +32,14 @@ const AllOrdersBar = () => {
         setFilteredOrders(activeOrders); // Initialize filteredOrders with active orders
       } catch (error) {
         console.error('Error fetching bar orders:', error);
+      } finally {
+        setLoading(false); // Set loading to false when fetching ends
       }
     };
-
+  
     fetchOrders();
   }, []);
+  
 
   // Filter orders whenever statusFilter or dateFilter changes
   useEffect(() => {
@@ -103,10 +108,9 @@ const AllOrdersBar = () => {
     }
   };
 
-  // Clear the date filter
   const handleClearDateFilter = () => {
-    setDateFilter(''); // Clear the date filter
-    setFilteredOrders(orders); // Reset to show all orders
+    setDateFilter(''); 
+    setFilteredOrders(orders); 
   };
 
   return (
@@ -128,12 +132,12 @@ const AllOrdersBar = () => {
                     style={{ margin: '0' }}
                     placeholder="Search..."
                     value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)} // Set date filter
+                    onChange={(e) => setDateFilter(e.target.value)} 
                   />
                 </div>
                 <div className="control">
                   <button className="button is-blue" style={{ height: '100%' }}>
-                    <IoSearchCircle className="is-white" />
+                    <IoSearchCircle className="is-white" /> Search...
                   </button>
                 </div>
                 <div className="control">
@@ -149,7 +153,7 @@ const AllOrdersBar = () => {
               <div className="column is-6">
                 <div
                   className={`button is-dark-blue box has-text-centered ${statusFilter === 'COMPLETE' ? 'is-selected' : ''}`}
-                  onClick={() => handleStatusFilter('COMPLETE')} // Use the toggle function
+                  onClick={() => handleStatusFilter('COMPLETE')} 
                 >
                   <span>
                     <IoReaderOutline size={30} className="is-violet" />
@@ -161,7 +165,7 @@ const AllOrdersBar = () => {
               <div className="column is-6">
                 <div
                   className={`button is-red box has-text-centered ${statusFilter === 'CANCELED' ? 'is-selected' : ''}`}
-                  onClick={() => handleStatusFilter('CANCELED')} // Use the toggle function
+                  onClick={() => handleStatusFilter('CANCELED')} 
                 >
                   <span>
                     <IoTrashBinOutline size={30} className="is-violet" />
@@ -175,50 +179,54 @@ const AllOrdersBar = () => {
       </header>
       <section className='section-p1'>
         <div className='container-white-space'>
-
-          {/* Archiving Success and Error Messages */}
           {archiveSuccess && <SuccessMsg message={archiveSuccess} />}
           {archiveError && <ErrorMsg message={archiveError} />}
 
-          <div className="table-container">
-            <table className="table is-striped is-hoverable is-fullwidth">
-              <thead>
-                <tr>
-                  <th className="has-text-left is-table-blue">Bar Order ID</th>
-                  <th className="has-text-left is-table-blue">Staff Username</th>
-                  <th className="has-text-left is-table-blue">Guest Name</th>
-                  <th className="has-text-left is-table-blue">Date</th>
-                  <th className="has-text-left is-table-blue">Payment Method</th>
-                  <th className="has-text-left is-table-blue">Total Cost</th>
-                  <th className="has-text-left is-table-blue">Status</th>
-                  <th className="has-text-center is-table-blue" colSpan="2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.map((order) => (
-                  <tr className="has-text-left" key={order.bar_order_id}>
-                    <td>{order.bar_order_id}</td>
-                    <td>{order.STAFF ? order.STAFF.staff_username : 'Unknown'}</td>
-                    <td>{order.guest_fname} {order.guest_lname}</td>
-                    <td>{new Date(order.b_order_date).toLocaleDateString()}</td>
-                    <td>{order.b_payment_method}</td>
-                    <td>₱{order.b_order_total.toFixed(2)}</td>
-                    <td>{order.b_order_status}</td>
-                    <td className="has-text-center is-justify-content-space-between" colSpan="2">
-                      <button className="button is-small is-blue" style={{ margin: '0.5rem' }} onClick={() => toggleModal(order)}>
-                        <IoPencilOutline style={{ marginRight: '0.5rem' }} />
-                        Details
-                      </button>
-                      <button className="button is-small is-red" style={{ margin: '0.5rem' }} onClick={() => confirmArchive(order.bar_order_id)}>
-                        <IoCloseSharp style={{ marginRight: '0.5rem' }} />
-                        Archive
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {loading ? (
+              <div className="has-text-centered">
+                <ClipLoader color="#3498db" size={60} />
+              </div>
+            ) : (
+              <div className="table-container">
+                <table className="table is-striped is-hoverable is-fullwidth">
+                  <thead>
+                    <tr>
+                      <th className="has-text-left is-table-blue">No.</th>
+                      <th className="has-text-left is-table-blue">Staff</th>
+                      <th className="has-text-left is-table-blue">Guest</th>
+                      <th className="has-text-left is-table-blue">Date</th>
+                      <th className="has-text-left is-table-blue">Payment Method</th>
+                      <th className="has-text-left is-table-blue">Total Cost</th>
+                      <th className="has-text-left is-table-blue">Status</th>
+                      <th className="has-text-center is-table-blue" colSpan="2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.map((order, index) => (
+                      <tr className="has-text-left" key={order.bar_order_id}>
+                        <td>{index + 1}</td>
+                        <td>{order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'No Staff'}</td>
+                        <td>{order.guest_fname && order.guest_lname ? `${order.guest_fname} ${order.guest_lname}` : 'Bar Guest'}</td>
+                        <td>{new Date(order.b_order_date).toLocaleDateString()}</td>
+                        <td>{order.b_payment_method}</td>
+                        <td>₱{order.b_order_total.toFixed(2)}</td>
+                        <td>{order.b_order_status}</td>
+                        <td className="has-text-center is-justify-content-space-between" colSpan="2">
+                          <button className="button is-small is-blue" style={{ margin: '0.5rem' }} onClick={() => toggleModal(order)}>
+                            <IoPencilOutline style={{ marginRight: '0.5rem' }} />
+                            Details
+                          </button>
+                          <button className="button is-small is-red" style={{ margin: '0.5rem' }} onClick={() => confirmArchive(order.bar_order_id)}>
+                            <IoCloseSharp style={{ marginRight: '0.5rem' }} />
+                            Archive
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </div>
       </section>
       {selectedOrder && <DrinkOrderSummary isOpen={isModalOpen} toggleModal={toggleModal} order={selectedOrder} />}

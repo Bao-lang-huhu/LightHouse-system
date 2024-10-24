@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';  
 import 'bulma/css/bulma.min.css';
 import '../App.css';
 import '../manager_components/components_m.css';
 import { IconButton, TextField } from '@mui/material';
 import { IoRemoveOutline, IoAddOutline, IoTrashBinOutline } from 'react-icons/io5';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
+import Avatar from '@mui/material/Avatar';
 
 const OrderBar = () => {
   const [drinkItems, setDrinkItems] = useState([]);
@@ -14,16 +16,20 @@ const OrderBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showError, setShowError] = useState(false);
+  const [loading, setLoading] = useState(false); // Added loading state
   const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchDrinkItems = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await axios.get('http://localhost:3001/api/getDrinks'); // Adjust API endpoint
         setDrinkItems(response.data);
         setFilteredDrinkItems(response.data);
       } catch (error) {
         console.error('Error fetching drink items:', error);
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
     fetchDrinkItems();
@@ -73,11 +79,13 @@ const OrderBar = () => {
 
   const handleProceedOrder = () => {
     if (drinkOrders.length === 0) {
-      // Show error message if no drink items are in the order
-      setShowError(true);
+      // Add a 3-second delay before showing the error message
+      setTimeout(() => {
+          setShowError(true);
+      }, 3000);
       return;
-    }
-
+  }
+  
     // Save current order and notes to localStorage before proceeding
     localStorage.setItem('drinkOrders', JSON.stringify(drinkOrders));
 
@@ -129,7 +137,6 @@ const OrderBar = () => {
                       <option value="BEER">Beer</option>
                       <option value="WINE">Wine</option>
                       <option value="NON-ALCOHOLIC">Non-Alcoholic</option>
-
                     </select>
                   </div>
                 </div>
@@ -139,27 +146,34 @@ const OrderBar = () => {
             <div className="column is-8">
               <h1 className="subtitle">Drink Menu</h1>
               <div className="columns is-multiline" style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
-                {filteredDrinkItems.map((item) => (
-                  <div className="column is-fullwidth-mobile is-8-tablet is-4-desktop" key={item.drink_id}>
-                    <div className="box">
-                      <div className="card-image">
-                        <figure className="image is-4by3" style={{ width: "100%", height: '30%' }}>
-                          <img src={item.drink_photo} alt={item.drink_name} />
-                        </figure>
-                      </div>
-                      <div className="card-content">
-                        <p className="title is-6">{item.drink_name}</p>
-                        <p className="subtitle is-7">₱{item.drink_price.toFixed(2)}</p>
-                        <button 
-                          className="button is-small is-blue is-fullwidth" 
-                          onClick={() => handleAddDrinkItem(item)}
-                        >
-                          <IoAddOutline /> Add
-                        </button>
+                {loading ? (
+                  // Show ClipLoader while loading data
+                  <div className="has-text-centered" style={{ width: '100%' }}>
+                    <ClipLoader color="blue" size={50} />
+                  </div>
+                ) : (
+                  filteredDrinkItems.map((item) => (
+                    <div className="column is-fullwidth-mobile is-8-tablet is-4-desktop" key={item.drink_id}>
+                      <div className="box">
+                        <div className="card-image">
+                          <figure className="image is-4by3" style={{ width: "100%", height: '30%' }}>
+                            <img src={item.drink_photo} alt={item.drink_name} />
+                          </figure>
+                        </div>
+                        <div className="card-content">
+                          <p className="title is-6">{item.drink_name}</p>
+                          <p className="subtitle is-7">₱{item.drink_price.toFixed(2)}</p>
+                          <button 
+                            className="button is-small is-blue is-fullwidth" 
+                            onClick={() => handleAddDrinkItem(item)}
+                          >
+                            <IoAddOutline /> Add
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -197,9 +211,18 @@ const OrderBar = () => {
                     {drinkOrders.map((item) => (
                       <tr key={item.drink_id}>
                         <td>
-                          <figure className="image is-64x64">
-                            <img src={item.drink_photo} alt={item.drink_name} />
-                          </figure>
+                        <Avatar
+                          src={item.drink_photo || 'https://via.placeholder.com/64'}
+                          alt={item.drink_name}
+                          style={{
+                            width: 64,
+                            height: 64,
+                            margin: 'auto',
+                            objectFit: 'cover',
+                            borderRadius: '8px'
+                          }}
+                          imgProps={{ style: { objectFit: 'cover' } }}
+                        />
                         </td>
                         <td>{item.drink_name}</td>
                         <td style={{ verticalAlign: 'middle', textAlign: 'center' }}>

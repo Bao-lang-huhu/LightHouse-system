@@ -7,6 +7,8 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; 
 import ErrorMsg from '../messages/errorMsg'; 
 import SuccessMsg from '../messages/successMsg'; 
+import Avatar from '@mui/material/Avatar'; 
+import moment from 'moment-timezone';
 
 const ProceedBar = () => {
   const location = useLocation();
@@ -64,34 +66,141 @@ const ProceedBar = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      const orderData = {
-        staff_id: currentStaff.staff_id,
-        check_in_id: selectedCheckInId,
-        b_payment_method: paymentMethod,
-        b_order_total: total,
-        drinkItems: drinkOrders // No notes field included here
-      };
-  
-      const response = await axios.post('http://localhost:3001/api/registerDrinkOrders', orderData);
-  
-      if (response.status === 201) {
-        setOrderSuccess('Order placed successfully!');
-        setOrderError('');
-        
-        // Remove drink orders from local storage after order is placed
-        localStorage.removeItem('drinkOrders');
-        
-        // Redirect to the order list page
-        navigate('/bar_incoming_orders');
-      }
+        // Create a new Date object and adjust to Philippine time (UTC+8)
+        const currentDate = new Date();
+        const philippineDate = new Date(currentDate.getTime() + (8 * 60 * 60 * 1000));
+
+        const orderData = {
+            staff_id: currentStaff.staff_id,
+            check_in_id: selectedCheckInId,
+            b_payment_method: paymentMethod,
+            b_order_total: total,
+            drinkItems: drinkOrders,
+            order_date: philippineDate // Use the adjusted date
+        };
+
+        const response = await axios.post('http://localhost:3001/api/registerDrinkOrders', orderData);
+
+        if (response.status === 201) {
+            setOrderSuccess('Order placed successfully!');
+            setOrderError('');
+
+            // Remove drink orders from local storage after order is placed
+            localStorage.removeItem('drinkOrders');
+
+            // Redirect to the order list page
+            navigate('/bar_incoming_orders');
+        }
     } catch (error) {
-      console.error('Error placing order:', error);
-      setOrderError('Failed to place order. Please try again.');
-      setOrderSuccess('');
+        console.error('Error placing order:', error);
+        setOrderError('Failed to place order. Please try again.');
+        setOrderSuccess('');
     }
-  };
+};
+
 
   const numberOfItems = drinkOrders.length;
+
+  const printOrderDirectly = () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    iframe.style.display = 'none';
+
+    const philippineDate = moment.tz(new Date(), "Asia/Manila").format('MMMM DD, YYYY - h:mm A');
+
+    const printDocument = iframe.contentDocument || iframe.contentWindow.document;
+    printDocument.open();
+    printDocument.write(`
+      <html>
+        <head>
+          <style>
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+              }
+              .print-container {
+                width: 100%;
+                padding: 20px;
+                background-color: white;
+              }
+              .table {
+                width: 90%;
+                border-collapse: collapse;
+              }
+              .table th, .table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              .table th {
+                background-color: #f2f2f2;
+              }
+              .table, .print-container, tr, td {
+                page-break-inside: avoid;
+              }
+              .no-print-btn, .cancel-btn {
+                display: none;
+              }
+              @page {
+                size: A4;
+                margin: 10mm;
+              }
+            }
+          </style>
+        </head>
+        <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
+          <div class="print-container">
+            <h1 class="subtitle"><strong>Order Line</strong></h1>
+            <p><strong>Date:</strong> ${philippineDate}</p>           
+            <p><strong>Staff:</strong> ${currentStaff.staff_name}</p>
+            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+            ${selectedCheckInId && paymentMethod === 'ROOM' ? 
+                `<p><strong>Room:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_number || 'Not Available'}</p>` : ''}
+            ${selectedCheckInId && paymentMethod === 'ROOM' ? 
+                (() => {
+                    const guest = checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId);
+                    return `<p><strong>Guest:</strong> ${guest ? `${guest.guest_fname} ${guest.guest_lname}` : 'Not Available'}</p>`;
+                })() : ''}
+            ${selectedCheckInId && paymentMethod === 'ROOM' ? 
+                `<p><strong>Room Type:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_type_name || 'Not Available'}</p>` : ''}
+                 
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Food Item</th>
+                  <th>Quantity</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${drinkOrders.map(item => `
+                  <tr>
+                    <td>${item.drink_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₱${(item.drink_price * item.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          
+            <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+          </div>
+        </body>
+      </html>
+    `);
+
+    printDocument.close();
+
+    iframe.onload = () => {
+      setTimeout(() => {
+          document.body.removeChild(iframe);
+      }, 1000);
+  };
+    handlePlaceOrder();
+};
 
   return (
     <section className="section-p1">
@@ -209,11 +318,21 @@ const ProceedBar = () => {
                     {drinkOrders.map((item) => (
                       <tr key={item.drink_id}>
                         <td>
-                          <figure className="image is-64x64">
-                            <img src={item.drink_photo} alt={item.drink_name} />
-                          </figure>
+                        <Avatar
+                            src={item.drink_photo || 'https://via.placeholder.com/64'}
+                            alt={item.drink_name}
+                            style={{
+                              width: 64,
+                              height: 64,
+                              margin: 'auto',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
+                            }}
+                            imgProps={{ style: { objectFit: 'cover' } }}
+                          />
+                         
                         </td>
-                        <td>{item.drink_name}</td>
+                        <td className='is-size-5'>{item.drink_name}</td>
                         <td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
                           <TextField
                             type="number"
@@ -224,7 +343,7 @@ const ProceedBar = () => {
                             }}
                           />
                         </td>
-                        <td>₱{(item.drink_price * item.quantity).toFixed(2)}</td>
+                        <td className='is-size-5'>₱{(item.drink_price * item.quantity).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -243,7 +362,7 @@ const ProceedBar = () => {
                 </div>
               </div>
 
-              <button className="button is-dark-blue is-fullwidth" onClick={handlePlaceOrder}> Print and Confirm Order</button>
+              <button className="button is-dark-blue is-fullwidth" onClick={printOrderDirectly}> Print and Confirm Order</button>
             </div>
           </div>
         </div>

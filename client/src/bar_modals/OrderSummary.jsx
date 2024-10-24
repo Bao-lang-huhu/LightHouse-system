@@ -10,12 +10,104 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
   const numberOfItems = drinkItems.length;
   const total = drinkItems.reduce((sum, item) => sum + item.b_order_subtotal, 0);
 
+  const printOrderDirectly = () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    iframe.style.display = 'none';
+
+    const printDocument = iframe.contentDocument || iframe.contentWindow.document;
+    printDocument.open();
+    printDocument.write(`
+      <html>
+        <head>
+          <style>
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+              }
+              .print-container {
+                width: 100%;
+                padding: 20px;
+                background-color: white;
+              }
+              .table {
+                width: 90%;
+                border-collapse: collapse;
+              }
+              .table th, .table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+                text-align: left;
+              }
+              .table th {
+                background-color: #f2f2f2;
+              }
+              .table, .print-container, tr, td {
+                page-break-inside: avoid;
+              }
+              .no-print-btn, .cancel-btn {
+                display: none;
+              }
+              @page {
+                size: A4;
+                margin: 10mm;
+              }
+            }
+          </style>
+        </head>
+        <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
+          <div class="print-container">
+            <h1 class="subtitle"><strong>Drink Order Summary</strong></h1>
+            <p><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'No Staff'}</p>
+            <p><strong>Order Date:</strong> ${new Date(order.b_order_date).toLocaleDateString()}</p>
+            ${order.b_payment_method === 'ROOM' ? 
+                `<p><strong>Room:</strong> ${room_number || 'Not Available'}</p>` : ''}
+            ${order.b_payment_method === 'ROOM' ? 
+                `<p><strong>Guest:</strong> ${order.guest_fname} ${order.guest_lname}</p>` : ''}
+                 
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Drink Item</th>
+                  <th>Quantity</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.drinkItems.map(item => `
+                  <tr>
+                    <td>${item.drink_name}</td>
+                    <td>${item.b_order_qty}</td>
+                    <td>₱${item.b_order_subtotal.toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+          </div>
+        </body>
+      </html>
+    `);
+    printDocument.close();
+
+    // Set a delay to remove the iframe after print is called
+    iframe.onload = () => {
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+        }, 1000);
+    };
+};
+
+
   return (
     <section className="section-p1">
       {/* Modal for Drink Order Summary */}
       <div className={`modal ${isOpen ? 'is-active' : ''}`}>
         <div className="modal-background" onClick={toggleModal}></div>
-        <div className="modal-card custom-modal-card">
+        <div className="modal-card">
           <header className="modal-card-head">
             <p className="modal-card-title">Drink Order Summary</p>
             <button className="delete" aria-label="close" onClick={toggleModal}></button>
@@ -24,46 +116,51 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
             <div className="columns is-multiline">
               {/* First Column for Order Details */}
               <div className="column is-6">
+              {order.b_payment_method === 'ROOM' && (
                 <div className="field">
-                  <label className="label">Order ID</label>
-                  <p>{order.bar_order_id}</p>
+                  <label className="label has-text-grey">Charged To: <strong>{`${guest_fname} ${guest_lname}`}</strong></label>
                 </div>
+                 )}
+
                 <div className="field">
-                  <label className="label">Charged To</label>
-                  <p>{`${guest_fname} ${guest_lname}`}</p>
+                  <label className="label has-text-grey">Order Date: <strong>{new Date(b_order_date).toLocaleDateString()}</strong></label>
                 </div>
+
                 <div className="field">
-                  <label className="label">Order Date</label>
-                  <p>{new Date(b_order_date).toLocaleDateString()}</p>
+                    <label className="label has-text-grey">
+                          Payment Method: <strong>{order.b_payment_method}</strong>
+                      </label>
                 </div>
               </div>
+            
 
               {/* Second Column for Additional Details */}
               <div className="column is-6">
                 <div className="field">
-                  <label className="label">Order Status</label>
-                  <p>{order.b_order_status}</p>
+                  <label className="label has-text-grey">Order Status: <strong>{order.b_order_status}</strong></label>
                 </div>
+                {order.b_payment_method === 'ROOM' && (
                 <div className="field">
-                  <label className="label">Room Number</label>
-                  <p>{room_number || 'N/A'}</p>
+                  <label className="label has-text-grey">Room Number: <strong>{room_number || 'Outside Guest'}</strong></label>
                 </div>
+                )}
                 <div className="field">
-                  <label className="label">Staff Username</label>
-                  <p>{STAFF?.staff_id || 'N/A'} : {STAFF?.staff_username || 'Unknown'}</p>
+                  <label className="label has-text-grey">
+                  Staff Name: <strong>{STAFF ? `${STAFF.staff_fname} ${STAFF.staff_lname}` : 'No Staff'}</strong>
+                  </label>
                 </div>
               </div>
 
               {/* Table Container for Drink Items */}
-              <div className="column is-12">
-                <hr style={{ border: '1px solid grey' }} />
+              <div className="column m-0">
+                <hr style={{ border: '1px solid grey' }} className='m-0 p-0' />
                 <div className="container-blue-space">
                   <h1 className="subtitle">
-                    <strong>Total Order</strong>
+                    <strong>Total Order: <span className='is-size-4'>₱{total.toFixed(2)}</span></strong>
                   </h1>
-                  <div className="columns">
-                    <div className="column is-8">
-                      <div className="table-container">
+                  <div className="columns is-multiline">
+                    <div className="column is-12 m-0">
+                      <div className="table-container m-0 p-0">
                         <table className="table is-fullwidth is-striped is-hoverable">
                           <thead>
                             <tr>
@@ -84,14 +181,6 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
                         </table>
                       </div>
                     </div>
-
-                    {/* Summary */}
-                    <div className="column is-4">
-                      <div style={{ marginBottom: '1rem' }}>
-                          <p className="title is-6">Number of Items: {numberOfItems}</p>
-                          <p className="title is-6">Total: ₱{total.toFixed(2)}</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -102,7 +191,7 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
               <IoArrowUndo style={{ marginRight: '0.5rem' }} />
               Back
             </button>
-            <button className="button is-primary">
+            <button className="button is-inverted-blue" onClick={printOrderDirectly}>
               <IoPrintOutline style={{ marginRight: '0.5rem' }} />
               Print
             </button>

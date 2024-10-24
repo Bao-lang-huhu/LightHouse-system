@@ -11,7 +11,9 @@ const getDrinkOrders = async (req, res) => {
         staff_id,
         STAFF (
           staff_id,
-          staff_username
+          staff_username,
+          staff_fname,
+          staff_lname
         ),
         check_in_id,
         b_payment_method,
@@ -110,7 +112,9 @@ const getDrinkOrders = async (req, res) => {
 
       return {
         ...order,
-        staff_username: order.STAFF?.staff_username || 'Unknown', // Include staff username or default to 'Unknown'
+        staff_username: order.STAFF?.staff_username || 'Unknown', 
+        staff_fname: order.STAFF?.staff_fname || 'Unknown', 
+        staff_lname: order.STAFF?.staff_lname || 'Staff',// Include staff username or default to 'Unknown'
         drinkItems: drinkItems.map(item => ({
           ...item,
           drink_name: item.BAR_DRINK?.drink_name || 'Unknown', // Include drink name or default to 'Unknown'

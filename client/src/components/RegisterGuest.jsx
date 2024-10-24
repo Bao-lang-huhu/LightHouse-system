@@ -57,7 +57,7 @@ function RegisterGuest() {
             }
 
             // Send registration data along with Firebase UID to the backend
-            const response = await axios.post('http://localhost:3001/api/registerGuest', {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerGuest', {
                 ...guest,
                 firebase_uid // Include Firebase UID
             });

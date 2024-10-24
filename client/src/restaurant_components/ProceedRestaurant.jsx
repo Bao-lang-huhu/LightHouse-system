@@ -8,6 +8,8 @@ import {jwtDecode} from 'jwt-decode';
 import ErrorMsg from '../messages/errorMsg'; 
 import SuccessMsg from '../messages/successMsg'; 
 import Avatar from '@mui/material/Avatar'; 
+import moment from 'moment-timezone';
+
 const ProceedRestaurant = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,7 +22,6 @@ const ProceedRestaurant = () => {
   const [currentStaff, setCurrentStaff] = useState({});
   const [orderSuccess, setOrderSuccess] = useState(''); // State for success message
   const [orderError, setOrderError] = useState(''); // State for error message
-  const [showPrintModal, setShowPrintModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -69,13 +70,18 @@ const ProceedRestaurant = () => {
 
   const handlePlaceOrder = async () => {
     try {
+      const currentDate = new Date();
+      const philippineDate = new Date(currentDate.getTime() + (8 * 60 * 60 * 1000));
+
       const orderData = {
         staff_id: currentStaff.staff_id,
         check_in_id: selectedCheckInId,
         f_payment_method: paymentMethod,
         f_order_total: total,
-        f_notes: notes, // Include notes in the order data
-        foodItems: foodOrders
+        f_notes: notes,
+        foodItems: foodOrders,
+        order_date: philippineDate // Use the adjusted date
+
       };
   
       const response = await axios.post('http://localhost:3001/api/registerFoodOrders', orderData);
@@ -85,7 +91,6 @@ const ProceedRestaurant = () => {
         setOrderSuccess('Order placed successfully!');
         setOrderError('');
         
-        // Remove food orders and notes from local storage after order is placed
         localStorage.removeItem('foodOrders');
         localStorage.removeItem('notes');
         
@@ -108,7 +113,10 @@ const ProceedRestaurant = () => {
     document.body.appendChild(iframe);
     iframe.style.display = 'none';
 
+    const philippineDate = moment.tz(new Date(), "Asia/Manila").format('MMMM DD, YYYY - h:mm A');
+
     const printDocument = iframe.contentDocument || iframe.contentWindow.document;
+    printDocument.open();
     printDocument.write(`
       <html>
         <head>
@@ -150,19 +158,20 @@ const ProceedRestaurant = () => {
             }
           </style>
         </head>
-        <body onload="window.print(); window.close();">
+        <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
           <div class="print-container">
             <h1 class="subtitle"><strong>Order Line</strong></h1>
+            <p><strong>Date:</strong> ${philippineDate}</p>           
             <p><strong>Staff:</strong> ${currentStaff.staff_name}</p>
             <p><strong>Payment Method:</strong> ${paymentMethod}</p>
             ${selectedCheckInId && paymentMethod === 'ROOM' ? 
                 `<p><strong>Room:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_number || 'Not Available'}</p>` : ''}
             ${selectedCheckInId && paymentMethod === 'ROOM' ? 
-                  (() => {
+                (() => {
                     const guest = checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId);
                     return `<p><strong>Guest:</strong> ${guest ? `${guest.guest_fname} ${guest.guest_lname}` : 'Not Available'}</p>`;
-                  })() : ''}
-                   ${selectedCheckInId && paymentMethod === 'ROOM' ? 
+                })() : ''}
+            ${selectedCheckInId && paymentMethod === 'ROOM' ? 
                 `<p><strong>Room Type:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_type_name || 'Not Available'}</p>` : ''}
                  
             <table class="table">
@@ -184,7 +193,7 @@ const ProceedRestaurant = () => {
               </tbody>
             </table>
             <div style="margin-top: 15px;">
-              <p><strong>Notes:</strong> ${notes.trim() ? notes : "No Notes..."}</p> <!-- Show 'No Notes...' when none are present -->
+              <p><strong>Notes:</strong> ${notes.trim() ? notes : "No Notes..."}</p>
             </div>
             <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
           </div>
@@ -193,16 +202,15 @@ const ProceedRestaurant = () => {
     `);
 
     printDocument.close();
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
 
-    setTimeout(() => {
-        document.body.removeChild(iframe);
-    }, 1000);
+    iframe.onload = () => {
+      setTimeout(() => {
+          document.body.removeChild(iframe);
+      }, 1000);
+  };
+    handlePlaceOrder();
 };
 
-  
-  
 
   return (
     <section className="section-p1">
@@ -333,7 +341,7 @@ const ProceedRestaurant = () => {
                             imgProps={{ style: { objectFit: 'cover' } }}
                           />
                         </td>
-                        <td>{item.food_name}</td>
+                        <td className='is-size-5'>{item.food_name}</td>
                         <td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
                           <TextField
                             type="number"
@@ -344,7 +352,7 @@ const ProceedRestaurant = () => {
                             }}
                           />
                         </td>
-                        <td>₱{(item.food_price * item.quantity).toFixed(2)}</td>
+                        <td className='is-size-5'>₱{(item.food_price * item.quantity).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -372,8 +380,7 @@ const ProceedRestaurant = () => {
                   style={{ width: '100%', minHeight: '100px' }}
                 />
               </div>
-              <button className="button is-blue is-fullwidth" onClick={printOrderDirectly}>Print Order</button>
-              <button className="button is-dark-blue is-fullwidth" onClick={handlePlaceOrder}> Print and Confirm Order</button>
+              <button className="button is-blue is-fullwidth" onClick={printOrderDirectly}>Print and Confirm Order</button>
             </div>
           </div>
         </div>

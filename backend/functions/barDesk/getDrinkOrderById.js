@@ -13,7 +13,9 @@ const getDrinkOrderById = async (req, res) => {
         staff_id,
         STAFF (
           staff_id,
-          staff_username
+          staff_username,
+          staff_lname,
+          staff_fname
         ),
         check_in_id,
         b_payment_method,

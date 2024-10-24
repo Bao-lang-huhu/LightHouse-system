@@ -16,6 +16,7 @@ const barRoutes = require('./routes/barRoutes');
 const verifyTokenRoute = require('./routes/token/verifyToken');
 const restaurantRoutes = require ('./routes/restaurantRoutes');
 const forecastRoute = require('./routes/forecastRoute');
+const roomSalesRoutes = require('./routes/roomSalesRoutes');
 const eventForecastRoutes = require('./routes/EventForecast'); // Make sure this is the correct path
 //counts for dashboard
 const getCountsDashboardManager = require('./routes/count/getCountsDashboardManager'); 
@@ -77,6 +78,8 @@ app.use('/api', barRoutes);
 
 app.use('/api', verifyTokenRoute);
 app.use('/api', restaurantRoutes);
+app.use('/api', roomSalesRoutes);
+
 
 app.use('/api', getCountsDashboardManager);
 app.use('/api', forecastRoute);

@@ -1,0 +1,57 @@
+.sales-container {
+    padding: 20px;
+}
+
+.sales-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sales-tabs, .view-type-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.sales-tabs button, .view-type-toggle button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    background-color: #f4f4f4;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sales-tabs button.active, .view-type-toggle button.active {
+    background-color: #8884d8;
+    color: #fff;
+}
+
+.sales-tabs button:hover, .view-type-toggle button:hover {
+    background-color: #ddd;
+}
+
+.sales-table {
+    margin-top: 30px;
+}
+
+.sales-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+}
+
+.sales-table th, .sales-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.sales-table th {
+    background-color: #f4f4f4;
+}
+
+.sales-table td {
+    background-color: #fff;
+}

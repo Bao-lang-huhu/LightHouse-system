@@ -88,7 +88,7 @@ const getEventReservationsAll = async (req, res) => {
         const guestIds = eventReservations.map(reservation => reservation.guest_id);
         const { data: guests, error: guestsError } = await supabase
             .from('GUEST')
-            .select('guest_id, guest_fname, guest_lname, guest_email, guest_phone_no, guest_address, guest_country')
+            .select('guest_id, guest_fname, guest_lname, guest_email, guest_phone_no, guest_address, guest_gender, guest_country')
             .in('guest_id', guestIds);
 
         if (guestsError) {
@@ -119,7 +119,8 @@ const getEventReservationsAll = async (req, res) => {
                     guest_email: guestDetails.guest_email,
                     guest_phone_no: guestDetails.guest_phone_no,
                     guest_address: guestDetails.guest_address,
-                    guest_country: guestDetails.guest_country
+                    guest_country: guestDetails.guest_country,
+                    guest_gender: guestDetails.guest_gender
                 } : null,
                 venue: venueDetails ? {
                     venue_name: venueDetails.venue_name,

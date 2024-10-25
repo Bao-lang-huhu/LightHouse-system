@@ -59,6 +59,8 @@ import FConciergeLaundry from "./frontdesk_pages/F_ConciergeLaundry";
 import FAdditionalItem from "./frontdesk_pages/F_AdditionalItem";
 import FMainHouse from "./frontdesk_pages/F_Main_House";
 import FEventReservation from "./frontdesk_pages/F_EventReservation";
+import FHousekeeping from "./frontdesk_pages/F_Housekeeping";
+import FMaintenance from "./frontdesk_pages/F_Maintenance";
 import CheckInTable from "./frontdesk_components/CheckIn";
 
 import RHomeRestaurant from "./restaurant_pages/R_Home";
@@ -152,6 +154,8 @@ function App() {
         <Route path="/frontdesk_additional_item" element={<FAdditionalItem/>}/>
         <Route path="/frontdesk_maintenance_and_housekeeping" element={<FMainHouse/>}/>
         <Route path="/frontdesk_event_reservation" element={<FEventReservation/>}></Route>
+        <Route path="/frontdesk_housekeeping" element={<FHousekeeping/>}></Route>
+        <Route path="/frontdesk_maintenance" element={<FMaintenance/>}></Route>
         <Route path="/frontdesk_check_in" element={<FCheckInTable/>}></Route>
 
         

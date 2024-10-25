@@ -17,22 +17,23 @@ const MaintenanceHousekeeping = () => {
                 </div>
                 <div className="container section-p1 ">
                     <div className="columns is-multiline is-mobile">
-                        <div className="column is-6">
+                        <div className="column is-6"> <Link to = "/frontdesk_housekeeping">
                             <div className="button is-blue box has-text-centered">
+                               
                                 <span>
                                         <IoHomeOutline size={100} className="is-violet" />
                                     </span>
                                 <p className="is-size-5 has-text-weight-semibold mt-2">Housekeeping</p>
-                            </div>
+                           </div> </Link>
                         </div>
 
                         <div className="column is-6">
-                            <div className="button is-dark-blue box has-text-centered">
+                            <Link to = "/frontdesk_maintenance"><div className="button is-dark-blue box has-text-centered">
                                     <span>
                                         <IoConstructOutline size={100} className="is-violet" />
                                     </span>
                                 <p className="is-size-5 has-text-weight-semibold mt-2">Maintenance</p>
-                            </div>
+                               </div> </Link>
                         </div>
                     </div>
 

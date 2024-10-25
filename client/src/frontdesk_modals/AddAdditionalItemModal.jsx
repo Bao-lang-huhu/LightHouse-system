@@ -30,7 +30,6 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
     }, []);
 
     useEffect(() => {
-        // Filter check-ins based on search term
         setFilteredCheckIns(
             checkIns.filter(checkIn =>
                 checkIn.guest_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -74,7 +73,7 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`}>
             <div className="modal-background" onClick={toggleModal}></div>
-            <div className="modal-card custom-modal-card">
+            <div className="modal-card">
                 <header className="modal-card-head">
                     <p className="modal-card-title">Add Additional Item</p>
                     <button className="delete" aria-label="close" onClick={toggleModal}></button>
@@ -85,39 +84,10 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
                     <div className="columns">
                         <div className="column is-12">
                             <div className="columns is-multiline">
-                                <div className="column is-6">
-                                    <div className="field">
-                                        <label className="label">Search Guest Name</label>
-                                        <div className="control">
-                                            <input
-                                                className="input"
-                                                type="text"
-                                                placeholder="Enter guest name"
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="dropdown is-active">
-                                            <div className="dropdown-menu">
-                                                <div className="dropdown-content">
-                                                    {filteredCheckIns.map((checkIn) => (
-                                                        <a
-                                                            key={checkIn.check_in_id}
-                                                            className="dropdown-item"
-                                                            onClick={() => setSelectedCheckIn(checkIn)}
-                                                        >
-                                                            {checkIn.guest_name}
-                                                        </a>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div className="column is-6">
                                     <div className="field">
-                                        <label className="label">Selected Check-In</label>
+                                        <label className="label">Check-In Guest</label>
                                         <div className="control">
                                             <input
                                                 className="input"
@@ -140,21 +110,6 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
                                                 placeholder="Enter item name"
                                                 value={itemName}
                                                 onChange={(e) => setItemName(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="column is-6">
-                                    <div className="field">
-                                        <label className="label">Borrowed Date and Time</label>
-                                        <div className="control">
-                                            <input
-                                                className="input"
-                                                type="datetime-local"
-                                                placeholder="Select date and time"
-                                                value={borrowedDateTime}
-                                                onChange={(e) => setBorrowedDateTime(e.target.value)}
                                             />
                                         </div>
                                     </div>

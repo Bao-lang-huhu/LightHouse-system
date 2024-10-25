@@ -1,13 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bulma/css/bulma.min.css';
 import logo from '../images/logo.png';
 import '../App.css';
 import '../manager_components/components_m.css';
 import { Link } from 'react-router-dom';
 import {  IoBed } from 'react-icons/io5';
+import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
 
 
 const HomeFrontDesk= () => {
+  const [staffUsername, setStaffUsername] = useState('Front Desk'); // State to store the staff username
+
+  useEffect(() => {
+    // Retrieve the token from localStorage
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      try {
+        // Decode the token and extract staff_username
+        const decodedToken = jwtDecode(token);
+        const username = decodedToken.staff_username;
+        setStaffUsername(username); // Set the staff username
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    }
+  }, []);
   return (
     <section>
         <div className="home-page hero is-color home-page">
@@ -20,7 +38,7 @@ const HomeFrontDesk= () => {
 
           {/* Phrase */}
           <h1 className="title">
-          Welcome! Front Desk Lira
+          Welcome! {staffUsername}
           </h1>
           <h2 className="subtitle">
           Let’s Start.

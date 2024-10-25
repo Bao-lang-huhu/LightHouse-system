@@ -6,7 +6,7 @@ const EditAdditionalItemModal = ({ isOpen, toggleModal }) => {
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`}>
             <div className="modal-background" onClick={toggleModal}></div>
-            <div className="modal-card custom-modal-card">
+            <div className="modal-card">
                 <header className="modal-card-head">
                     <p className="modal-card-title">Edit Additional Item</p>
                     <button className="delete" aria-label="close" onClick={toggleModal}></button>
@@ -15,14 +15,6 @@ const EditAdditionalItemModal = ({ isOpen, toggleModal }) => {
                     <div className="columns">
                         <div className="column is-12">
                             <div className="columns is-multiline">
-                                    <div className="column is-6">
-                                        <div className="field">
-                                            <label className="label">Additional Item ID</label>
-                                            <div className="control">
-                                                <p>Example 101</p>
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div className="column is-6">
                                         <div className="field">
                                             <label className="label">Room Number</label>
@@ -46,15 +38,6 @@ const EditAdditionalItemModal = ({ isOpen, toggleModal }) => {
                                             <label className="label">Borrowed Date</label>
                                             <div className="control">
                                                 <p>Example Date</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="column is-6">
-                                        <div className="field">
-                                            <label className="label">Returned Date and Time</label>
-                                            <div className="control">
-                                                <input className="input" type="datetime-local"  placeholder="Select date and time" />
                                             </div>
                                         </div>
                                     </div>

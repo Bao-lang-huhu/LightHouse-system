@@ -30,10 +30,13 @@ const getBarSales = async (req, res) => {
             salesData[key] += order.b_order_total || 0;
         });
 
+
         const result = Object.entries(salesData).map(([key, totalSales]) => ({
             period: key,
             totalSales
-        }));
+        }))
+        .sort((a, b) => new Date(a.period) - new Date(b.period)); // Sort by date
+
 
         res.status(200).json(result);
     } catch (error) {

@@ -33,7 +33,9 @@ const getRestaurantSales = async (req, res) => {
         const result = Object.entries(salesData).map(([key, totalSales]) => ({
             period: key,
             totalSales
-        }));
+        }))
+        .sort((a, b) => new Date(a.period) - new Date(b.period)); // Sort by date
+
 
         res.status(200).json(result);
     } catch (error) {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './SalesComponent.css';
+import { ClipLoader } from 'react-spinners';
 
 const ReportSales = () => {
     const [salesData, setSalesData] = useState([]);
@@ -9,7 +10,8 @@ const ReportSales = () => {
     const [selectedTab, setSelectedTab] = useState('rooms'); // Default to rooms tab
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const [selectedView, setSelectedView] = useState('graphs');
+    
     const backendUrl = 'http://localhost:3001';
 
     const fetchSalesData = async (type) => {
@@ -67,10 +69,25 @@ const generateRandomMutedBlue = () => {
     return darkBlueShades[Math.floor(Math.random() * darkBlueShades.length)];
 };
 
+const handleViewChange = (view) => {
+    setSelectedView(view);
+};
 
+const calculateTotalSales = () => {
+    return salesData.reduce((total, item) => total + item.totalSales, 0).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' });
+};
 
-    if (loading) return <p>Loading sales data...</p>;
-    if (error) return <p>{error}</p>;
+if (error) {
+    return (
+        <div className="section-p1 error-container">
+            <p>{error}</p>
+            <button className="button is-blue" onClick={() => fetchSalesData(viewType)}>
+                Retry
+            </button>
+        </div>
+    );
+}
+
 
     return (
         <section className='section-p1'>
@@ -78,11 +95,11 @@ const generateRandomMutedBlue = () => {
                 <p className='subtitle is-3'>Sales Report</p>
             </div>
             <div className="sales-container">
-                <h1>{selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1)} Sales Report</h1>
-                
+                <h1 className='is-size-5'>{selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1)} Sales Report</h1>
+
                {/* Tabs for Rooms, Events, Restaurant, and Bar */}
-                <div className="tabs is-left is-boxed">
-                    <ul>
+                <div className="tabs is-boxed">
+                    <ul className="is-left is-boxed">
                         <li className={selectedTab === 'rooms' ? 'is-active' : ''}>
                             <a onClick={() => handleTabClick('rooms')}>Rooms</a>
                         </li>
@@ -96,15 +113,35 @@ const generateRandomMutedBlue = () => {
                             <a onClick={() => handleTabClick('bar')}>Bar</a>
                         </li>
                     </ul>
+                    <ul className="is-right is-boxed">
+                        <li className={selectedView === 'tables' ? 'is-active' : ''}>
+                            <a onClick={() => handleViewChange('tables')}>Tables</a>
+                        </li>
+                        <li className={selectedView === 'graphs' ? 'is-active' : ''}>
+                            <a onClick={() => handleViewChange('graphs')}>Graphs</a>
+                        </li>
+                    </ul>
                 </div>
 
-                {/* Toggle between Monthly and Yearly */}
-                <div className="view-type-toggle buttons has-addons">
-                    <button className={`button ${viewType === 'monthly' ? 'is-primary' : ''}`} onClick={() => handleViewTypeClick('monthly')}>Monthly</button>
-                    <button className={`button ${viewType === 'yearly' ? 'is-primary' : ''}`} onClick={() => handleViewTypeClick('yearly')}>Yearly</button>
-                </div>
+              {/* Toggle between Monthly, Yearly, and Total */}
+            <div className="view-type-toggle tabs is-toggle is-toggle-rounded">
+                <ul>
+                    <li className={viewType === 'monthly' ? 'is-active' : ''}>
+                        <a onClick={() => handleViewTypeClick('monthly')}>
+                            <span>Monthly</span>
+                        </a>
+                    </li>
+                    <li className={viewType === 'yearly' ? 'is-active' : ''}>
+                        <a onClick={() => handleViewTypeClick('yearly')}>
+                            <span>Yearly</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
 
+
+{selectedView === 'graphs' && (
                 <ResponsiveContainer width="100%" height={400}>
                     <BarChart data={salesData}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -119,7 +156,8 @@ const generateRandomMutedBlue = () => {
                         />
                     </BarChart>
                 </ResponsiveContainer>
-
+  )}
+  {selectedView === 'tables' && (
                 <div className="sales-table">
                     <h2>{viewType.charAt(0).toUpperCase() + viewType.slice(1)} {selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1)} Sales</h2>
                     <table>
@@ -138,7 +176,7 @@ const generateRandomMutedBlue = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
+                </div>  )}
             </div>
         </section>
     );

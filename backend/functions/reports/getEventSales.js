@@ -1,4 +1,4 @@
-const { supabase } = require('../../supabaseClient');
+const { supabase } = require('../../supabaseClient'); 
 
 const getEventSales = async (req, res) => {
     const type = req.query.type || 'monthly'; // Default to 'monthly' if not specified
@@ -30,10 +30,13 @@ const getEventSales = async (req, res) => {
             salesData[key] += event.event_total_price || 0;
         });
 
-        const result = Object.entries(salesData).map(([key, totalSales]) => ({
-            period: key,
-            totalSales
-        }));
+        // Convert the object into an array and sort it by date
+        const result = Object.entries(salesData)
+            .map(([key, totalSales]) => ({
+                period: key,
+                totalSales
+            }))
+            .sort((a, b) => new Date(a.period) - new Date(b.period)); // Sort by date
 
         res.status(200).json(result);
     } catch (error) {

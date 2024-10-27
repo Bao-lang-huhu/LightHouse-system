@@ -21,6 +21,16 @@ const {getRoomDetailsByRoomId} = require ('../functions/guest/getRoomDetailsByRo
 
 const {registerGuestRoom} = require ('../functions/registerGuestRoom');
 
+const {getCheckIn} = require('../functions/frontDesk/getCheckIn');
+
+const {getCheckInBill} = require('../functions/frontDesk/getCheckInBill');
+const {updateCheckOut } = require('../functions/frontDesk/updateCheckOut');
+const {getAdditionalItems} = require('../functions/frontDesk/getAdditionalItems');
+const { getAdditionalItemsById } = require('../functions/frontDesk/getAdditionalItemsById');
+const {EditAdditionalItem } = require('../functions/frontDesk/updateAdditionalItems');
+const {returnAdditionalItem} = require('../functions/frontDesk/returnAdditionalItem');
+const { archiveAdditionalItem } = require('../functions/frontDesk/archiveAdditionalItem');
+
 const router = express.Router();
 
 // Route for room registration
@@ -64,4 +74,19 @@ router.get('/room_details/:room_id', getRoomDetailsByRoomId);
 
 router.post('/registerGuestRoom', registerGuestRoom);
 
+router.get('/getCheckIn', getCheckIn);
+
+router.get('/getCheckInBill', getCheckInBill);
+
+router.put('/updateCheckOut', updateCheckOut);
+
+router.get('/getAdditionalItems', getAdditionalItems);
+
+router.get('/getAdditionalItemsById/:add_item_id', getAdditionalItemsById);
+
+router.put('/editAdditionalItem/:add_item_id', EditAdditionalItem);
+
+router.put('/returnAdditionalItem/:add_item_id', returnAdditionalItem);
+
+router.put('/archiveAdditionalItem/:addItemId', archiveAdditionalItem);
 module.exports = router;

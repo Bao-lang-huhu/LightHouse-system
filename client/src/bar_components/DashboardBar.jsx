@@ -6,6 +6,7 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
 import Avatar from '@mui/material/Avatar';
 import { ClipLoader } from 'react-spinners';
+import { Link } from 'react-router-dom';
 
 const DashboardBar = () => {
   const [staffName, setStaffName] = useState('Admin');
@@ -70,7 +71,9 @@ const DashboardBar = () => {
 
           {/* Incoming Orders List */}
           <div className="box">
-            <h2 className="subtitle is-5">Incoming Orders</h2>
+            <h2 className="subtitle is-5">
+                <Link to="/bar_incoming_orders" className='has-text-black'>Incoming Orders</Link>
+            </h2>            
             <div className="column">
               {loadingOrders ? (
                 // Show ClipLoader while data is being fetched
@@ -87,8 +90,8 @@ const DashboardBar = () => {
                   <div key={order.bar_order_id} className="column m-0 p-1"> {/* Adjust column size as needed */}
                     <div className="box">
                       {/* Order ID */}
-                      <h3 className="subtitle is-6 has-text-centered">
-                        Order ID: {order.bar_order_id}
+                      <h3 className="subtitle is-6 has-text-left">
+                      Guest: <strong>{order.guest_fname && order.guest_lname ? `${order.guest_fname} ${order.guest_lname}` : 'Restaurant Guest'}</strong>
                       </h3>
 
                       {/* List of Drink Items and Quantities */}

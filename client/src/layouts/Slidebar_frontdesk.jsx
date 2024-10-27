@@ -108,10 +108,10 @@ const SidebarFrontDesk= () => {
                 </Link>
               </li>
               <li>
-                <a title="Checked-Out History">
+                <Link to="/frontdesk_check_out" title="Checked-Out History">
                   <IoHappy style={{ marginRight: isSidebarOpen ? '5px' : '0', textAlign: 'center' }} />
                   {isSidebarOpen && 'Checked-Out History'}
-                </a>
+                </Link>
               </li>
             </ul>
 

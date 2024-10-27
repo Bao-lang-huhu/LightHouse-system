@@ -22,71 +22,72 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
         <head>
           <style>
             @media print {
-              body {
+               body {
                 -webkit-print-color-adjust: exact;
                 font-family: Arial, sans-serif;
                 margin: 0;
-                padding: 0;
+                padding: 10px 0;
               }
               .print-container {
-                width: 100%;
-                padding: 20px;
+                width: 48mm;
+                padding: 12px 5px;
+                margin-bottom: 5mm;
                 background-color: white;
               }
               .table {
-                width: 90%;
+                width: 100%;
                 border-collapse: collapse;
+                font-size: 12px; /* Increased font size for readability */
               }
               .table th, .table td {
-                padding: 8px;
+                padding: 6px; /* Increased padding for better spacing */
                 border: 1px solid #ddd;
                 text-align: left;
+                font-size: 12px; /* Consistent font size in table cells */
               }
               .table th {
                 background-color: #f2f2f2;
-              }
-              .table, .print-container, tr, td {
-                page-break-inside: avoid;
+                font-size: 12px; /* Adjusted header font size */
               }
               .no-print-btn, .cancel-btn {
                 display: none;
               }
               @page {
-                size: A4;
-                margin: 10mm;
+                size: 48mm 600mm;
+                margin: 5mm;
               }
             }
           </style>
         </head>
         <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
           <div class="print-container">
-            <h1 class="subtitle"><strong>Drink Order Summary</strong></h1>
-            <p><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'No Staff'}</p>
-            <p><strong>Order Date:</strong> ${new Date(order.b_order_date).toLocaleDateString()}</p>
+            <h1 style="font-size: 14px;"><strong>Drink Order Summary</strong></h1>
+            <p style="font-size: 12px;"><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'No Staff'}</p>
+            <p style="font-size: 12px;"><strong>Order Date:</strong> ${new Date(order.b_order_date).toLocaleDateString()}</p>
             ${order.b_payment_method === 'ROOM' ? 
-                `<p><strong>Room:</strong> ${room_number || 'Not Available'}</p>` : ''}
+                `<p style="font-size: 12px;"><strong>Room:</strong> ${room_number || 'Not Available'}</p>` : ''}
             ${order.b_payment_method === 'ROOM' ? 
                 `<p><strong>Guest:</strong> ${order.guest_fname} ${order.guest_lname}</p>` : ''}
                  
             <table class="table">
               <thead>
                 <tr>
-                  <th>Drink Item</th>
-                  <th>Quantity</th>
-                  <th>Subtotal</th>
+                  <th style="font-size: 12px;">Drink Item</th>
+                  <th style="font-size: 12px;">Quantity</th>
+                  <th style="font-size: 12px;">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 ${order.drinkItems.map(item => `
                   <tr>
-                    <td>${item.drink_name}</td>
-                    <td>${item.b_order_qty}</td>
-                    <td>₱${item.b_order_subtotal.toFixed(2)}</td>
+                    <td style="font-size: 12px;">${item.drink_name}</td>
+                    <td style="font-size: 12px;">${item.b_order_qty}</td>
+                    <td style="font-size: 12px;">₱${item.b_order_subtotal.toFixed(2)}</td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
-            <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+            <p style="font-size: 15px;"><strong>Total:</strong> ₱${total.toFixed(2)}</p>
           </div>
         </body>
       </html>
@@ -132,7 +133,7 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
                       </label>
                 </div>
               </div>
-              
+
               {/* Second Column for Additional Details */}
               <div className="column is-6">
                 <div className="field">

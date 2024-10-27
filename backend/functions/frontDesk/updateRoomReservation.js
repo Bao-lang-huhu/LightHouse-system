@@ -12,7 +12,7 @@ const updateRoomReservation = async (req, res) => {
       .update({
         reservation_status: reservationStatus,
         room_downpayment: downPayment,
-        cancel_reservation_request: reservationStatus === 'CANCEL' ? cancellationRequest : null,
+        cancel_reservation_request: reservationStatus === 'CANCELED' ? cancellationRequest : null,
       })
       .eq('room_reservation_id', room_reservation_id);
 

@@ -61,7 +61,10 @@ import FMainHouse from "./frontdesk_pages/F_Main_House";
 import FEventReservation from "./frontdesk_pages/F_EventReservation";
 import FHousekeeping from "./frontdesk_pages/F_Housekeeping";
 import FMaintenance from "./frontdesk_pages/F_Maintenance";
-import CheckInTable from "./frontdesk_components/CheckIn";
+import FCheckInTable from "./frontdesk_pages/F_CheckIn";
+import FCheckOutTable from "./frontdesk_pages/F_CheckOut";
+import FLaundry from "./frontdesk_pages/F_Laundry";
+import FConcierge from "./frontdesk_pages/F_Concierge";
 
 import RHomeRestaurant from "./restaurant_pages/R_Home";
 import RDashboard from "./restaurant_pages/R_Dashboard";
@@ -80,7 +83,6 @@ import BAllOrders from "./bar_pages/B_AllOrders";
 import BOrder from "./bar_pages/B_Order";
 import BIncomingOrder from "./bar_pages/B_IncomingOrder";
 import BProceedBarOrder from "./bar_pages/B_ProceedBar";
-import FCheckInTable from "./frontdesk_pages/F_CheckIn";
 
 function App() {
   return (
@@ -157,6 +159,9 @@ function App() {
         <Route path="/frontdesk_housekeeping" element={<FHousekeeping/>}></Route>
         <Route path="/frontdesk_maintenance" element={<FMaintenance/>}></Route>
         <Route path="/frontdesk_check_in" element={<FCheckInTable/>}></Route>
+        <Route path="/frontdesk_check_out" element={<FCheckOutTable/>}></Route>
+        <Route path="/frontdesk_laundry" element={<FLaundry/>}></Route>
+        <Route path="/frontdesk_concierge" element={<FConcierge/>}></Route>
 
         
         

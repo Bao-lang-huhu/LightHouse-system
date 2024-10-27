@@ -4,7 +4,7 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
-import { Box, Typography, Button, TableContainer, TableBody, TableHead, TableCell, Table, TableRow, Select, MenuItem, TextField, TextareaAutosize } from '@mui/material';
+import { Snackbar, Alert, Box, Typography, Button, TableContainer, TableBody, TableHead, TableCell, Table, TableRow, Select, MenuItem, TextField, TextareaAutosize } from '@mui/material';
 
 
 const localizer = momentLocalizer(moment);
@@ -17,65 +17,108 @@ const EventReservationCalendar = () => {
   const [reservationStatus, setReservationStatus] = useState('CONFIRM');
   const [cancellationRequest, setCancellationRequest] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+  const [notification, setNotification] = useState({
+      open: false,
+      message: '',
+      severity: 'info', 
+  });
 
-  // Fetch event reservations
+  const handleCloseNotification = () => {
+      setNotification({ ...notification, open: false });
+  };
+
   const fetchEventReservations = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/getEventReservationsAll');
-      const reservations = response.data.map(reservation => {
-        const startTime = `${reservation.event_date}T${reservation.event_start_time}`;
-        const endTime = `${reservation.event_date}T${reservation.event_end_time}`;
-      
-        return {
-          id: reservation.event_reservation_id,
-          title: reservation.event_name 
-            ? `${reservation.event_name} (${reservation.guest.guest_fname} ${reservation.guest.guest_lname})`
-            : 'Event Reservation',
-          start: new Date(startTime), // Combine event_date and event_start_time
-          end: new Date(endTime),     // Combine event_date and event_end_time
-          status: reservation.event_status,
-          guest: reservation.guest, 
-          venue: reservation.venue, 
-          foodPackage: reservation.foodPackage, 
-          foodItems: reservation.foodItems, 
-          event_total_price: reservation.event_total_price,  
-          event_no_guest: reservation.event_no_guest 
-        };
-      });
-      
-      setEvents(reservations);
+        const response = await axios.get('http://localhost:3001/api/getEventReservationsAll');
+        const reservations = response.data.map(reservation => {
+            const startTime = `${reservation.event_date}T${reservation.event_start_time}`;
+            const endTime = `${reservation.event_date}T${reservation.event_end_time}`;
+        
+            return {
+                id: reservation.event_reservation_id,
+                title: reservation.event_name 
+                    ? `${reservation.event_name} (${reservation.guest.guest_fname} ${reservation.guest.guest_lname})`
+                    : 'Event Reservation',
+                start: new Date(startTime), 
+                end: new Date(endTime),     
+                status: reservation.event_status,
+                guest: reservation.guest, 
+                venue: reservation.venue, 
+                foodPackage: reservation.foodPackage, 
+                foodItems: reservation.foodItems, 
+                event_total_price: reservation.event_total_price,  
+                event_no_guest: reservation.event_no_guest,
+                cancel_reservation_request: reservation.cancel_reservation_request // Make sure this is fetched
+            };
+        });
+        
+        setEvents(reservations);
     } catch (error) {
-      console.error('Error fetching event reservations:', error);
+        console.error('Error fetching event reservations:', error);
+        setNotification({
+            open: true,
+            message: 'Failed to load events. Please refresh the page.',
+            severity: 'error',
+        });
     } finally {
-      setLoading(false); 
+        setLoading(false); 
     }
-  };
+};
+
 
   useEffect(() => {
     fetchEventReservations(); 
-  }, []);
+  }, [isSaved]);
+
+  const handleCompleteEvent = async () => {
+    try {
+        await axios.put(`http://localhost:3001/api/updateEventReservation/${selectedEvent.id}`, {
+            reservationStatus: 'COMPLETED',
+        });
+
+        await fetchEventReservations(); // Refresh events list to ensure the calendar reflects the new status
+        setShowModal(false); // Close the modal after the action
+
+        // Show success notification
+        setNotification({
+            open: true,
+            message: 'Event completed successfully!',
+            severity: 'success',
+        });
+    } catch (error) {
+        console.error('Error during event completion:', error);
+
+        // Show error notification
+        setNotification({
+            open: true,
+            message: 'Failed to complete the event. Please try again.',
+            severity: 'error',
+        });
+    }
+};
 
   const eventStyleGetter = (event) => {
-    let backgroundColor = '#007bff'; 
-
+    let backgroundColor;
+  
     switch (event.status) {
       case 'CONFIRMED':
-        backgroundColor = '#007bff'; 
+        backgroundColor = '#007bff'; // Blue for confirmed
         break;
       case 'CANCELED':
-        backgroundColor = 'red'; 
+        backgroundColor = 'red'; // Red for canceled
         break;
       case 'COMPLETED':
-        backgroundColor = '#17a2b8'; 
+        backgroundColor = '#17a2b8'; // Cyan for completed
         break;
       case 'NO SHOW':
-        backgroundColor = '#6c757d'; 
+        backgroundColor = '#6c757d'; // Grey for no show
         break;
       default:
-        backgroundColor = '#007bff'; 
+        backgroundColor = '#007bff'; // Default to blue
         break;
     }
-
+  
     return {
       style: {
         backgroundColor,
@@ -85,19 +128,57 @@ const EventReservationCalendar = () => {
       },
     };
   };
-
+  
 
   const handleEventClick = (event) => {
-    console.log(event); // Ensure this logs the full event object with all fields, including event_total_price and event_no_guest
-    setSelectedEvent(event);  // Set the selected event
-    setShowModal(true);       // Show the modal
-  };
+    console.log(event); // Ensure this logs the full event object with all fields
+    setSelectedEvent(event);  
+    setDownPayment(event.downPayment || 0);
+    setReservationStatus(event.status || 'CONFIRMED');
+    setCancellationRequest(event.status === 'CANCELED' ? event.cancel_reservation_request || '' : ''); // Set cancellation reason if canceled
+    setShowModal(true);      
+};
+
   
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedEvent(null); 
   };
+
+  const handleChangeStatus = (status) => {
+    setReservationStatus(status);
+    setIsSaved(false); // Ensure isSaved is false until the user explicitly saves the changes
+  };
+
+  const handleSaveChanges = async () => { 
+    try {
+        await axios.put(`http://localhost:3001/api/updateEventReservation/${selectedEvent.id}`, {
+            downPayment,
+            reservationStatus,
+            cancellationRequest: reservationStatus === 'CANCELED' ? cancellationRequest : null
+        });
+        setIsSaved(true); 
+        await fetchEventReservations(); // Refresh the events list
+        setShowModal(false); // Close the modal after saving changes
+
+        setNotification({
+            open: true,
+            message: 'Changes saved successfully!',
+            severity: 'success',
+        });
+    } catch (error) {
+        console.error('Error saving changes:', error);
+        setIsSaved(false); 
+
+        // Show error notification
+        setNotification({
+            open: true,
+            message: 'Failed to save changes. Please try again.',
+            severity: 'error',
+        });
+    }
+};
 
   return (
     <div style={{ margin: '20px' }}>
@@ -107,6 +188,17 @@ const EventReservationCalendar = () => {
         </div>
       ) : (
         <>
+         <Snackbar
+            open={notification.open}
+            autoHideDuration={3000}
+            onClose={handleCloseNotification}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} 
+            sx={{ width: '500px' }}>
+            <Alert onClose={handleCloseNotification} severity={notification.severity}  style={{ fontSize: '1.2rem', padding: '20px' }} >
+              {notification.message}
+            </Alert>
+         </Snackbar>
+
           {/* Legend Section */}
           <div style={{ marginBottom: '10px', display: 'flex', gap: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -232,11 +324,77 @@ const EventReservationCalendar = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Typography variant="h6" mt={3}>Reservation Confirmation</Typography>
+
+            <Box mb={1}>
+
+              <Typography variant="body2" color="textSecondary">Payment</Typography>
+              <TextField
+                type="text" 
+                value={downPayment}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  // Remove leading zeros
+                  value = value.replace(/^0+(?=\d)/, '');
+
+                  // Only allow positive numbers (including decimals if needed)
+                  if (/^\d*\.?\d*$/.test(value)) {
+                    setDownPayment(value);
+                  }
+                }}
+                onBlur={() => {
+                  // Convert to number on blur to prevent leading zero when editing is done
+                  setDownPayment(Number(downPayment));
+                }}
+                variant="outlined"
+                size="small"
+                fullWidth
+              />
+
+            </Box>
+
+            {reservationStatus !== 'COMPLETED' && (
+                  <Box mb={1}>
+                    <Typography variant="body2" color="textSecondary">Reservation Status</Typography>
+                    <Select
+                      value={reservationStatus}
+                      onChange={(e) => handleChangeStatus(e.target.value)}
+                      variant="outlined"
+                      fullWidth
+                    >
+                      <MenuItem value="CONFIRMED">Confirm</MenuItem>
+                      <MenuItem value="CANCELED">Cancel</MenuItem>
+                    </Select>
+                  </Box>
+                )}
+
+                {reservationStatus === 'CANCELED' && (
+                  <Box mb={2}>
+                    <Typography variant="h6" mb={1}>Cancellation Request:</Typography>
+                    <Typography variant="body2" color="textSecondary">Cancellation Reason</Typography>
+                    <TextareaAutosize
+                      minRows={3}
+                      value={cancellationRequest}
+                      onChange={(e) => setCancellationRequest(e.target.value)}
+                      style={{ width: '100%', padding: '8px' }}
+                      placeholder="Enter the reason for cancellation"
+                    />
+                  </Box>
+                )}
+
+
+            </Box> 
           </Box>
-        </Box>
-              <footer className="modal-card-foot">
-                <button className="button is-success" onClick={() => console.log('Save Changes')}>Save Changes</button>
-              </footer>
+                <Box display="flex" justifyContent="flex-end" mt={3}>
+                    <Button variant="contained" color="primary" onClick={handleSaveChanges} sx={{ mr: 1 }}>Save Changes</Button>
+                    
+                    {/* Complete Event Button - Only show if the reservation is confirmed and no unsaved changes */}
+                    {selectedEvent?.status === 'CONFIRMED' && reservationStatus === 'CONFIRMED' && isSaved && (
+                        <Button variant="outlined" color="primary" onClick={handleCompleteEvent}>
+                            COMPLETE EVENT
+                        </Button>
+                    )}
+                </Box>
               </Box> 
               </Box>
             </div>

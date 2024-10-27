@@ -120,10 +120,10 @@ const getDrinkOrders = async (req, res) => {
           drink_name: item.BAR_DRINK?.drink_name || 'Unknown', // Include drink name or default to 'Unknown'
           drink_price: item.BAR_DRINK?.drink_price || 0,
         })),
-        guest_fname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_fname || 'N/A',
-        guest_lname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_lname || 'N/A',
-        room_number: roomInfo?.ROOM?.room_number || 'N/A',
-        room_type_name: roomInfo?.ROOM?.room_type_name || 'N/A'
+        guest_fname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_fname || 'Bar',
+        guest_lname: guestInfo?.ROOM_RESERVATION?.GUEST?.guest_lname || 'Guest',
+        room_number: roomInfo?.ROOM?.room_number || 'No room',
+        room_type_name: roomInfo?.ROOM?.room_type_name || 'No room name'
       };
     });
 

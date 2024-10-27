@@ -8,16 +8,16 @@ const ReservationDetailsModal = ({ isOpen, onClose, roomReservationId }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch reservation details only if the modal is open and roomReservationId is provided
     if (isOpen && roomReservationId) {
       const fetchReservationDetails = async () => {
         try {
           setLoading(true);
           setError('');
           const response = await axios.get(
-            `http://localhost:3001/api/getReservationsByReservationId?room_reservation_id=${roomReservationId}`
+            `http://localhost:3001/api/getCheckIn?room_reservation_id=${roomReservationId}`
           );
-          setReservationDetails(response.data[0]); // Assuming the API returns an array
+          console.log(response.data[0]); // Check the structure of the response
+          setReservationDetails(response.data[0]);
         } catch (err) {
           setError('Failed to fetch reservation details.');
           console.error('Error fetching reservation details:', err);
@@ -25,10 +25,37 @@ const ReservationDetailsModal = ({ isOpen, onClose, roomReservationId }) => {
           setLoading(false);
         }
       };
-
+  
       fetchReservationDetails();
     }
   }, [isOpen, roomReservationId]);
+  
+  // Calculate how many days before checking out
+  const calculateDaysBeforeCheckout = (checkOutDate) => {
+    const today = new Date();
+    const checkout = new Date(checkOutDate);
+    const differenceInTime = checkout - today;
+    const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+    return differenceInDays > 0 ? `${differenceInDays} day(s) left` : "Checkout date has passed";
+  };
+  const calculateTotalCost = (totalCost, downPayment) => {
+    // Treat null, undefined, or 0 as no downpayment
+    const parsedDownPayment = downPayment ? parseFloat(downPayment) : 0;
+
+    // If there's no downpayment (i.e., parsedDownPayment is 0), return the full cost
+    if (parsedDownPayment <= 0) {
+        return `₱${totalCost.toFixed(2)}`;
+    }
+
+    const remainingCost = totalCost - parsedDownPayment;
+
+    // Ensure that the remaining cost is not negative
+    if (remainingCost < 0) {
+        return 'Invalid downpayment amount';
+    }
+
+    return `₱${remainingCost.toFixed(2)}`;
+};
 
   if (!isOpen) {
     return null;
@@ -49,14 +76,23 @@ const ReservationDetailsModal = ({ isOpen, onClose, roomReservationId }) => {
             <p className="has-text-danger">{error}</p>
           ) : reservationDetails ? (
             <div>
-              <p><strong>Reservation ID:</strong> {reservationDetails.room_reservation_id}</p>
-              <p><strong>Guest ID:</strong> {reservationDetails.guest_id}</p>
-              <p><strong>Room Type:</strong> {reservationDetails.room_type_name}</p>
-              <p><strong>Room Number:</strong> {reservationDetails.room_number}</p>
-              <p><strong>Total Cost:</strong> ₱{reservationDetails.total_cost.toFixed(2)}</p>
-              <p><strong>Check-In Date:</strong> {new Date(reservationDetails.room_check_in_date).toLocaleDateString()}</p>
-              <p><strong>Check-Out Date:</strong> {new Date(reservationDetails.room_check_out_date).toLocaleDateString()}</p>
-              <p><strong>Reservation Status:</strong> {reservationDetails.reservation_status}</p>
+              <p className='is-size-4'>Guest Name: <strong>{reservationDetails.guest?.guest_fname} {reservationDetails.guest?.guest_lname}</strong></p>
+              <p className='is-size-4'>Staff Assigned: <strong>{reservationDetails.staff?.staff_fname} {reservationDetails.staff?.staff_lname}</strong></p>
+
+              <p className='is-size-5'>Room Type: <strong>{reservationDetails.room_type_name}</strong></p>
+              <p className='is-size-5'>Room Number: <strong>{reservationDetails.room_number}</strong></p>
+              <div className='mb-2 mt-2'>
+                <p className='is-size-5'>Check-In Date: <strong>{new Date(reservationDetails.room_check_in_date).toLocaleDateString()}</strong></p>
+                <p className='is-size-5'>Check-Out Date: <strong>{new Date(reservationDetails.room_check_out_date).toLocaleDateString()}</strong></p>
+                <p className='is-size-5'>Days Before Check-Out: <strong>{calculateDaysBeforeCheckout(reservationDetails.room_check_out_date)}</strong></p>
+              </div>
+              <p className='is-size-5'>Reservation Status: <strong>{reservationDetails.checkIn?.check_in_status}</strong></p>
+              <p className='is-size-5'>Payment Status: <strong>{reservationDetails.checkIn?.payment_status}</strong></p>
+
+              <p className='is-size-5'>Downpayment: <strong>{reservationDetails.room_downpayment ? `₱${reservationDetails.room_downpayment}` : 'No downpayment'}</strong></p>
+              <p className='is-size-5'>Room Cost: <strong>₱{reservationDetails.total_cost.toFixed(2)}</strong></p>
+              <p className='is-size-4'>Total After Downpayment: <strong>{calculateTotalCost(reservationDetails.total_cost, reservationDetails.room_downpayment)}</strong></p>
+          
             </div>
           ) : (
             <p>No details available.</p>

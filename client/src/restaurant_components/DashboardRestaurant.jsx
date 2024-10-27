@@ -28,19 +28,7 @@ const DashboardRestaurant = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Format the date and time
-  const formatDateTime = (date) => {
-    const options = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    };
-    return date.toLocaleDateString('en-US', options);
-  };
+
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -111,7 +99,7 @@ const DashboardRestaurant = () => {
                     <div className="box">
                       {/* Order ID */}
                       <h3 className="subtitle is-6 has-text-left">
-                        Guest: {order.guest_fname && order.guest_lname ? `${order.guest_fname} ${order.guest_lname}` : 'Restaurant Guest'}
+                        Guest: <strong>{order.guest_fname && order.guest_lname ? `${order.guest_fname} ${order.guest_lname}` : 'Restaurant Guest'}</strong>
                       </h3>
 
                       {/* List of Food Items and Quantities */}

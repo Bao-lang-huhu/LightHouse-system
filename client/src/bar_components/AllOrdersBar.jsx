@@ -8,6 +8,8 @@ import DrinkOrderSummary from '../bar_modals/OrderSummary'; // Assuming you have
 import ErrorMsg from '../messages/errorMsg'; // Import Error Message Component
 import SuccessMsg from '../messages/successMsg'; // Import Success Message Component
 import { ClipLoader } from 'react-spinners';
+import TablePagination from '@mui/material/TablePagination'; 
+
 const AllOrdersBar = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -20,6 +22,9 @@ const AllOrdersBar = () => {
   const [archiveSuccess, setArchiveSuccess] = useState(''); // State for archiving success message
   const [archiveError, setArchiveError] = useState(''); // State for archiving error message
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0); // Pagination page state
+  const [rowsPerPage, setRowsPerPage] = useState(10); // Rows per page state
+
 
   // Fetch bar orders from backend excluding 'DELETE' status
   useEffect(() => {
@@ -113,6 +118,15 @@ const AllOrdersBar = () => {
     setFilteredOrders(orders); 
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); // Reset to the first page when rows per page change
+  };
+
   return (
     <section className='section-p1'>
       <header>
@@ -202,7 +216,7 @@ const AllOrdersBar = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredOrders.map((order, index) => (
+                  {filteredOrders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((order, index) => (
                       <tr className="has-text-left" key={order.bar_order_id}>
                         <td>{index + 1}</td>
                         <td>{order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'No Staff'}</td>
@@ -225,9 +239,20 @@ const AllOrdersBar = () => {
                     ))}
                   </tbody>
                 </table>
+               
               </div>
+              
             )}
         </div>
+        <TablePagination
+               component="div"
+               count={filteredOrders.length}
+               page={page}
+               onPageChange={handleChangePage}
+               rowsPerPage={rowsPerPage}
+               onRowsPerPageChange={handleChangeRowsPerPage}
+               rowsPerPageOptions={[10, 20, 50]}
+             />
       </section>
       {selectedOrder && <DrinkOrderSummary isOpen={isModalOpen} toggleModal={toggleModal} order={selectedOrder} />}
       {isArchiving && (

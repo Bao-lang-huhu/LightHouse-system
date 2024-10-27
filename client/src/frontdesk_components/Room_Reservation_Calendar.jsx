@@ -5,7 +5,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
 import { ClipLoader } from 'react-spinners'; // Import the ClipLoader
 import { jwtDecode } from 'jwt-decode';
-import { Box, Typography, Button, Select, MenuItem, TextField, TextareaAutosize } from '@mui/material';
+import { Snackbar,  Alert, Box, Typography, Button, Select, MenuItem, TextField, TextareaAutosize } from '@mui/material';
 
 const localizer = momentLocalizer(moment);
 
@@ -18,6 +18,11 @@ const RoomReservationCalendar = () => {
   const [cancellationRequest, setCancellationRequest] = useState('');
   const [loading, setLoading] = useState(true); // Keep the loading state
   const [isSaved, setIsSaved] = useState(false);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'info', 
+});
   const fetchRoomReservations = async () => {
     try {
       const response = await axios.get('http://localhost:3001/api/getRoomReservationsAll');
@@ -31,15 +36,25 @@ const RoomReservationCalendar = () => {
         downPayment: reservation.room_downpayment, 
         status: reservation.reservation_status,
         guest: reservation.guest,
-        room: reservation.room     
+        room: reservation.room,
+        cancel_reservation_request: reservation.cancel_reservation_request // Make sure this is fetched    
       }));
       setEvents(reservations);
     } catch (error) {
       console.error('Error fetching room reservations:', error);
+      setNotification({
+        open: true,
+        message: 'Failed to load events. Please refresh the page.',
+        severity: 'error',
+    });
     } finally {
       setLoading(false); // Stop loading once data is fetched or error occurs
     }
   };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+};
 
   useEffect(() => {
     fetchRoomReservations();
@@ -77,13 +92,15 @@ const RoomReservationCalendar = () => {
   };
 
   const handleEventClick = (event) => {
-    console.log("Selected Event:", event); // Check the event data
-    console.log("Down Payment:", event.downPayment); // Verify down payment
+    console.log("Selected Event:", event); // Log to check event data
     setSelectedEvent(event);
     setDownPayment(event.downPayment || 0);
     setReservationStatus(event.status || 'CONFIRMED');
+    // Set the cancellation reason only if the status is CANCELED and ensure it's correctly set
+    setCancellationRequest(event.status === 'CANCELED' ? event.cancel_reservation_request || 'No reason provided.' : '');
     setShowModal(true);      
 };
+
 
   
 
@@ -104,16 +121,20 @@ const RoomReservationCalendar = () => {
         });
 
         await fetchRoomReservations(); // Refresh events list to ensure the calendar reflects the new status
-        setShowModal(false); // Close the modal after the action
+        setShowModal(false); 
+        setNotification({
+          open: true,
+          message: 'Guest is checked-in!',
+          severity: 'success',
+      });// Close the modal after the action
     } catch (error) {
-        console.error('Error during check-in:', error);
+      setNotification({
+        open: true,
+        message: 'Failed to complete. Please try again.',
+        severity: 'error',
+    });
     }
 };
-
-useEffect(() => {
-  fetchRoomReservations();
-}, [isSaved]); // Add isSaved as a dependency to refresh whenever changes are confirmed
-
 
   
 const handleSaveChanges = async () => {
@@ -124,13 +145,22 @@ const handleSaveChanges = async () => {
           cancellationRequest: reservationStatus === 'CANCELED' ? cancellationRequest : null
       });
 
-      // Update isSaved and fetch reservations after a successful save
       setIsSaved(true); 
       await fetchRoomReservations(); 
       setShowModal(false); 
+      setNotification({
+        open: true,
+        message: 'Changes saved successfully!',
+        severity: 'success',
+    });
   } catch (error) {
       console.error('Error saving changes:', error);
-      setIsSaved(false); // Ensure isSaved remains false if there was an error
+      setIsSaved(false); 
+      setNotification({
+        open: true,
+        message: 'Failed to save changes. Please try again.',
+        severity: 'error',
+    });// Ensure isSaved remains false if there was an error
   }
 };
 
@@ -149,6 +179,16 @@ const handleChangeStatus = (status) => {
         </div>
       ) : (
         <>
+         <Snackbar
+            open={notification.open}
+            autoHideDuration={3000}
+            onClose={handleCloseNotification}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} 
+            sx={{ width: '500px' }}>
+            <Alert onClose={handleCloseNotification} severity={notification.severity}  style={{ fontSize: '1.2rem', padding: '20px' }} >
+              {notification.message}
+            </Alert>
+         </Snackbar>
       {/* Legend Section */}
       <div style={{ marginBottom: '10px', display: 'flex', gap: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -187,19 +227,19 @@ const handleChangeStatus = (status) => {
         <div className="modal-background" onClick={handleCloseModal}></div>
         <div className="modal-card">
         <Box
-      sx={{
-        display: showModal ? 'block' : 'none',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        overflow: 'auto',
-        zIndex: 1000,
-      }}
-      onClick={handleCloseModal}
-    >
+          sx={{
+            display: showModal ? 'block' : 'none',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            overflow: 'auto',
+            zIndex: 1000,
+          }}
+            onClick={handleCloseModal}
+          >
       <Box
         sx={{
           backgroundColor: 'white',
@@ -212,7 +252,7 @@ const handleChangeStatus = (status) => {
         onClick={(e) => e.stopPropagation()}
       >
         <Box display="flex" justifyContent="space-between" mb={3}>
-          <Typography variant="h5">Reservation Details</Typography>
+          <Typography variant="h5">Room Reservation Details</Typography>
           <Button onClick={handleCloseModal}>X</Button>
         </Box>
 
@@ -283,18 +323,25 @@ const handleChangeStatus = (status) => {
             <Box mb={1}>
               <Typography variant="body2" color="textSecondary">Down Payment</Typography>
               <TextField
-                  type="number"
-                  variant="outlined"
-                  size="small"
-                  value={downPayment}
-                  onChange={(e) => {
-                      const value = e.target.value;
-                      // Only allow positive numbers
-                      if (/^\d*\.?\d*$/.test(value)) {
-                          setDownPayment(Number(value));
-                      }
-                  }}
-                  fullWidth
+                type="text" // Use 'text' type instead of 'number' to better control input formatting
+                value={downPayment}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  // Remove leading zeros
+                  value = value.replace(/^0+(?=\d)/, '');
+
+                  // Only allow positive numbers (including decimals if needed)
+                  if (/^\d*\.?\d*$/.test(value)) {
+                    setDownPayment(value);
+                  }
+                }}
+                onBlur={() => {
+                  // Convert to number on blur to prevent leading zero when editing is done
+                  setDownPayment(Number(downPayment));
+                }}
+                variant="outlined"
+                size="small"
+                fullWidth
               />
 
 
@@ -315,19 +362,20 @@ const handleChangeStatus = (status) => {
               </Box>
             )}
 
-            {/* Cancellation Request Section */}
             {reservationStatus === 'CANCELED' && (
-              <Box mb={2}>
-                <Typography variant="h6" mb={1}>Cancellation Request</Typography>
-                <Typography variant="body2" color="textSecondary">Cancellation Reason</Typography>
-                <TextareaAutosize
-                  minRows={3}
-                  value={cancellationRequest}
-                  onChange={(e) => setCancellationRequest(e.target.value)}
-                  style={{ width: '100%', padding: '8px' }}
-                />
-              </Box>
+                <Box mb={2}>
+                    <Typography variant="h6" mb={1}>Cancellation Request:</Typography>
+                    <Typography variant="body2" color="textSecondary">Cancellation Reason</Typography>
+                    <TextareaAutosize
+                        minRows={3}
+                        value={cancellationRequest}
+                        onChange={(e) => setCancellationRequest(e.target.value)}
+                        style={{ width: '100%', padding: '8px' }}
+                        placeholder="Enter the reason for cancellation"
+                    />
+                </Box>
             )}
+
           </Box>
         </Box>
      

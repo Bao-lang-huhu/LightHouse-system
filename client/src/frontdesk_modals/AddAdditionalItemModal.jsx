@@ -4,20 +4,18 @@ import axios from 'axios';
 import ErrorMsg from '../messages/errorMsg';
 import SuccessMsg from '../messages/successMsg';
 
-const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
+const AddAdditionalItemModal = ({ isOpen, toggleModal, refreshAddAdditionalItemList }) => {
     const [checkIns, setCheckIns] = useState([]); // To store check-in data with guest names
-    const [filteredCheckIns, setFilteredCheckIns] = useState([]); // For filtered check-ins based on search
-    const [searchTerm, setSearchTerm] = useState(''); // For search input
     const [selectedCheckIn, setSelectedCheckIn] = useState(null); // To store selected check-in
     const [itemName, setItemName] = useState(''); // Item name
-    const [borrowedDateTime, setBorrowedDateTime] = useState(''); // Borrowed date and time
+    const [customItemName, setCustomItemName] = useState(''); // Custom item name for 'OTHER'
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     useEffect(() => {
         const fetchCheckIns = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getcheckInGuests');
+                const response = await axios.get('http://localhost:3001/api/getCheckedInGuests');
                 setCheckIns(response.data);
             } catch (error) {
                 console.error('Error fetching check-in data with guests:', error);
@@ -29,14 +27,6 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
         fetchCheckIns();
     }, []);
 
-    useEffect(() => {
-        setFilteredCheckIns(
-            checkIns.filter(checkIn =>
-                checkIn.guest_name.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-        );
-    }, [searchTerm, checkIns]);
-
     const handleSubmit = async () => {
         setError('');
         setSuccess('');
@@ -47,11 +37,19 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
             return;
         }
 
+        const finalItemName = itemName === 'OTHER' ? customItemName : itemName;
+
+        if (!finalItemName) {
+            setError('Please specify the item name.');
+            setTimeout(() => setError(''), 3000);
+            return;
+        }
+
         try {
             const payload = {
                 check_in_id: selectedCheckIn.check_in_id,
-                add_item_name: itemName,
-                add_item_borrowed_date: borrowedDateTime,
+                add_item_name: finalItemName,
+                add_item_borrowed_date: new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }), // Set current time in Philippine timezone
                 add_item_status: 'BORROWED'
             };
 
@@ -61,6 +59,9 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
                 setSuccess('Additional item registered successfully!');
                 setTimeout(() => {
                     setSuccess('');
+
+                    refreshAddAdditionalItemList();
+
                     toggleModal();
                 }, 3000);
             }
@@ -89,13 +90,22 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
                                     <div className="field">
                                         <label className="label">Check-In Guest</label>
                                         <div className="control">
-                                            <input
-                                                className="input"
-                                                type="text"
-                                                placeholder="Selected check-in"
-                                                value={selectedCheckIn ? selectedCheckIn.guest_name : ''}
-                                                readOnly
-                                            />
+                                            <div className="select is-fullwidth">
+                                                <select
+                                                    value={selectedCheckIn ? selectedCheckIn.check_in_id : ''}
+                                                    onChange={(e) => {
+                                                        const checkIn = checkIns.find(c => c.check_in_id === e.target.value);
+                                                        setSelectedCheckIn(checkIn);
+                                                    }}
+                                                >
+                                                    <option value="" disabled>Select a guest</option>
+                                                    {checkIns.map((checkIn, index) => (
+                                                        <option key={index} value={checkIn.check_in_id}>
+                                                            {checkIn.guest_fname} {checkIn.guest_lname} - Room {checkIn.room_number}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -104,16 +114,32 @@ const AddAdditionalItemModal = ({ isOpen, toggleModal }) => {
                                     <div className="field">
                                         <label className="label">Item Name</label>
                                         <div className="control">
-                                            <input
-                                                className="input"
-                                                type="text"
-                                                placeholder="Enter item name"
-                                                value={itemName}
-                                                onChange={(e) => setItemName(e.target.value)}
-                                            />
+                                            <div className="select is-fullwidth">
+                                                <select
+                                                    value={itemName}
+                                                    onChange={(e) => setItemName(e.target.value)}
+                                                >
+                                                    <option value="" disabled>Select item</option>
+                                                    <option value="Blower">Blower</option>
+                                                    <option value="Hair Straightener">Hair Straightener</option>
+                                                    <option value="Towel">Towel</option>
+                                                    <option value="Pillow">Pillow</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            {itemName === 'Other' && (
+                                                <input
+                                                    className="input mt-2"
+                                                    type="text"
+                                                    placeholder="Specify other item"
+                                                    value={customItemName}
+                                                    onChange={(e) => setCustomItemName(e.target.value)}
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

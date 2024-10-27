@@ -26,74 +26,77 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
                 -webkit-print-color-adjust: exact;
                 font-family: Arial, sans-serif;
                 margin: 0;
-                padding: 0;
+                padding: 10px 0;
               }
               .print-container {
-                width: 100%;
-                padding: 20px;
+                width: 48mm;
+                padding: 12px 5px;
+                margin-bottom: 5mm;
                 background-color: white;
               }
               .table {
-                width: 90%;
+                width: 100%;
                 border-collapse: collapse;
+                font-size: 12px; /* Increased font size for readability */
               }
               .table th, .table td {
-                padding: 8px;
+                padding: 6px; /* Increased padding for better spacing */
                 border: 1px solid #ddd;
                 text-align: left;
+                font-size: 12px; /* Consistent font size in table cells */
               }
               .table th {
                 background-color: #f2f2f2;
-              }
-              .table, .print-container, tr, td {
-                page-break-inside: avoid;
+                font-size: 12px; /* Adjusted header font size */
               }
               .no-print-btn, .cancel-btn {
                 display: none;
               }
               @page {
-                size: A4;
-                margin: 10mm;
+                size: 48mm 600mm;
+                margin: 5mm;
               }
             }
           </style>
         </head>
         <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
           <div class="print-container">
-            <h1 class="subtitle"><strong>Order Line</strong></h1>
-            <p><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'Not Available'}</p>
-            <p><strong>Order Date:</strong> ${new Date(order.f_order_date).toLocaleDateString()}</p>
+            <h1 style="font-size: 14px;"><strong>Restaurant Order Summary</strong></h1>
+            <p style="font-size: 12px;"><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'Not Available'}</p>
+            <p style="font-size: 12px;"><strong>Order Date:</strong> ${new Date(order.f_order_date).toLocaleDateString()}</p>
             ${order.f_payment_method === 'ROOM' ? 
-                `<p><strong>Room:</strong> ${order.room_number || 'Not Available'}</p>` : ''}
+                `<p style="font-size: 12px;"><strong>Room:</strong> ${order.room_number || 'Not Available'}</p>` : ''}
             ${order.f_payment_method === 'ROOM' ? 
-                `<p><strong>Guest:</strong> ${order.guest_fname} ${order.guest_lname}</p>` : ''}
+                `<p style="font-size: 12px;"><strong>Guest:</strong> ${order.guest_fname} ${order.guest_lname}</p>` : ''}
                  
             <table class="table">
               <thead>
                 <tr>
-                  <th>Food Item</th>
-                  <th>Quantity</th>
-                  <th>Subtotal</th>
+                  <th style="font-size: 12px;">Food Item</th>
+                  <th style="font-size: 12px;">Quantity</th>
+                  <th style="font-size: 12px;">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 ${order.foodItems.map(item => `
                   <tr>
-                    <td>${item.food_name}</td>
-                    <td>${item.f_order_qty}</td>
-                    <td>₱${item.f_order_subtotal.toFixed(2)}</td>
+                    <td style="font-size: 12px;">${item.food_name}</td>
+                    <td style="font-size: 12px;">${item.f_order_qty}</td>
+                    <td style="font-size: 12px;">₱${item.f_order_subtotal.toFixed(2)}</td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
-            <div style="margin-top: 15px;">
-              <p><strong>Notes:</strong> ${order.f_notes ? order.f_notes : "No Notes..."}</p>
+            <div style="margin-bottom: 30px;">
+              <p style="font-size: 12px;"><strong>Notes:</strong> ${order.f_notes ? order.f_notes : "No Notes..."}</p>
             </div>
-            <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+            <p style="font-size: 15px;"><strong>Total:</strong> ₱${total.toFixed(2)}</p>
           </div>
         </body>
       </html>
     `);
+    
+    
     printDocument.close();
 
     iframe.onload = () => {

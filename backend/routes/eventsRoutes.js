@@ -15,6 +15,8 @@ const { getActiveFoodPackages } = require ('../functions/guest/getActiveFoodPack
 const {getEventReservationsAll} = require('../functions/frontDesk/getEventReservationsAll')
 
 const{getEventReservationsByGuestId} =require('../functions/guest/getEventReservationsByGuesId');
+const {updateEventReservation} = require('../functions/frontDesk/updateEventReservation');
+
 const router = express.Router();
 
 // Route for venue registration
@@ -46,6 +48,9 @@ router.get('/getActiveFoodPackages', getActiveFoodPackages);
 router.get('/getEventReservationsAll', getEventReservationsAll);
 
 router.get('/getEventReservationsByGuestId',getEventReservationsByGuestId);
+
+router.put('/updateEventReservation/:event_reservation_id', updateEventReservation);
+
 module.exports = router;
 
 

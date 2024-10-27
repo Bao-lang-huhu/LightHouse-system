@@ -8,7 +8,7 @@ const getEventReservationsAll = async (req, res) => {
         // Step 1: Fetch all event reservations from EVENT_RESERVATION
         const { data: eventReservations, error: eventReservationsError } = await supabase
             .from('EVENT_RESERVATION')
-            .select('event_reservation_id, event_name, event_type, event_date, guest_id, event_start_time, event_end_time, event_no_guest, event_total_price ');
+            .select('event_reservation_id, event_name, event_type, event_date, guest_id, event_start_time, event_end_time, event_no_guest, event_total_price, event_status, cancel_reservation_request ');
 
         if (eventReservationsError) {
             console.error('Error fetching event reservations:', eventReservationsError);

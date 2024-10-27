@@ -101,7 +101,15 @@ const ProceedBar = () => {
 
   const numberOfItems = drinkOrders.length;
 
+  
   const printOrderDirectly = () => {
+
+    if (!paymentMethod) {
+      setOrderError("Please select a payment method before printing.");
+      return;
+    }
+
+    
     const iframe = document.createElement('iframe');
     document.body.appendChild(iframe);
     iframe.style.display = 'none';
@@ -114,7 +122,7 @@ const ProceedBar = () => {
       <html>
         <head>
           <style>
-            @media print {
+              @media print {
               body {
                 -webkit-print-color-adjust: exact;
                 font-family: Arial, sans-serif;
@@ -122,71 +130,71 @@ const ProceedBar = () => {
                 padding: 0;
               }
               .print-container {
-                width: 100%;
-                padding: 20px;
+                width: 48mm;
+                padding: 12px 5px;
                 background-color: white;
               }
               .table {
-                width: 90%;
+                width: 100%;
                 border-collapse: collapse;
+                font-size: 12px;
               }
               .table th, .table td {
-                padding: 8px;
+                padding: 6px;
                 border: 1px solid #ddd;
                 text-align: left;
+                font-size: 12px;
               }
               .table th {
                 background-color: #f2f2f2;
-              }
-              .table, .print-container, tr, td {
-                page-break-inside: avoid;
+                font-size: 12px;
               }
               .no-print-btn, .cancel-btn {
                 display: none;
               }
               @page {
-                size: A4;
-                margin: 10mm;
+                size: 48mm 600mm;
+                margin: 2mm;
               }
             }
           </style>
         </head>
         <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
           <div class="print-container">
-            <h1 class="subtitle"><strong>Order Line</strong></h1>
-            <p><strong>Date:</strong> ${philippineDate}</p>           
-            <p><strong>Staff:</strong> ${currentStaff.staff_name}</p>
-            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+            <h1 style="font-size: 14px;"><strong>Drink Order Line</strong></h1>
+            <p style="font-size: 12px;"><strong>Date:</strong> ${philippineDate}</p>           
+            <p style="font-size: 12px;"><strong>Staff:</strong> ${currentStaff.staff_name}</p>
+            <p style="font-size: 12px;"><strong>Payment Method:</strong> ${paymentMethod}</p>
             ${selectedCheckInId && paymentMethod === 'ROOM' ? 
-                `<p><strong>Room:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_number || 'Not Available'}</p>` : ''}
+                `<p style="font-size: 12px;"><strong>Room:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_number || 'Not Available'}</p>` : ''}
             ${selectedCheckInId && paymentMethod === 'ROOM' ? 
                 (() => {
                     const guest = checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId);
-                    return `<p><strong>Guest:</strong> ${guest ? `${guest.guest_fname} ${guest.guest_lname}` : 'Not Available'}</p>`;
+                    return `<p style="font-size: 12px;"><strong>Guest:</strong> ${guest ? `${guest.guest_fname} ${guest.guest_lname}` : 'Not Available'}</p>`;
                 })() : ''}
             ${selectedCheckInId && paymentMethod === 'ROOM' ? 
-                `<p><strong>Room Type:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_type_name || 'Not Available'}</p>` : ''}
+                `<p style="font-size: 12px;"><strong>Room Type:</strong> ${checkedInGuests.find(guest => guest.check_in_id === selectedCheckInId)?.room_type_name || 'Not Available'}</p>` : ''}
                  
             <table class="table">
               <thead>
                 <tr>
-                  <th>Food Item</th>
-                  <th>Quantity</th>
-                  <th>Subtotal</th>
+                  <th style="font-size: 12px;">Food Item</th>
+                  <th style="font-size: 12px;">Quantity</th>
+                  <th style="font-size: 12px;">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 ${drinkOrders.map(item => `
                   <tr>
-                    <td>${item.drink_name}</td>
-                    <td>${item.quantity}</td>
-                    <td>₱${(item.drink_price * item.quantity).toFixed(2)}</td>
+                    <td style="font-size: 12px;">${item.drink_name}</td>
+                    <td style="font-size: 12px;">${item.quantity}</td>
+                    <td style="font-size: 12px;">₱${(item.drink_price * item.quantity).toFixed(2)}</td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
           
-            <p><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+            <p style="font-size: 15px;"><strong>Total:</strong> ₱${total.toFixed(2)}</p>
           </div>
         </body>
       </html>

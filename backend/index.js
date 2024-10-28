@@ -17,6 +17,8 @@ const verifyTokenRoute = require('./routes/token/verifyToken');
 const restaurantRoutes = require ('./routes/restaurantRoutes');
 const getCountsDashboardManager = require('./routes/count/getCountsDashboardManager'); 
 const getDeletedCountsDashboardManager = require('./routes/count/getCountsDeleteManager'); 
+const housekeepingRoutes = require('./routes/housekeepingRoutes');
+const maintenanceRoutes = require('./routes/maintenanceRoutes');
 
 const counts = require('./routes/count/counts');
 const roomForecast = require('./routes/roomForecast');
@@ -77,6 +79,8 @@ app.use('/api', laundryRoutes);
 app.use('/api', conciergeRoutes);
 app.use('/api', eventsRoutes);
 app.use('/api', barRoutes);
+app.use('/api', housekeepingRoutes);
+app.use('/api', maintenanceRoutes);
 
 app.use('/api', verifyTokenRoute);
 app.use('/api', restaurantRoutes);

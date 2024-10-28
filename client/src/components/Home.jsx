@@ -33,7 +33,7 @@ const Home = () => {
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getMainRoomPhotos');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getMainRoomPhotos');
                 setRoomPhotos(response.data.rooms || []);  
             } catch (error) {
                 setError('Failed to load room photos');
@@ -46,7 +46,7 @@ const Home = () => {
     useEffect(() => {
         const fetchFoodPhotos = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getFoodPhotos');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodPhotos');
                 setFoodPhotos(response.data.foodItems || []);  
             } catch (err) {
                 setError('Failed to load food photos');
@@ -73,7 +73,7 @@ const Home = () => {
     
         setLoading(true); // Set loading to true when search starts
         try {
-            const response = await axios.get('http://localhost:3001/api/getRoomsOrder', {
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomsOrder', {
                 params: {
                     checkIn: moment(checkInDate).format('YYYY-MM-DD'),
                     checkOut: moment(checkOutDate).format('YYYY-MM-DD'),

@@ -12,7 +12,7 @@ const ReportSales = () => {
     const [error, setError] = useState(null);
     const [selectedView, setSelectedView] = useState('graphs');
     
-    const backendUrl = 'http://localhost:3001';
+    const backendUrl = 'https://light-house-system-h74t-server.vercel.app';
 
     const fetchSalesData = async (type) => {
         try {

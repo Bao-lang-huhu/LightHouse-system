@@ -29,7 +29,7 @@ const ArchRooms = () => {
 
     const fetchRooms = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/getRoomsAll');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomsAll');
             setRooms(response.data.filter(room => room.room_status === 'DELETE')); // Exclude INACTIVE rooms
         } catch (error) {
             console.error('Error fetching room data:', error);
@@ -46,7 +46,7 @@ const ArchRooms = () => {
     useEffect(() => {
     const fetchVirtualTours = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/getTours');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getTours');
             const groupedData = response.data;
 
             setIsLoading(true); // Set loading to true when starting fetch
@@ -161,7 +161,7 @@ const ArchRooms = () => {
             setSuccess('');
 
             const response = await axios.put(
-                `http://localhost:3001/api/updateRoom/${selectedRoom.room_id}`, 
+                `https://light-house-system-h74t-server.vercel.app/api/updateRoom/${selectedRoom.room_id}`, 
                 {
                     room_status: 'AVAILABLE'         
                 }

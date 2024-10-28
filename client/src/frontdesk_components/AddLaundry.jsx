@@ -69,7 +69,7 @@ const AddLaundry = () => {
   
   const fetchLaundryItems = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/getLaundry');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getLaundry');
       setLaundryItems(response.data);
     } catch (error) {
       console.error('Error fetching laundry items:', error);
@@ -174,7 +174,7 @@ useEffect(() => {
 
 const fetchCheckedInGuests = async () => {
     try {
-        const response = await axios.get('http://localhost:3001/api/getCheckedInGuests');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckedInGuests');
         const sortedGuests = response.data.sort((a, b) => a.room_number - b.room_number);
         setCheckedInGuests(sortedGuests);
         setLoading(false);
@@ -188,7 +188,7 @@ const fetchCheckedInGuests = async () => {
 
 const fetchOngoingConcierges = async () => {
   try {
-      const response = await axios.get('http://localhost:3001/api/getLaundryGuest');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getLaundryGuest');
       setOngoingConciergeList(response.data);
   } catch (error) {
       console.error('Error fetching ongoing concierges:', error);
@@ -219,7 +219,7 @@ const handleSelectRoom = (guest) => {
 const fetchLaundryDetails = async (check_in_id) => { 
   setDetailsLoading(true);
   try {
-      const response = await axios.get(`http://localhost:3001/api/getLaundryDetails?check_in_id=${check_in_id}`);
+      const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getLaundryDetails?check_in_id=${check_in_id}`);
       const { data } = response;
       
       if (data) {
@@ -285,7 +285,7 @@ const handleSaveChanges = async () => {
   };
 
   try {
-    const response = await axios.post('http://localhost:3001/api/addLaundryOrder', requestBody);
+    const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/addLaundryOrder', requestBody);
     if (response.status === 201) {
       setNotification({
         open: true,
@@ -328,7 +328,7 @@ const handleSaveChanges = async () => {
     }
   
     try {
-      await axios.put(`http://localhost:3001/api/updateLaundryStatus`, {
+      await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateLaundryStatus`, {
         av_laundry_id: laundryId,
         laun_status: 'COMPLETE'
       });
@@ -352,7 +352,7 @@ const handleSaveChanges = async () => {
     }
   
     try {
-      await axios.put(`http://localhost:3001/api/updateLaundryStatus`, {
+      await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateLaundryStatus`, {
         av_laundry_id: laundryId,
         laun_status: 'CANCELED'
       });

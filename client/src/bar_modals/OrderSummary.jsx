@@ -6,7 +6,7 @@ import { IoArrowUndo, IoPrintOutline } from 'react-icons/io5';
 const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
   if (!order) return null; // Return null if no order is selected
 
-  const { drinkItems = [], guest_fname, guest_lname, room_number, b_order_date, STAFF } = order;
+  const { drinkItems = [], guest_fname, guest_lname, room_number, b_order_date, bar_order_id, STAFF } = order;
   const numberOfItems = drinkItems.length;
   const total = drinkItems.reduce((sum, item) => sum + item.b_order_subtotal, 0);
 
@@ -14,6 +14,9 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
     const iframe = document.createElement('iframe');
     document.body.appendChild(iframe);
     iframe.style.display = 'none';
+
+    const logoUrl = `${window.location.origin}/logo-new.png`;
+
 
     const printDocument = iframe.contentDocument || iframe.contentWindow.document;
     printDocument.open();
@@ -61,7 +64,11 @@ const DrinkOrderSummary = ({ isOpen, toggleModal, order }) => {
         </head>
         <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
           <div class="print-container">
+           <div style="text-align: center; margin-bottom: 10px;">
+              <img src="${logoUrl}" alt="Logo" style="width: 80px; height: auto;" />
+            </div>
             <h1 style="font-size: 14px;"><strong>Drink Order Summary</strong></h1>
+            <p style="font-size: 12px;"><strong>Order ID:</strong> ${order.bar_order_id}</p>
             <p style="font-size: 12px;"><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'No Staff'}</p>
             <p style="font-size: 12px;"><strong>Order Date:</strong> ${new Date(order.b_order_date).toLocaleDateString()}</p>
             ${order.b_payment_method === 'ROOM' ? 

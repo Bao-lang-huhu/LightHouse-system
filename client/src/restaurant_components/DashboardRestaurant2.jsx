@@ -59,14 +59,14 @@ const DashboardRestaurant2 = () => {
     }
 
     // Fetch all pending table reservations with guest details
-    axios.get('http://localhost:3001/api/getPendingTableReservations') // Adjust the endpoint to your backend setup
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getPendingTableReservations') // Adjust the endpoint to your backend setup
       .then(response => {
         setPendingReservations(response.data); // Set the fetched pending reservations
       })
       .catch(error => console.error('Error fetching pending reservations:', error));
     
     // Fetch food list with order count
-    /*axios.get('http://localhost:3001/api/getCountFoodOrderList') // Adjust the endpoint as needed
+    /*axios.get('https://light-house-system-h74t-server.vercel.app/api/getCountFoodOrderList') // Adjust the endpoint as needed
       .then(response => setFoodList(response.data))
       .catch(error => console.error('Error fetching food list:', error));
   */}, []);

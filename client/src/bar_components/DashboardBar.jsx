@@ -45,14 +45,14 @@ const DashboardBar = () => {
 
     // Fetch incoming drink orders
     setLoadingOrders(true); // Start showing the loader
-    axios.get('http://localhost:3001/api/getDrinkOrders') // Replace with actual API endpoint for drinks
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getDrinkOrders') // Replace with actual API endpoint for drinks
       .then(response => setDrinkOrders(response.data))
       .catch(error => console.error('Error fetching incoming orders:', error))
       .finally(() => setLoadingOrders(false)); // Stop showing the loader
 
     // Fetch drink list with order count
     setLoadingDrinkList(true); // Start showing the loader
-    axios.get('http://localhost:3001/api/getCountDrinkOrderList') // Replace with actual API endpoint for drinks
+    axios.get('https://light-house-system-h74t-server.vercel.app/api/getCountDrinkOrderList') // Replace with actual API endpoint for drinks
       .then(response => setDrinkList(response.data))
       .catch(error => console.error('Error fetching drink list:', error))
       .finally(() => setLoadingDrinkList(false)); // Stop showing the loader

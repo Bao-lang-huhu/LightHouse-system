@@ -144,7 +144,7 @@ const AddStaffModal = ({ isOpen, toggleModal, refreshStaffList }) => {
     
         // Proceed with form submission if validation passes
         try {
-            const response = await axios.post('http://localhost:3001/api/registerStaff', staff);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerStaff', staff);
     
             if (response.status === 201) {
                 setSuccess('Staff registered successfully!');

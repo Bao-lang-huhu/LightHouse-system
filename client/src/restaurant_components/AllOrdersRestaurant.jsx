@@ -30,7 +30,7 @@ const AllOrdersRestaurant = () => {
         setLoading(true); // Set loading to true when fetching starts
 
         try {
-            const response = await axios.get('http://localhost:3001/api/getFoodOrdersAll');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodOrdersAll');
             // Filter out orders with 'DELETE' status
             const activeOrders = response.data.filter(order => order.f_order_status !== 'DELETE');
             setOrders(activeOrders);
@@ -64,7 +64,7 @@ const AllOrdersRestaurant = () => {
   const toggleModal = async (order) => {
     if (order) {
       try {
-        const response = await axios.get(`http://localhost:3001/api/getFoodOrderById/${order.food_order_id}`);
+        const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getFoodOrderById/${order.food_order_id}`);
         setSelectedOrder(response.data);
       } catch (error) {
         console.error('Error fetching order details:', error);
@@ -83,7 +83,7 @@ const AllOrdersRestaurant = () => {
     if (!archiveOrderId) return;
     try {
       // Send request to update order status to 'DELETE'
-      const response = await axios.put(`http://localhost:3001/api/updateOrderStatus/${archiveOrderId}`, {
+      const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateOrderStatus/${archiveOrderId}`, {
         new_status: 'DELETE',
       });
       if (response.status === 200) {

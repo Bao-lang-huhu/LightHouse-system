@@ -18,7 +18,7 @@ const ArchPackages = () => {
     // Fetch food packages data on component mount
         const fetchFoodPackages = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getFoodPackage'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodPackage'); // Replace with your API endpoint
                 setFoodPackages(response.data); // Set the fetched food packages data to state
             } catch (error) {
                 console.error('Error fetching food packages:', error);
@@ -62,7 +62,7 @@ const ArchPackages = () => {
         try {
             setError('');
             setSuccess('');
-            const response = await axios.put(`http://localhost:3001/api/updateFoodPackage/${selectedPackage.event_fd_pckg_id}`, 
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateFoodPackage/${selectedPackage.event_fd_pckg_id}`, 
                 { event_fd_status: 'ACTIVE' });
 
             if (response.status === 200) {

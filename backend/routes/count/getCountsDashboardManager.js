@@ -8,7 +8,6 @@ const getCountsDashboardManager = async (table, statusColumn = 'status') => {
         .from(table)
         .select('*', { count: 'exact', head: true })
         .neq(statusColumn, 'DELETE');
-         // Exclude rows with status "DELETE"
     return error ? null : count;
 };
 

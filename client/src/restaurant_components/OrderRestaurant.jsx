@@ -25,7 +25,7 @@ const OrderRestaurant = () => {
     const fetchFoodItems = async () => {
       setLoading(true); // Start loading
       try {
-        const response = await axios.get('http://localhost:3001/api/getFoodItems');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodItems');
         const nonEventFoodItems = response.data.filter(item => item.food_service_category !== 'EVENT');
     
         setFoodItems(nonEventFoodItems);

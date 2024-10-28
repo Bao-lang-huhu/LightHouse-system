@@ -19,7 +19,7 @@ const VenueManager = () => {
 
         const fetchVenues = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getVenue'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getVenue'); // Replace with your API endpoint
                 setVenues(response.data); // Set the fetched venues data to state
             } catch (error) {
                 console.error('Error fetching venue data:', error);
@@ -87,7 +87,7 @@ const VenueManager = () => {
         try {
             setError('');
             setSuccess('');
-            const response = await axios.put(`http://localhost:3001/api/updateVenue/${selectedVenue.event_venue_id}`, selectedVenue);
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateVenue/${selectedVenue.event_venue_id}`, selectedVenue);
 
             if (response.status === 200) {
                 setSuccess('Venue details updated successfully!');
@@ -114,7 +114,7 @@ const VenueManager = () => {
         try {
             setError('');
             setSuccess('');
-            const response = await axios.put(`http://localhost:3001/api/updateVenue/${selectedVenue.event_venue_id}`, { venue_status: 'DELETE' });
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateVenue/${selectedVenue.event_venue_id}`, { venue_status: 'DELETE' });
 
             if (response.status === 200) {
                 setSuccess('Venue archived successfully!');

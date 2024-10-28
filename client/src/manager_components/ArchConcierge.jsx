@@ -19,7 +19,7 @@ const ArchConcierge = () => {
     
         const fetchConciergeData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getConcierge'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getConcierge'); // Replace with your API endpoint
                 setConciergeList(response.data); // Set the fetched concierge data to state
             } catch (error) {
                 console.error('Error fetching concierge data:', error);
@@ -72,7 +72,7 @@ const ArchConcierge = () => {
             console.log('Selected Concierge for Archiving:', selectedConcierge);
 
             const response = await axios.put(
-                `http://localhost:3001/api/updateConcierge/${selectedConcierge.concierge_id}`,
+                `https://light-house-system-h74t-server.vercel.app/api/updateConcierge/${selectedConcierge.concierge_id}`,
                 { concierge_status: 'ACTIVE' } 
             );
     

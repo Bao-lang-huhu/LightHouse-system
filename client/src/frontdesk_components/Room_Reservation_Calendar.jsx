@@ -25,7 +25,7 @@ const RoomReservationCalendar = () => {
 });
   const fetchRoomReservations = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/getRoomReservationsAll');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomReservationsAll');
       const reservations = response.data.map(reservation => ({
         id: reservation.room_reservation_id,
         title: reservation.room 
@@ -108,11 +108,6 @@ const handleEventClick = (event) => {
   setInitialSavedStatus(event);
 };
 
-
-
-
-  
-
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedEvent(null); 
@@ -124,7 +119,7 @@ const handleEventClick = (event) => {
         const decodedToken = jwtDecode(token);
         const staff_id = decodedToken.staff_id;
     
-        await axios.put(`http://localhost:3001/api/updateRoomReservation/${selectedEvent.id}`, {
+        await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateRoomReservation/${selectedEvent.id}`, {
             reservationStatus: 'COMPLETED',
             staff_id: staff_id
         });
@@ -148,7 +143,7 @@ const handleEventClick = (event) => {
   
 const handleSaveChanges = async () => {
   try {
-      await axios.put(`http://localhost:3001/api/updateRoomReservation/${selectedEvent.id}`, {
+      await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateRoomReservation/${selectedEvent.id}`, {
           downPayment,
           reservationStatus,
           cancellationRequest: reservationStatus === 'CANCELED' ? cancellationRequest : null
@@ -398,10 +393,6 @@ const handleChangeStatus = (status) => {
         </Button>
       )}
     </Box>
-
-
-
-
       </Box>
     </Box>
 

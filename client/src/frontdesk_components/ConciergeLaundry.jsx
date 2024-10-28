@@ -14,7 +14,7 @@ const ConciergeLaundry = () => {
 
   const fetchRooms = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/getAllRoomsCL');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getAllRoomsCL');
       const sortedRooms = response.data.sort((a, b) => a.room_number - b.room_number);
 
       const groupedRooms = {

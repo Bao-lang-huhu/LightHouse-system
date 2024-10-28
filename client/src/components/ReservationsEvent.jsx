@@ -25,13 +25,13 @@ const ReservationsEvent = () => {
       }
 
       try {
-        const guestResponse = await axios.get('http://localhost:3001/api/getEventReservationsByGuestId', {
+        const guestResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getEventReservationsByGuestId', {
           params: { guest_id: guestId }
         });
         const guestReservations = guestResponse.data;
 
         // Step 2: Fetch all event reservations
-        const allReservationsResponse = await axios.get('http://localhost:3001/api/getEventReservationsAll');
+        const allReservationsResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getEventReservationsAll');
         const allReservations = allReservationsResponse.data;
         setEventReservationsAll(allReservations); // Store all event reservations
 

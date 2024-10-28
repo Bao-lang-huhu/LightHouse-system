@@ -25,7 +25,7 @@ const ReservationBillModal = ({ isOpen, onClose, checkInId, refreshCheckIn }) =>
       const fetchReservationDetails = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:3001/api/getCheckInBill?check_in_id=${checkInId}`
+            `https://light-house-system-h74t-server.vercel.app/api/getCheckInBill?check_in_id=${checkInId}`
           );
           setReservationDetails(response.data);
         } catch (err) {
@@ -47,7 +47,7 @@ const ReservationBillModal = ({ isOpen, onClose, checkInId, refreshCheckIn }) =>
 
   const handleCheckOut = async () => { 
     try {
-        const response = await axios.put('http://localhost:3001/api/updateCheckOut', {
+        const response = await axios.put('https://light-house-system-h74t-server.vercel.app/api/updateCheckOut', {
             check_in_id: selectedCheckInId,
         });
         if (response.status === 200) {

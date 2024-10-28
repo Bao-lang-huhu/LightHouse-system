@@ -36,7 +36,7 @@ const AdditionalItem = () => {
                 add_item_status: 'RETURNED',
                 add_item_returned_date: new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" })
             };
-            const response = await axios.put(`http://localhost:3001/api/returnAdditionalItem/${addItemId}`, payload);
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/returnAdditionalItem/${addItemId}`, payload);
 
             if (response.status === 200) {
                 setSuccess('Changes saved successfully!');
@@ -97,7 +97,7 @@ const AdditionalItem = () => {
 
     const fetchAdditionalItems = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/getAdditionalItems');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getAdditionalItems');
             
             // Filter out items with status "DELETE"
             const activeItems = response.data.filter(item => item.add_item_status !== 'DELETE');
@@ -115,7 +115,7 @@ const AdditionalItem = () => {
 
     const handleArchive = async (addItemId) => {
         try {
-            const response = await axios.put(`http://localhost:3001/api/archiveAdditionalItem/${addItemId}`, {
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/archiveAdditionalItem/${addItemId}`, {
                 add_item_status: 'DELETE'
             });
     

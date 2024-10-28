@@ -49,11 +49,11 @@ const DashboardRestaurant = () => {
             }
 
             // Fetch incoming food orders
-            const foodOrdersResponse = await axios.get('http://localhost:3001/api/getFoodOrders'); // Replace with actual API endpoint
+            const foodOrdersResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodOrders'); // Replace with actual API endpoint
             setFoodOrders(foodOrdersResponse.data);
 
             // Fetch food list with order count
-            const foodListResponse = await axios.get('http://localhost:3001/api/getCountFoodOrderList'); // Replace with actual API endpoint
+            const foodListResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCountFoodOrderList'); // Replace with actual API endpoint
             setFoodList(foodListResponse.data);
         } catch (error) {
             console.error('Error fetching data:', error);

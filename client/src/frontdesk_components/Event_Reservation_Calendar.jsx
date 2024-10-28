@@ -30,7 +30,7 @@ const EventReservationCalendar = () => {
 
   const fetchEventReservations = async () => {
     try {
-        const response = await axios.get('http://localhost:3001/api/getEventReservationsAll');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getEventReservationsAll');
         const reservations = response.data.map(reservation => {
             const startTime = `${reservation.event_date}T${reservation.event_start_time}`;
             const endTime = `${reservation.event_date}T${reservation.event_end_time}`;
@@ -73,7 +73,7 @@ const EventReservationCalendar = () => {
 
   const handleCompleteEvent = async () => {
     try {
-        await axios.put(`http://localhost:3001/api/updateEventReservation/${selectedEvent.id}`, {
+        await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateEventReservation/${selectedEvent.id}`, {
             reservationStatus: 'COMPLETED',
         });
 
@@ -153,7 +153,7 @@ const EventReservationCalendar = () => {
 
   const handleSaveChanges = async () => { 
     try {
-        await axios.put(`http://localhost:3001/api/updateEventReservation/${selectedEvent.id}`, {
+        await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateEventReservation/${selectedEvent.id}`, {
             downPayment,
             reservationStatus,
             cancellationRequest: reservationStatus === 'CANCELED' ? cancellationRequest : null

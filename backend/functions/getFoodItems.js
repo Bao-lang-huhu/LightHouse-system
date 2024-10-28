@@ -2,10 +2,9 @@ const { supabase } = require('../supabaseClient'); // Import Supabase client
 
 const getFoodItems = async (req, res) => {
     try {
-        // Query the FOOD_ITEM table to retrieve all records
         const { data: foodItems, error } = await supabase
             .from('FOOD_ITEM')
-            .select('*'); // Select all columns
+            .select('*'); 
 
         if (error) {
             console.error('Error retrieving food items:', error.message);

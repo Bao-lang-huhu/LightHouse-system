@@ -26,7 +26,7 @@ const CheckInTable = () => {
 
         const fetchCheckInData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getCheckInData'); // Example API call
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckInData'); // Example API call
                 // Filter the data to include only those with 'CHECKOUT' status
                 const filteredData = response.data.filter((checkIn) => checkIn.check_in_status === 'CHECKED_IN');
                 setCheckIns(filteredData);

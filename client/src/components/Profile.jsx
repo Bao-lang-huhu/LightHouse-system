@@ -57,7 +57,7 @@ const Profile = () => {
                 setError('User not logged in');
                 return;
             }
-            const response = await axios.get('http://localhost:3001/api/getGuestDetails', {
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getGuestDetails', {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -138,12 +138,12 @@ const handlePhotoChange = (event) => {
       const handleSaveChanges = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await axios.put('http://localhost:3001/api/updateGuest', guest, {
+          const response = await axios.put('https://light-house-system-h74t-server.vercel.app/api/updateGuest', guest, {
             headers: { Authorization: `Bearer ${token}` },
           });
       
           if (response.status === 200) {
-            const updatedGuest = await axios.get('http://localhost:3001/api/getGuestDetails', {
+            const updatedGuest = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getGuestDetails', {
               headers: { Authorization: `Bearer ${token}` },
             });
       
@@ -193,7 +193,7 @@ const handlePhotoChange = (event) => {
             return;
           }
       
-          const response = await axios.put(`http://localhost:3001/api/update_account/${guestId}`, {
+          const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/update_account/${guestId}`, {
             guest_email: isUpdatingEmail ? guest.guest_email : '', 
             guest_old_password: guest.guest_old_password, 
             guest_new_password: isUpdatingPassword ? guest.guest_new_password : '', 

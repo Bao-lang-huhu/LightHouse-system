@@ -20,7 +20,7 @@ const ArchAccounts = () => {
     // Define the function to fetch staff data
     const fetchStaffData = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/getStaffs');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getStaffs');
             setStaffList(response.data.filter(staff => staff.staff_status === 'DELETE'));
         } catch (error) {
             console.error('Error fetching staff data:', error);
@@ -91,7 +91,7 @@ const ArchAccounts = () => {
             setSuccess('');
 
             const response = await axios.put(
-                `http://localhost:3001/api/updateStaff/${selectedStaff.staff_id}`, 
+                `https://light-house-system-h74t-server.vercel.app/api/updateStaff/${selectedStaff.staff_id}`, 
                 {
                     staff_id: selectedStaff.staff_id, 
                     staff_status: 'ACTIVE'         

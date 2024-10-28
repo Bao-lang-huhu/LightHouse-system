@@ -31,7 +31,7 @@ const AllOrdersBar = () => {
     const fetchOrders = async () => {
       setLoading(true); // Set loading to true when fetching starts
       try {
-        const response = await axios.get('http://localhost:3001/api/getDrinkOrdersAll'); // Use getDrinkOrdersAll
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getDrinkOrdersAll'); // Use getDrinkOrdersAll
         const activeOrders = response.data.filter(order => order.b_order_status !== 'DELETE');
         setOrders(activeOrders);
         setFilteredOrders(activeOrders); // Initialize filteredOrders with active orders
@@ -66,7 +66,7 @@ const AllOrdersBar = () => {
   const toggleModal = async (order) => {
     if (order) {
       try {
-        const response = await axios.get(`http://localhost:3001/api/getDrinkOrderById/${order.bar_order_id}`); // Use getDrinkOrderById
+        const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getDrinkOrderById/${order.bar_order_id}`); // Use getDrinkOrderById
         setSelectedOrder(response.data);
       } catch (error) {
         console.error('Error fetching order details:', error);
@@ -84,7 +84,7 @@ const AllOrdersBar = () => {
   const handleArchive = async () => {
     if (!archiveOrderId) return;
     try {
-      const response = await axios.put(`http://localhost:3001/api/updateBarOrderStatus/${archiveOrderId}`, { // Use updateBarOrderStatus
+      const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateBarOrderStatus/${archiveOrderId}`, { // Use updateBarOrderStatus
         new_status: 'DELETE',
       });
       if (response.status === 200) {
@@ -124,7 +124,7 @@ const AllOrdersBar = () => {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // Reset to the first page when rows per page change
+    setPage(0); 
   };
 
   return (

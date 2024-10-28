@@ -24,7 +24,7 @@ const AccountManager = () => {
     // Define the function to fetch staff data
     const fetchStaffData = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/getStaffs');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getStaffs');
             setStaffList(response.data.filter(staff => staff.staff_status !== 'DELETE'));
         } catch (error) {
             console.error('Error fetching staff data:', error);
@@ -111,7 +111,7 @@ const AccountManager = () => {
                 staff_status: selectedStaff.staff_status || ''
             };
     
-            const response = await axios.put(`http://localhost:3001/api/updateStaff/${selectedStaff.staff_id}`, updatedStaff);
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateStaff/${selectedStaff.staff_id}`, updatedStaff);
     
             if (response.status === 200) {
                 setSuccess('Staff details updated successfully!');
@@ -173,7 +173,7 @@ const AccountManager = () => {
             setSuccess('');
     
             const response = await axios.put(
-                `http://localhost:3001/api/updateStaff/${selectedStaff.staff_id}`, 
+                `https://light-house-system-h74t-server.vercel.app/api/updateStaff/${selectedStaff.staff_id}`, 
                 { 
                     staff_password: newPassword
                 }
@@ -232,7 +232,7 @@ const AccountManager = () => {
             setSuccess('');
 
             const response = await axios.put(
-                `http://localhost:3001/api/updateStaff/${selectedStaff.staff_id}`, 
+                `https://light-house-system-h74t-server.vercel.app/api/updateStaff/${selectedStaff.staff_id}`, 
                 {
                     staff_id: selectedStaff.staff_id, 
                     staff_status: 'DELETE'         
@@ -405,7 +405,8 @@ const AccountManager = () => {
                                                 </div >
                                                 <div className="control-form">
                                                     <label className="label">Contact Number</label>
-                                                    <p className='ml-2'>{selectedStaff.staff_phone_no}</p>
+                                                    <p className='ml-2'
+                                                    >{selectedStaff.staff_phone_no}</p>
                                                 </div>
                                             </div>
                                         </div>

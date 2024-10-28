@@ -114,7 +114,7 @@ const getFoodOrders = async (req, res) => {
         ...order,
         staff_username: order.STAFF?.staff_username || 'Unknown',
         staff_fname: order.STAFF?.staff_fname || 'Unknown', 
-        staff_lname: order.STAFF?.staff_lname || 'Unknown',// Include staff username or default to 'Unknown'
+        staff_lname: order.STAFF?.staff_lname || 'Staff',// Include staff username or default to 'Unknown'
         foodItems: foodItems.map(item => ({
           ...item,
           food_name: item.FOOD_ITEM?.food_name || 'Unknown' // Include food name or default to 'Unknown'

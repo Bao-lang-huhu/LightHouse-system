@@ -79,7 +79,7 @@ const AddTableReservation = ({ isOpen, toggleModal }) => {
             }
 
             try {
-                const response = await axios.get('http://localhost:3001/api/getGuestDetails', {
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getGuestDetails', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -123,7 +123,7 @@ const AddTableReservation = ({ isOpen, toggleModal }) => {
                 notes
             };
     
-            const response = await axios.post('http://localhost:3001/api/registerTableReservation', reservationDetails, {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerTableReservation', reservationDetails, {
                 headers: { Authorization: `Bearer ${token}` }
             });
     

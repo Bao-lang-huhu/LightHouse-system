@@ -17,7 +17,7 @@ const EditAdditionalItemModal = ({ isOpen, onClose, addItemId, refreshAddAdditio
     useEffect(() => {
         const fetchCheckIns = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getCheckedInGuests');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckedInGuests');
                 setCheckIns(response.data);
             } catch (error) {
                 console.error('Error fetching check-in data:', error);
@@ -38,7 +38,7 @@ const EditAdditionalItemModal = ({ isOpen, onClose, addItemId, refreshAddAdditio
         const fetchAdditionalItem = async () => {
             if (addItemId) {
                 try {
-                    const response = await axios.get(`http://localhost:3001/api/getAdditionalItemsById/${addItemId}`);
+                    const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getAdditionalItemsById/${addItemId}`);
                     const itemData = response.data;
                     setSelectedCheckIn(itemData.check_in_id || '');
                     setItemName(itemData.add_item_name || '');
@@ -80,7 +80,7 @@ const EditAdditionalItemModal = ({ isOpen, onClose, addItemId, refreshAddAdditio
                 add_item_status: status
             };
     
-            const response = await axios.put(`http://localhost:3001/api/editAdditionalItem/${addItemId}`, payload);
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/editAdditionalItem/${addItemId}`, payload);
     
             if (response.status === 200) {
                 setSuccess('Changes saved successfully!');

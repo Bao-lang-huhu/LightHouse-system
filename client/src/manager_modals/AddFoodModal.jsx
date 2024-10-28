@@ -47,7 +47,7 @@ const AddFoodModal = ({ isOpen, toggleModal, refreshFoodList }) => {
         setError('');
         setSuccess('');
         setErroredFields({});
-        toggleModal(); // Close the modal
+        toggleModal(); 
     };
 
     const handleChange = (e) => {
@@ -165,7 +165,7 @@ const AddFoodModal = ({ isOpen, toggleModal, refreshFoodList }) => {
             }
     
             // Make the API request if all validations pass
-            const response = await axios.post('http://localhost:3001/api/registerFoodItem', food);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerFoodItem', food);
     
             if (response.status === 201) {
                 setSuccess('Food item registered successfully!');
@@ -322,113 +322,113 @@ const AddFoodModal = ({ isOpen, toggleModal, refreshFoodList }) => {
                         {/* Third Column: Pricing Information */}
 
                        <div className="column is-4">
-    <div className="field">
-        <label className="label">Food Price</label>
-        <div className="control">
-            <input
-                className={`input ${erroredFields.food_price ? 'is-danger' : ''}`}
-                type="number"
-                name="food_price"
-                value={food.food_price}
-                min="1" // Set the minimum value to 1
-                onChange={(e) => {
-                    let value = e.target.value;
+                            <div className="field">
+                                <label className="label">Food Price</label>
+                                <div className="control">
+                                    <input
+                                        className={`input ${erroredFields.food_price ? 'is-danger' : ''}`}
+                                        type="number"
+                                        name="food_price"
+                                        value={food.food_price}
+                                        min="1" // Set the minimum value to 1
+                                        onChange={(e) => {
+                                            let value = e.target.value;
 
-                    // Prevent negative input and input starting with '0'
-                    if (value >= 0 && !/^0/.test(value)) {
-                        setFood((prev) => ({
-                            ...prev,
-                            food_price: value,
-                        }));
-                    }
-                }}
-                onBlur={() => {
-                    // Ensure the value is at least 1
-                    const value = parseFloat(food.food_price);
-                    if (isNaN(value) || value < 1) {
-                        setFood((prev) => ({
-                            ...prev,
-                            food_price: 1,
-                        }));
-                    } else {
-                        setFood((prev) => ({
-                            ...prev,
-                            food_price: value,
-                        }));
-                    }
-                }}
-                required
-            />
-            {erroredFields.food_price && (
-                <p className="help is-danger">Please enter a valid food price.</p>
-            )}
-        </div>
-    </div>
+                                            // Prevent negative input and input starting with '0'
+                                            if (value >= 0 && !/^0/.test(value)) {
+                                                setFood((prev) => ({
+                                                    ...prev,
+                                                    food_price: value,
+                                                }));
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            // Ensure the value is at least 1
+                                            const value = parseFloat(food.food_price);
+                                            if (isNaN(value) || value < 1) {
+                                                setFood((prev) => ({
+                                                    ...prev,
+                                                    food_price: 1,
+                                                }));
+                                            } else {
+                                                setFood((prev) => ({
+                                                    ...prev,
+                                                    food_price: value,
+                                                }));
+                                            }
+                                        }}
+                                        required
+                                    />
+                                    {erroredFields.food_price && (
+                                        <p className="help is-danger">Please enter a valid food price.</p>
+                                    )}
+                                </div>
+                            </div>
 
-    <div className="field">
-        <label className="label">Discount Percentage</label>
-        <div className="control is-flex is-align-items-center">
-            {/* Decrease Button */}
-            <button
-                className={`button is-blue mr-2 ${erroredFields.food_disc_percentage ? 'is-danger' : ''}`}
-                onClick={() => {
-                    if (food.food_disc_percentage > 0) {
-                        setFood((prev) => ({
-                            ...prev,
-                            food_disc_percentage: prev.food_disc_percentage - 1,
-                        }));
-                    }
-                }}
-                disabled={food.food_disc_percentage <= 0}
-            >
-                -
-            </button>
+                            <div className="field">
+                                <label className="label">Discount Percentage</label>
+                                <div className="control is-flex is-align-items-center">
+                                    {/* Decrease Button */}
+                                    <button
+                                        className={`button is-blue mr-2 ${erroredFields.food_disc_percentage ? 'is-danger' : ''}`}
+                                        onClick={() => {
+                                            if (food.food_disc_percentage > 0) {
+                                                setFood((prev) => ({
+                                                    ...prev,
+                                                    food_disc_percentage: prev.food_disc_percentage - 1,
+                                                }));
+                                            }
+                                        }}
+                                        disabled={food.food_disc_percentage <= 0}
+                                    >
+                                        -
+                                    </button>
 
-            {/* Display Current Discount Percentage */}
-            <span className="button is-static">
-                {food.food_disc_percentage}%
-            </span>
+                                    {/* Display Current Discount Percentage */}
+                                    <span className="button is-static">
+                                        {food.food_disc_percentage}%
+                                    </span>
 
-            {/* Increase Button */}
-            <button
-                className={`button is-blue ml-2 ${erroredFields.food_disc_percentage ? 'is-danger' : ''}`}
-                onClick={() => {
-                    if (food.food_disc_percentage < 100) {
-                        setFood((prev) => ({
-                            ...prev,
-                            food_disc_percentage: prev.food_disc_percentage + 1,
-                        }));
-                    }
-                }}
-                disabled={food.food_disc_percentage >= 100}
-            >
-                +
-            </button>
-        </div>
+                                    {/* Increase Button */}
+                                    <button
+                                        className={`button is-blue ml-2 ${erroredFields.food_disc_percentage ? 'is-danger' : ''}`}
+                                        onClick={() => {
+                                            if (food.food_disc_percentage < 100) {
+                                                setFood((prev) => ({
+                                                    ...prev,
+                                                    food_disc_percentage: prev.food_disc_percentage + 1,
+                                                }));
+                                            }
+                                        }}
+                                        disabled={food.food_disc_percentage >= 100}
+                                    >
+                                        +
+                                    </button>
+                                </div>
 
-        {/* Error Message */}
-        {erroredFields.food_disc_percentage && (
-            <p className="help is-danger">Please enter a valid discount percentage.</p>
-        )}
-    </div>
+                                {/* Error Message */}
+                                {erroredFields.food_disc_percentage && (
+                                    <p className="help is-danger">Please enter a valid discount percentage.</p>
+                                )}
+                            </div>
 
-    <div className="field">
-        <label className="label">Final Price</label>
-        <div className="control">
-            <input
-                className={`input ${erroredFields.food_final_price ? 'is-danger' : ''}`}
-                type="number"
-                name="food_final_price"
-                placeholder="Enter final price"
-                value={parseFloat(food.food_final_price).toFixed(2)} // Display final price with 2 decimal places
-                readOnly // Make the field read-only as it is auto-calculated
-            />
-            {erroredFields.food_final_price && (
-                <p className="help is-danger">Please enter a valid final price.</p>
-            )}
-        </div>
-    </div>
-</div>
+                            <div className="field">
+                                <label className="label">Final Price</label>
+                                <div className="control">
+                                    <input
+                                        className={`input ${erroredFields.food_final_price ? 'is-danger' : ''}`}
+                                        type="number"
+                                        name="food_final_price"
+                                        placeholder="Enter final price"
+                                        value={parseFloat(food.food_final_price).toFixed(2)} // Display final price with 2 decimal places
+                                        readOnly // Make the field read-only as it is auto-calculated
+                                    />
+                                    {erroredFields.food_final_price && (
+                                        <p className="help is-danger">Please enter a valid final price.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
 
 
                     </div>

@@ -60,7 +60,7 @@ const fetchConciergeDetails = async (check_in_id) => {
   
     setDetailsLoading(true);
     try {
-        const response = await axios.get(`http://localhost:3001/api/getConciergeDetails?check_in_id=${check_in_id}`);
+        const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getConciergeDetails?check_in_id=${check_in_id}`);
         setSelectedConciergeDetails(response.data);
     } catch (error) {
         console.error("Error fetching concierge details:", error);
@@ -72,7 +72,7 @@ const fetchConciergeDetails = async (check_in_id) => {
 
   const fetchOngoingConcierges = async () => {
     try {
-        const response = await axios.get('http://localhost:3001/api/getConciergesGuest');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getConciergesGuest');
         setOngoingConciergeList(response.data);
     } catch (error) {
         console.error('Error fetching ongoing concierges:', error);
@@ -87,7 +87,7 @@ useEffect(() => {
 
   const fetchCheckedInGuests = async () => {
     try {
-        const response = await axios.get('http://localhost:3001/api/getCheckedInGuests');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckedInGuests');
         const sortedGuests = response.data.sort((a, b) => a.room_number - b.room_number);
         setCheckedInGuests(sortedGuests);
         setLoading(false);
@@ -101,7 +101,7 @@ useEffect(() => {
 
 const fetchAvailableConcierges = async () => { 
   try {
-      const response = await axios.get('http://localhost:3001/api/getConcierge');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getConcierge');
       const activeConcierges = response.data.filter(concierge => concierge.concierge_status === 'ACTIVE'); // Corrected 'concierge_status'
       setAvailableConcierges(activeConcierges);
   } catch (error) {
@@ -186,7 +186,7 @@ const handleSaveChanges = async () => {
           subtotal: concierge.subtotal,
         })),
       };
-      return axios.post('http://localhost:3001/api/addConciergeOrder', requestBody);
+      return axios.post('https://light-house-system-h74t-server.vercel.app/api/addConciergeOrder', requestBody);
     });
 
     const responses = await Promise.all(requests);
@@ -221,7 +221,7 @@ const handleSaveChanges = async () => {
 
 const handleCancel = async (conciergeId) => {
   try {
-      await axios.put(`http://localhost:3001/api/updateConciergeStatus`, {
+      await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateConciergeStatus`, {
           av_concierge_id: conciergeId,
           av_concierge_status: 'CANCELED'
       });
@@ -241,7 +241,7 @@ const handleCancel = async (conciergeId) => {
 
 const handleComplete = async (conciergeId) => {
   try {
-      await axios.put(`http://localhost:3001/api/updateConciergeStatus`, {
+      await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateConciergeStatus`, {
           av_concierge_id: conciergeId,
           av_concierge_status: 'COMPLETE'
       });

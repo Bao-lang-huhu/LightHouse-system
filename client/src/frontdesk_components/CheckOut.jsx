@@ -25,7 +25,7 @@ const CheckOutTable = () => {
     useEffect(() => {
         const fetchCheckInData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getCheckInData');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckInData');
                 // Check the actual data being received
                 console.log("Fetched Check-In Data:", response.data);
                 

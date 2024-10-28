@@ -49,7 +49,7 @@ const ReportMenuOp = () => {
                 let response;
                 if (!activeFilter) {
                     // Fetch yearly data
-                    response = await axios.get(`http://localhost:3001/api/getYearly${activeTab === 'food' ? 'Food' : 'Drink'}Orders`, {
+                    response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getYearly${activeTab === 'food' ? 'Food' : 'Drink'}Orders`, {
                         params: { year: activeYear }
                     });
                 } else {
@@ -58,7 +58,7 @@ const ReportMenuOp = () => {
                     const lastDayOfMonth = new Date(activeYear, parseInt(activeFilter), 0).getDate();
                     const monthEndDate = `${activeYear}-${activeFilter}-${lastDayOfMonth}`;
 
-                    response = await axios.get(`http://localhost:3001/api/getMonthly${activeTab === 'food' ? 'Food' : 'Drink'}Orders`, {
+                    response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/getMonthly${activeTab === 'food' ? 'Food' : 'Drink'}Orders`, {
                         params: { startDate: monthStartDate, endDate: monthEndDate }
                     });
                 }

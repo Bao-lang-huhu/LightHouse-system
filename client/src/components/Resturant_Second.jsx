@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import 'bulma/css/bulma.min.css';
 import './pages.css';
 import '../App.css';
+import { IoPlayBack , IoPlayForward } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddTableReservation from '../guest_modals/AddTableReservation';
+import { Box, Typography, Grid, Button, IconButton } from '@mui/material';
 import Breadcrumbs from '../layouts/Breadcrumbs';
 import axios from 'axios';
 
@@ -18,13 +20,11 @@ function Resturant_Second() {
   const [currentIndex, setCurrentIndex] = useState(0); // Start at index 0
   const tablesPerPage = 9; // Display 9 tables per page
 
-  // Retrieve table_guest_quantity from localStorage
   const table_guest_quantity = parseInt(localStorage.getItem('table_guest_quantity'), 10) || 0;
 
-  // Check if the guest is logged in by checking guest_id in localStorage
   useEffect(() => {
     const guestId = localStorage.getItem('guest_id');
-    setIsLoggedIn(!!guestId); // Set login state based on guest_id presence
+    setIsLoggedIn(!!guestId); 
   }, []);
 
   // Function to fetch tables and their reservation statuses
@@ -34,7 +34,7 @@ function Resturant_Second() {
     const table_time = localStorage.getItem('table_reservation_time');
 
     try {
-      const response = await axios.get('http://localhost:3001/api/getTableReservations2', {
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getTableReservations2', {
         params: { table_reservation_date, table_time },
       });
       const sortedTables = response.data.sort((a, b) => a.table_name.localeCompare(b.table_name));
@@ -144,56 +144,72 @@ function Resturant_Second() {
           <div className="columns is-vcentered is-multiline event-padding-style">
             <div className="event-padding-style event-color-table column is-full-desktop">
               <p className="subtitle has-text-white">LightHouse Point Hotel (Captain Galley's) - 3rd Floor</p>
-              <div className="box p-2 label">
-                <label>Legends:</label>
-                <div className="columns is-mobile is-multiline is-gapless">
-                  <div className="column is-half-mobile is-one-fifth">
-                    <div className="is-flex is-align-items-center">
-                      <span
-                        className="is-inline-block"
-                        style={{ width: '10px', height: '10px', backgroundColor: '#FFC107', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
-                      ></span>
-                      Pending/Confirmed
-                    </div>
-                  </div>
-                  <div className="column is-half-mobile is-one-fifth">
-                    <div className="is-flex is-align-items-center">
-                      <span
-                        className="is-inline-block"
-                        style={{ width: '10px', height: '10px', backgroundColor: 'red', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
-                      ></span>
-                      Unavailable
-                    </div>
-                  </div>
-                  <div className="column is-half-mobile is-one-fifth">
-                    <div className="is-flex is-align-items-center">
-                      <span
-                        className="is-inline-block"
-                        style={{ width: '10px', height: '10px', backgroundColor: '#FFF', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
-                      ></span>
-                      Selected
-                    </div>
-                  </div>
-                  <div className="column is-half-mobile is-one-fifth">
-                    <div className="is-flex is-align-items-center">
-                      <span
-                        className="is-inline-block"
-                        style={{ width: '10px', height: '10px', backgroundColor: 'grey', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
-                      ></span>
-                      Seat Incompatibility
-                    </div>
-                  </div>
-                  <div className="column is-half-mobile is-one-fifth">
-                    <div className="is-flex is-align-items-center">
-                      <span
-                        className="is-inline-block"
-                        style={{ width: '10px', height: '10px', backgroundColor: '#C7F5FF', borderRadius: '50%', marginRight: '5px', border: "1px solid black" }}
-                      ></span>
-                      Available
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'background.paper', boxShadow: 1, p: 2, borderRadius: 1 }}>
+      
+              {/* Legends Section */}
+              <Box sx={{ flexGrow: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  Legends:
+                </Typography>
+                <Grid container spacing={1} alignItems="center">
+                  <Grid item xs={6} sm={4} md={2}>
+                    <Box display="flex" alignItems="center">
+                      <Box sx={{ width: 12, height: 12, bgcolor: '#FFC107', borderRadius: '50%', mr: 1, border: '1px solid black' }} />
+                      <Typography variant="body2">Pending/Confirmed</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6} sm={4} md={2}>
+                    <Box display="flex" alignItems="center">
+                      <Box sx={{ width: 12, height: 12, bgcolor: 'red', borderRadius: '50%', mr: 1, border: '1px solid black' }} />
+                      <Typography variant="body2">Unavailable</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6} sm={4} md={2}>
+                    <Box display="flex" alignItems="center">
+                      <Box sx={{ width: 12, height: 12, bgcolor: '#FFF', borderRadius: '50%', mr: 1, border: '1px solid black' }} />
+                      <Typography variant="body2">Selected</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6} sm={4} md={2}>
+                    <Box display="flex" alignItems="center">
+                      <Box sx={{ width: 12, height: 12, bgcolor: 'grey', borderRadius: '50%', mr: 1, border: '1px solid black' }} />
+                      <Typography variant="body2">Seat Incompatibility</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6} sm={4} md={2}>
+                    <Box display="flex" alignItems="center">
+                      <Box sx={{ width: 12, height: 12, bgcolor: '#C7F5FF', borderRadius: '50%', mr: 1, border: '1px solid black' }} />
+                      <Typography variant="body2">Available</Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Box>
+
+      {/* Pagination Controls Section */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        {currentIndex > 0 && (
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<IoPlayBack />}
+            onClick={handlePreviousPage}
+            sx={{ mr: 1 }}
+          >
+            Previous For Fixed Groups
+          </Button>
+        )}
+        {currentIndex + tablesPerPage < availableTables.length && (
+          <Button
+            variant="contained"
+            color="primary"
+            endIcon={<IoPlayForward />}
+            onClick={handleNextPage}
+          >
+            Next For Larger Groups
+          </Button>
+        )}
+      </Box>
+    </Box>
 
 
               <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -235,19 +251,7 @@ function Resturant_Second() {
                       })}
                     </div>
 
-                    {/* Pagination Controls */}
-                    <div className="pagination-controls has-text-centered">
-                      {currentIndex > 0 && (
-                        <button className="button is-small" onClick={handlePreviousPage}>
-                          Previous for Fixed tables
-                        </button>
-                      )}
-                      {currentIndex + tablesPerPage < availableTables.length && (
-                        <button className="button is-small" onClick={handleNextPage}>
-                          Next for Larger Groups
-                        </button>
-                      )}
-                    </div>
+                   
                   </>
                 )}
               </div>

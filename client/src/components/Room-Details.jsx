@@ -46,7 +46,7 @@ const RoomDetails = () => {
 
         const fetchRoomDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:3001/api/room_details/${roomId}`);
+                const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/room_details/${roomId}`);
                 setRoomDetails(response.data);
                 fetchVirtualTour(response.data.room.room_type_name);
             } catch (error) {
@@ -58,7 +58,7 @@ const RoomDetails = () => {
 
         const fetchVirtualTour = async (roomTypeName) => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getRoomVirtualTourByTypeName', {
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomVirtualTourByTypeName', {
                     params: { vt_name: roomTypeName }
                 });
                 setVirtualTour(response.data.length > 0 ? response.data[0] : null);

@@ -36,7 +36,7 @@ const AllLaundryRecords = ({ open, onClose }) => {
 
   const fetchLaundryRecords = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/getAllLaundryRecords');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getAllLaundryRecords');
       console.log("Fetched Laundry Records:", response.data);
       setLaundryRecords(response.data);
     } catch (error) {
@@ -62,7 +62,7 @@ const AllLaundryRecords = ({ open, onClose }) => {
     }
 
     try {
-      await axios.put(`http://localhost:3001/api/updateLaundryStatus`, {
+      await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateLaundryStatus`, {
         av_laundry_id: recordId,
         laun_status: 'CANCELED'
       });

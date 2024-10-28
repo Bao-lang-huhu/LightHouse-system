@@ -17,7 +17,7 @@ const ArchLaundry = () => {
 
         const fetchLaundry = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getLaundry'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getLaundry'); // Replace with your API endpoint
                 setLaundryList(response.data); // Set the fetched laundry data to state
             } catch (error) {
                 console.error('Error fetching laundry data:', error);
@@ -63,7 +63,7 @@ const ArchLaundry = () => {
         try {
             setError('');
             setSuccess('');
-            const response = await axios.put(`http://localhost:3001/api/updateLaundry/${selectedLaundry.laundry_id}`, { laundry_status: 'ACTIVE' });
+            const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateLaundry/${selectedLaundry.laundry_id}`, { laundry_status: 'ACTIVE' });
             
             if (response.status === 200) {
                 setSuccess('Laundry item restored successfully!');

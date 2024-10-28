@@ -33,7 +33,7 @@ const DashboardFront = () => {
 
         const fetchCounts = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/counts');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/counts');
                 setCounts(response.data || {});
             } catch (error) {
                 console.error('Error fetching counts:', error);
@@ -61,7 +61,7 @@ const DashboardFront = () => {
   
     const fetchRooms = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/getAllRoomsCheckedIn');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getAllRoomsCheckedIn');
         const sortedRooms = response.data.sort((a, b) => a.room_number - b.room_number);
   
         const groupedRooms = {

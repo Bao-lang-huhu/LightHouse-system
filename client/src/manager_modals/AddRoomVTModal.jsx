@@ -49,7 +49,7 @@ const AddRoomVTModal = ({ isOpen, toggleModal, roomId, roomTypeName }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:3001/api/registerRoomVT', {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerRoomVT', {
                 room_id: roomId,
                 vt_name: vtName,
                 vt_description: vtDescription,

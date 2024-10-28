@@ -19,7 +19,7 @@ const EditRoomVTModal = ({ isOpen, toggleModal, roomTypeName }) => {
         const fetchVirtualTour = async () => {
             setLoading(true); // Start loading
             try {
-                const response = await axios.get('http://localhost:3001/api/getRoomVirtualTourByTypeName', {
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomVirtualTourByTypeName', {
                     params: { vt_name: roomTypeName } // Use roomTypeName for the query
                 });
 
@@ -81,7 +81,7 @@ const handleUpdate = async () => {
 
     setLoading(true); // Start loading while updating
     try {
-        const response = await axios.put('http://localhost:3001/api/updateRoomVT', {
+        const response = await axios.put('https://light-house-system-h74t-server.vercel.app/api/updateRoomVT', {
             vt_name: roomTypeName, // Use `roomTypeName` instead of `vt_id`
             vt_description: vtDescription,
             vt_photo_base64: vtPhoto,

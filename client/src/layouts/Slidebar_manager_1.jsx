@@ -127,6 +127,7 @@ const SidebarManager = () => {
                 </Link>
               </li>
             </ul>
+            
 
             <p className='menu-label' style={{ display: isSidebarOpen ? 'block' : 'none' }}>
               Menu Maintenance

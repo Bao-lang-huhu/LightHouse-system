@@ -15,6 +15,8 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
     document.body.appendChild(iframe);
     iframe.style.display = 'none';
 
+    const logoUrl = `${window.location.origin}/logo-new.png`;
+
     const printDocument = iframe.contentDocument || iframe.contentWindow.document;
     printDocument.open();
     printDocument.write(`
@@ -61,7 +63,11 @@ const OrderSummary = ({ isOpen, toggleModal, order }) => {
         </head>
         <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
           <div class="print-container">
+            <div style="text-align: center; margin-bottom: 10px;">
+              <img src="${logoUrl}" alt="Logo" style="width: 80px; height: auto;" />
+            </div>
             <h1 style="font-size: 14px;"><strong>Restaurant Order Summary</strong></h1>
+            <p style="font-size: 12px;"><strong>Order ID:</strong> ${order.food_order_id}</p>
             <p style="font-size: 12px;"><strong>Staff:</strong> ${order.STAFF ? `${order.STAFF.staff_fname} ${order.STAFF.staff_lname}` : 'Not Available'}</p>
             <p style="font-size: 12px;"><strong>Order Date:</strong> ${new Date(order.f_order_date).toLocaleDateString()}</p>
             ${order.f_payment_method === 'ROOM' ? 

@@ -35,7 +35,7 @@ const ArchDashboard = () => {
 
         const fetchCounts = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/deleted_counts');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/deleted_counts');
                 const data = response.data;
 
                 setCounts({

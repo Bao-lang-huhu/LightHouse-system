@@ -2,7 +2,6 @@ const { supabase } = require('../../supabaseClient');
 
 const getCheckedInGuests = async (req, res) => {
     try {
-        // Fetching CHECK_IN data along with ROOM_RESERVATION and GUEST details
         const { data: checkInData, error: checkInError } = await supabase
             .from('CHECK_IN')
             .select(`

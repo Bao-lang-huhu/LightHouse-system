@@ -75,8 +75,8 @@ function EventWalkIn() {
 
     const fetchActiveVenuesAndPackages = async () => {
         try {
-            const venuesResponse = await axios.get('http://localhost:3001/api/getActiveVenues');
-            const foodPackagesResponse = await axios.get('http://localhost:3001/api/getActiveFoodPackages');
+            const venuesResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getActiveVenues');
+            const foodPackagesResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getActiveFoodPackages');
             setVenues(venuesResponse.data);
             setFoodPackages(foodPackagesResponse.data);
         } catch (error) {
@@ -90,7 +90,7 @@ function EventWalkIn() {
 
     const fetchFoodItems = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/getFoodItems');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodItems');
             const filteredItems = response.data.filter(item => item.food_service_category === 'BOTH' || item.food_service_category === 'EVENT');
             setFoodItems(filteredItems);
         } catch (error) {
@@ -260,7 +260,7 @@ function EventWalkIn() {
             const eventDate = moment(selectedDate).format('YYYY-MM-DD'); // Format date as YYYY-MM-DD
 
             // Make the GET request to check for date conflicts
-            const response = await axios.get('http://localhost:3001/api/getEventReservations', {
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getEventReservations', {
                 params: { event_date: eventDate },
             });
 
@@ -298,7 +298,7 @@ function EventWalkIn() {
                 guest_gender: gender,
             };
     
-            const guestResponse = await axios.post('http://localhost:3001/api/registerGuestRoom', guestData);
+            const guestResponse = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerGuestRoom', guestData);
             if (guestResponse.status === 201) {
                 const guest_id = guestResponse.data.guest_id;
                 await handleSubmit(guest_id); // Pass the guest_id to handleSubmit
@@ -328,7 +328,7 @@ function EventWalkIn() {
     
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:3001/api/registerEventReservation', {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerEventReservation', {
                 ...eventDetails,
                 event_venue_id: selectedVenueId,
                 event_fd_pckg_id: selectedFoodPackageId,

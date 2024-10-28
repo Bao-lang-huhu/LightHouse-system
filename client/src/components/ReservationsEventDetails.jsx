@@ -46,7 +46,7 @@ const ReservationsEventDetails = () => {
     const fetchReservationDetails = async () => {
       try {
         // Fetch all reservations
-        const response = await axios.get('http://localhost:3001/api/getEventReservationsAll');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getEventReservationsAll');
         console.log('API Response:', response.data);
 
         // Find the reservation with the matching event_reservation_id
@@ -72,7 +72,7 @@ const ReservationsEventDetails = () => {
 
   const handleCancel = async () => {
     try {
-        await axios.post('http://localhost:3001/api/cancelEventReservation', {
+        await axios.post('https://light-house-system-h74t-server.vercel.app/api/cancelEventReservation', {
             event_reservation_id,
             cancel_reason: cancelReason // Send cancel reason to backend
         });
@@ -220,11 +220,8 @@ if (!reservation) {
             <IoTime className='mr-1 has-text-danger' />
                 Cancellation is allowed 2 days remaining before the reservation date
         </p><div className="field is-flex is-justify-content-flex-end">
-      {['CONFIRMED', 'PENDING'].includes(reservation.reservation_status) && (
-                                                        daysDifference > 2 ? (
-
-            
-         
+        {['CONFIRMED', 'PENDING'].includes(reservation.reservation_status) && (
+             daysDifference > 2 ? (
             
             <button className="button is-danger" onClick={() => setIsModalOpen(true)}
             style={{ wordBreak: 'keep-all', whiteSpace: 'normal', textAlign: 'center' }}>

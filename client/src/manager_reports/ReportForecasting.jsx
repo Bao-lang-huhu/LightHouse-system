@@ -18,7 +18,7 @@ const ReportForecasting = () => {
     const fetchForecastData = async () => {
         try {
             const baseUrl = process.env.NODE_ENV === 'development' 
-                ? 'http://localhost:3001'
+                ? 'https://light-house-system-h74t-server.vercel.app'
                 : 'https://chic-endurance-production.up.railway.app';
 
             const response = await axios.post(`${baseUrl}/api/manager_forecast`);
@@ -88,7 +88,7 @@ const ReportForecasting = () => {
         return `${parsedDate.toLocaleString('default', { month: 'short' })} ${parsedDate.getFullYear()}`;
     };
 
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://light-house-system-h74t-server.vercel.app';
 
     useEffect(() => {
       const fetchForecast = async () => {

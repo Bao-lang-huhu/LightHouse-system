@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'bulma/css/bulma.min.css';
-import './components_r.css';
+import '../restaurant_components/components_r.css';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TextField } from '@mui/material';
 import axios from 'axios';
@@ -41,7 +41,7 @@ const ProceedRestaurant = () => {
   useEffect(() => {
     const fetchCheckedInGuests = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/getCheckedInGuests');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckedInGuests');
         setCheckedInGuests(response.data);
       } catch (error) {
         console.error('Error fetching checked-in guests:', error);
@@ -84,7 +84,7 @@ const ProceedRestaurant = () => {
 
       };
   
-      const response = await axios.post('http://localhost:3001/api/registerFoodOrders', orderData);
+      const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerFoodOrders', orderData);
   
       if (response.status === 201) {
         // Set success message and clear error message
@@ -184,7 +184,6 @@ const ProceedRestaurant = () => {
                 <tr>
                   <th style="font-size: 12px;">Food Item</th>
                   <th style="font-size: 12px;">Quantity</th>
-                  <th style="font-size: 12px;">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
@@ -192,7 +191,6 @@ const ProceedRestaurant = () => {
                   <tr>
                     <td style="font-size: 12px;">${item.food_name}</td>
                     <td style="font-size: 12px;">${item.quantity}</td>
-                    <td style="font-size: 12px;">₱${(item.food_price * item.quantity).toFixed(2)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -200,7 +198,7 @@ const ProceedRestaurant = () => {
             <div style="margin-top: 15px;">
               <p style="font-size: 12px;"><strong>Notes:</strong> ${notes.trim() ? notes : "No Notes..."}</p>
             </div>
-            <p style="font-size: 12px; margin-bottom: 15px;"><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+            <p style="font-size: 12px;"><strong>Total:</strong> ₱${total.toFixed(2)}</p>
           </div>
         </body>
       </html>

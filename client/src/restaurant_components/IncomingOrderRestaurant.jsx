@@ -18,7 +18,7 @@ const IncomingOrderRestaurant = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true); // Start loading
-        const response = await axios.get('http://localhost:3001/api/getFoodOrders');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getFoodOrders');
         setOrders(response.data);
       } catch (error) {
         console.error('Error fetching food orders:', error);
@@ -33,7 +33,7 @@ const IncomingOrderRestaurant = () => {
   // Function to update the status of an order
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(`http://localhost:3001/api/updateOrderStatus/${orderId}`, {
+      const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateOrderStatus/${orderId}`, {
         new_status: newStatus, // Send the new status in the request body
       });
 

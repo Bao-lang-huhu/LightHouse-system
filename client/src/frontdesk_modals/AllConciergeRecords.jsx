@@ -33,7 +33,7 @@ const handleCloseNotification = () => {
 
 const fetchConciergeRecords = async () => {
   try {
-      const response = await axios.get('http://localhost:3001/api/getAllConciergeRecords');
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getAllConciergeRecords');
       console.log("Fetched Concierge Records:", response.data); // Log the response data
       setConciergeRecords(response.data);
   } catch (error) {
@@ -61,7 +61,7 @@ const fetchConciergeRecords = async () => {
     }
 
     try {
-        await axios.put(`http://localhost:3001/api/updateConciergeStatus`, {
+        await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateConciergeStatus`, {
             av_concierge_id: recordId,
             av_concierge_status: 'DELETE'
         });

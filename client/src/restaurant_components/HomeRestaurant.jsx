@@ -5,7 +5,7 @@ import '../App.css';
 import '../manager_components/components_m.css'
 import { Link } from 'react-router-dom';
 import { IoFastFoodOutline, IoTabletLandscapeOutline } from 'react-icons/io5';
-import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
+import {jwtDecode} from 'jwt-decode'; 
 
 
 const HomeRestaurant = () => {

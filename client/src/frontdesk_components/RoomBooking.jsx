@@ -55,7 +55,7 @@ const RoomBooking = () => {
                 guest_gender: gender,
             };
 
-            const guestResponse = await axios.post('http://localhost:3001/api/registerGuestRoom', guestData);
+            const guestResponse = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerGuestRoom', guestData);
             if (guestResponse.status === 201) {
                 const guest_id = guestResponse.data.guest_id;
                 await handleReservation(guest_id);
@@ -147,7 +147,7 @@ const RoomBooking = () => {
                 total_cost: room.room_final_rate * (moment(checkOutDate).diff(moment(checkInDate), 'days')),
             };
 
-            const response = await axios.post('http://localhost:3001/api/registerRoomReservation', reservationData);
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerRoomReservation', reservationData);
 
             if (response.status === 201) {
                 setNotification({ open: true, message: 'Reservation confirmed!', severity: 'success' });

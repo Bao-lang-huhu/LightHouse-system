@@ -14,7 +14,7 @@ const ReservationDetailsModal = ({ isOpen, onClose, roomReservationId }) => {
           setLoading(true);
           setError('');
           const response = await axios.get(
-            `http://localhost:3001/api/getCheckIn?room_reservation_id=${roomReservationId}`
+            `https://light-house-system-h74t-server.vercel.app/api/getCheckIn?room_reservation_id=${roomReservationId}`
           );
           console.log(response.data[0]); // Check the structure of the response
           setReservationDetails(response.data[0]);

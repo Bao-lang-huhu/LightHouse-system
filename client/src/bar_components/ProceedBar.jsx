@@ -40,7 +40,7 @@ const ProceedBar = () => {
   useEffect(() => {
     const fetchCheckedInGuests = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/getCheckedInGuests');
+        const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getCheckedInGuests');
         setCheckedInGuests(response.data);
       } catch (error) {
         console.error('Error fetching checked-in guests:', error);
@@ -64,9 +64,11 @@ const ProceedBar = () => {
     }
   }, [location.state]);
 
-  const handlePlaceOrder = async () => {
+
+const [orderId, setOrderId] = useState(''); // New state to store bar_order_id
+
+const handlePlaceOrder = async () => {
     try {
-        // Create a new Date object and adjust to Philippine time (UTC+8)
         const currentDate = new Date();
         const philippineDate = new Date(currentDate.getTime() + (8 * 60 * 60 * 1000));
 
@@ -76,19 +78,16 @@ const ProceedBar = () => {
             b_payment_method: paymentMethod,
             b_order_total: total,
             drinkItems: drinkOrders,
-            order_date: philippineDate // Use the adjusted date
+            order_date: philippineDate
         };
 
-        const response = await axios.post('http://localhost:3001/api/registerDrinkOrders', orderData);
+        const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerDrinkOrders', orderData);
 
         if (response.status === 201) {
+            setOrderId(response.data.bar_order_id); // Store bar_order_id from response
             setOrderSuccess('Order placed successfully!');
             setOrderError('');
-
-            // Remove drink orders from local storage after order is placed
             localStorage.removeItem('drinkOrders');
-
-            // Redirect to the order list page
             navigate('/bar_incoming_orders');
         }
     } catch (error) {
@@ -97,6 +96,7 @@ const ProceedBar = () => {
         setOrderSuccess('');
     }
 };
+
 
 
   const numberOfItems = drinkOrders.length;
@@ -180,7 +180,6 @@ const ProceedBar = () => {
                 <tr>
                   <th style="font-size: 12px;">Food Item</th>
                   <th style="font-size: 12px;">Quantity</th>
-                  <th style="font-size: 12px;">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,7 +187,6 @@ const ProceedBar = () => {
                   <tr>
                     <td style="font-size: 12px;">${item.drink_name}</td>
                     <td style="font-size: 12px;">${item.quantity}</td>
-                    <td style="font-size: 12px;">₱${(item.drink_price * item.quantity).toFixed(2)}</td>
                   </tr>
                 `).join('')}
               </tbody>

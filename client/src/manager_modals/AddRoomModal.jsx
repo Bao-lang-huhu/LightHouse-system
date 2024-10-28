@@ -30,7 +30,7 @@ const AddRoomModal = ({ isOpen, toggleModal, refreshRoomList }) => {
     useEffect(() => {
         const fetchRoomNumbers = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/getRoomsAll');
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomsAll');
                 const existingRoomNumbers = response.data.map(room => room.room_number);
                 setRoomNumbers(existingRoomNumbers);
             } catch (error) {
@@ -143,7 +143,7 @@ const AddRoomModal = ({ isOpen, toggleModal, refreshRoomList }) => {
                 return; // Prevent form submission
             }
     
-            const response = await axios.get('http://localhost:3001/api/getRoomsAll');
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomsAll');
             const existingRoomNumbers = response.data.map(room => room.room_number);
     
             // Check if the current room number already exists
@@ -162,7 +162,7 @@ const AddRoomModal = ({ isOpen, toggleModal, refreshRoomList }) => {
             setErroredFields({});
     
             // Proceed to save the room if there are no errors
-            const saveResponse = await axios.post('http://localhost:3001/api/registerRoom', room);
+            const saveResponse = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerRoom', room);
             if (saveResponse.status === 201) {
                 setSuccess('Room registered successfully!');
                 setError('');

@@ -21,7 +21,7 @@ const roomSalesRoutes = require('./routes/roomSalesRoutes');
 const eventForecastRoutes = require('./routes/EventForecast');
 const getCountsDashboardManager = require('./routes/count/getCountsDashboardManager');
 const housekeepingRoutes = require('./routes/housekeepingRoutes');
-
+const maintenanceRoutes = require('./routes/maintenanceRoutes'); // Adjust the path as necessary
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -68,6 +68,7 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 // Route mounting
+app.use('/api', maintenanceRoutes);
 app.use('/api', housekeepingRoutes);
 app.use('/api', guestRoutes);
 app.use('/api', checkInRoutes);

@@ -1,123 +1,79 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import 'bulma/css/bulma.min.css';
-import { IoSearchCircle } from 'react-icons/io5';
-import '../App.css';
 
-// Function to return color based on status
+// Function to return color based on maintenance status
 const getStatusColor = (status) => {
-  if (status === 'DONE') return 'green';
-  if (status === 'CANCELLED') return 'red';
-  return 'black'; // Default color
+    if (status === 'COMPLETE') return 'green';
+    if (status === 'ONGOING') return 'orange';
+    return 'black';
 };
 
-// Modal component for displaying housekeeping records
 const AllMaintenanceRecordsModal = ({ isVisible, onClose }) => {
-  if (!isVisible) return null; // Don't render if not visible
+    const [maintenanceRecords, setMaintenanceRecords] = useState([]);
 
-  return (
-    <div className="modal is-active">
-      <div className="modal-background" onClick={onClose}></div>
-      <div className="modal-content" style={{ width: '80%', maxHeight: '80vh', overflow: 'auto' }}>
-        <span className="close" onClick={onClose} aria-label="Close modal">&times;</span>
+    useEffect(() => {
+        if (isVisible) {
+            fetchMaintenanceRecords();
+        }
+    }, [isVisible]);
 
-        {/* Header Section */}
-        <div style={{ backgroundColor: 'white', borderRadius: '10px 10px 0 0', padding: '20px' }}>
-          <div className="columns is-multiline is-mobile is-vcentered">
-            <div className="column is-narrow">
-              <h1 className="subtitle" style={{ marginLeft: '10px', fontSize: '25px' }}>
-                <strong>Maintenance Records</strong>
-              </h1>
-            </div>
+    // Fetch all maintenance records (both ongoing and completed)
+    const fetchMaintenanceRecords = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/maintenance-records');
+            setMaintenanceRecords(response.data);
+        } catch (error) {
+            console.error('Error fetching maintenance records:', error);
+        }
+    };
 
-            {/* Search input and button on the right */}
-            <div className="column is-4 is-hidden-mobile" style={{ padding: '0', margin: '0' }}>
-              <div className="field has-addons is-flex is-flex-direction-row is-fullwidth-mobile">
-                <div className="control is-expanded is-fullwidth">
-                  <input
-                    className="input is-fullwidth-mobile"
-                    type="date"
-                    style={{ margin: '0', fontSize: '12px', padding: '18px', marginTop: '12px', marginLeft: '80px' }}
-                    placeholder="Search..."
-                  />
+    if (!isVisible) return null;
+
+    return (
+        <div className="modal is-active">
+            <div className="modal-background" onClick={onClose}></div>
+            <div className="modal-content" style={{ width: '80%', maxHeight: '80vh', overflow: 'auto' }}>
+                <span className="close" onClick={onClose} aria-label="Close modal">&times;</span>
+
+                <div style={{ backgroundColor: 'white', borderRadius: '10px 10px 0 0', padding: '20px' }}>
+                    <h1 className="subtitle" style={{ fontSize: '25px', fontWeight: 'bold' }}>Maintenance Records</h1>
                 </div>
-                <div className="control is-fullwidth">
-                  <button className="button is-blue is-fullwidth-mobile" style={{ height: '77%', fontSize: '12px', padding: '10px', marginTop: '12px', marginLeft: '80px' }}>
-                    <IoSearchCircle className="is-white" />
-                  </button>
+
+                <div style={{ backgroundColor: 'white', borderRadius: '0 0 10px 10px', padding: '20px', marginTop: '-35px' }}>
+                    <div className="table-container">
+                        <table className="table is-striped is-hoverable is-fullwidth">
+                            <thead>
+                                <tr>
+                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Room Number</th>
+                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Type</th>
+                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Status</th>
+                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Notes</th>
+                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Start Time</th>
+                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>End Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {maintenanceRecords.map((record) => (
+                                    <tr key={record.maintenance_id}>
+                                        <td>{record.room_number || 'N/A'}</td>
+                                        <td>{record.maintenance_type || 'N/A'}</td>
+                                        <td style={{ color: getStatusColor(record.maintenance_status) }}>
+                                            {record.maintenance_status || 'N/A'}
+                                        </td>
+                                        <td>{record.maintenance_notes || 'No notes available'}</td>
+                                        <td>{new Date(record.maintenance_date_time_start).toLocaleString()}</td>
+                                        <td>{record.maintenance_date_time_end ? new Date(record.maintenance_date_time_end).toLocaleString() : 'Ongoing'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
+            <button className="modal-close is-large" aria-label="close" onClick={onClose}></button>
         </div>
-
-        {/* Table Section */}
-        <div style={{ backgroundColor: 'white', borderRadius: '0 0 10px 10px', padding: '20px', marginTop: '-35px' }}>
-          <div className="table-container">
-            <table className="table is-striped is-hoverable is-fullwidth">
-              <thead>
-                <tr>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px', borderRadius: '10px 0 0 10px' }}>Maintenance ID</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Room ID</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Staff Name</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Type</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Start</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>End</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Notes</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px', borderRadius: '0 10px 10px 0px' }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Record Entries */}
-                <tr className="has-text-left">
-                  <td>M00001</td>
-                  <td>101</td>
-                  <td>Sarah Gary</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Plumbing</td>
-                  <td style={{ color: getStatusColor('CANCELLED') }}>CANCELLED</td>
-                </tr>
-
-                <tr className="has-text-left">
-                  <td>M00002</td>
-                  <td>102</td>
-                  <td>Sarag Gary</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Bed Repair</td>
-                  <td style={{ color: getStatusColor('DONE') }}>DONE</td>
-                </tr>
-
-                <tr className="has-text-left">
-                  <td>M00003</td>
-                  <td>102</td>
-                  <td>Sarag Gary</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Vacuumed</td>
-                  <td style={{ color: getStatusColor('DONE') }}>DONE</td>
-                </tr>
-
-                <tr className="has-text-left">
-                  <td>M00004</td>
-                  <td>103</td>
-                  <td>John Doe</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Table Repair</td>
-                  <td style={{ color: getStatusColor('CANCELLED') }}>CANCELLED</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default AllMaintenanceRecordsModal;

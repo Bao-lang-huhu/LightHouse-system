@@ -10,7 +10,7 @@ const AddVenueModal = ({ isOpen, toggleModal, refreshVenueList }) => {
         venue_name: '',
         venue_description: '',
         venue_status: 'ACTIVE',
-        venue_price: 1, // Ensure venue price starts from 1
+        venue_price: 0, // Ensure venue price starts from 1
         venue_final_price: 0,
         event_disc_percentage: 0,
         venue_max_pax: 20 // Initialize Maximum PAX to 20
@@ -39,7 +39,7 @@ const AddVenueModal = ({ isOpen, toggleModal, refreshVenueList }) => {
             venue_name: '',
             venue_description: '',
             venue_status: 'ACTIVE',
-            venue_price: 1,
+            venue_price: 0,
             venue_final_price: 0,
             event_disc_percentage: 0,
             venue_max_pax: 20
@@ -52,9 +52,27 @@ const AddVenueModal = ({ isOpen, toggleModal, refreshVenueList }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setVenue({ ...venue, [name]: parseFloat(value) || value });
-        setErroredFields((prev) => ({ ...prev, [name]: false }));
+    
+        if (name === 'venue_name') {
+            // Allow only letters and spaces
+            const textValue = value.replace(/[^A-Za-z\s]/g, '');
+            setVenue((prev) => ({
+                ...prev,
+                [name]: textValue,
+            }));
+        } else {
+            setVenue((prev) => ({
+                ...prev,
+                [name]: parseFloat(value) || value,
+            }));
+        }
+    
+        setErroredFields((prev) => ({
+            ...prev,
+            [name]: false,
+        }));
     };
+    
 
     const handleSubmit = async () => {
         // Check for required fields
@@ -227,7 +245,7 @@ const AddVenueModal = ({ isOpen, toggleModal, refreshVenueList }) => {
                     if (isNaN(value) || value < 1) {
                         setVenue((prev) => ({
                             ...prev,
-                            venue_price: 1,
+                            venue_price: 0,
                             venue_final_price: 1 * (1 - prev.event_disc_percentage / 100),
                         }));
                     } else {

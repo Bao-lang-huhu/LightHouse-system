@@ -3,7 +3,7 @@ import 'bulma/css/bulma.min.css';
 import '../App.css';
 import './components_m.css';
 import { Link } from 'react-router-dom';
-import { IoPerson } from 'react-icons/io5';
+import { IoPerson, IoHome, IoFastFood, IoWine, IoBagCheck, IoShirt, IoCalendar, IoRestaurant } from 'react-icons/io5';
 import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
@@ -86,6 +86,17 @@ const DashboardManager = () => {
         return date.toLocaleDateString('en-US', options);
     };
 
+    const sections = [
+        { label: 'Staffs', count: counts.staffCount, link: '/manager_accounts', icon: <IoPerson size={40} className="is-violet" /> },
+        { label: 'Rooms', count: counts.roomCount, link: '/manager_room', icon: <IoHome size={40} className="is-violet" /> },
+        { label: 'Foods', count: counts.foodItemCount, link: '/manager_food', icon: <IoFastFood size={40} className="is-violet" /> },
+        { label: 'Drinks', count: counts.barDrinkCount, link: '/manager_drink', icon: <IoWine size={40} className="is-violet" /> },
+        { label: 'Concierges', count: counts.conciergeDetailCount, link: '/manager_concierge', icon: <IoBagCheck size={40} className="is-violet" /> },
+        { label: 'Laundry', count: counts.laundryDetailCount, link: '/manager_laundry', icon: <IoShirt size={40} className="is-violet" /> },
+        { label: 'Venues', count: counts.eventCount, link: '/manager_venue', icon: <IoCalendar size={40} className="is-violet" /> },
+        { label: 'Food Packages', count: counts.eventFoodPackageCount, link: '/manager_food_package', icon: <IoRestaurant size={40} className="is-violet" /> }
+    ];
+
     return (
         <section className='section-p1'>
             <div className="container has-background-light p-5">
@@ -104,140 +115,25 @@ const DashboardManager = () => {
                 </div>
             </div>
             <div className='columns is-vcentered'>
-                <div className="column is-one-half">
+            <div className="column is-one-half">
                     <div className="columns is-multiline" style={{ margin: '2%' }}>
-                    <div className="column is-6">
-                            <Link to ="/manager_accounts">
-                            <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
-                                
-                                <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }} >
-                                    <span>
-                                        <IoPerson size={40} className="is-violet" />
-                                    </span>
-                                </div>
-                                <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                    
-                                    <label className="has-text-weight-semibold">Staffs</label>
-                                    <p className="is-size-5 has-text-primary">{counts.staffCount}</p>
-                                </div>
-                                
+                        {sections.map((section) => (
+                            <div key={section.label} className="column is-6">
+                                <Link to={section.link}>
+                                    <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
+                                        <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
+                                            <span>{section.icon}</span>
+                                        </div>
+                                        <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
+                                            <label className="has-text-weight-semibold">{section.label}</label>
+                                            <p className="is-size-5 has-text-primary">{section.count}</p>
+                                        </div>
+                                    </div>
+                                </Link>
                             </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_room">
-                            <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
-                                <div className="is-flex is-justify-content-center is-align-items-center"  style={{ flex: '1 1 50%', overflow: 'hidden' }} >
-                                    <span>
-                                        <IoPerson size={40} className="is-violet" />
-                                    </span>
-                                </div>
-                                <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                    <label className="has-text-weight-semibold">Rooms</label>
-                                    <p className="is-size-5 has-text-primary">{counts.roomCount}</p>
-                                </div>
-                            </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_food">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>  
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }} >
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>                     
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Foods</label>
-                                        <p className="is-size-5 has-text-primary">{counts.foodItemCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_drink">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Drinks</label>
-                                        <p className="is-size-5 has-text-primary">{counts.barDrinkCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_concierge">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Concierges</label>
-                                        <p className="is-size-5 has-text-primary">{counts.conciergeDetailCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_laundry">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Laundry</label>
-                                        <p className="is-size-5 has-text-primary">{counts.laundryDetailCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_venue">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Venues</label>
-                                        <p className="is-size-5 has-text-primary">{counts.eventCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_food_package">
-                            <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                    <span>
-                                        <IoPerson size={40} className="is-violet" />
-                                    </span>
-                                </div>
-                                <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                    <label className="has-text-weight-semibold">Food Packages</label>
-                                    <p className="is-size-5 has-text-primary">{counts.eventFoodPackageCount}</p>
-                                </div>
-                            </div>
-                            </Link>
-                        </div>
+                        ))}
                     </div>
-                </div>
+                    </div>
 
                 <div className="column is-one-half chart-container" >
                     <div className="column" style={{ height: '400px' }}>

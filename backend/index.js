@@ -16,6 +16,8 @@ const barRoutes = require('./routes/barRoutes');
 const verifyTokenRoute = require('./routes/token/verifyToken');
 const restaurantRoutes = require ('./routes/restaurantRoutes');
 const getCountsDashboardManager = require('./routes/count/getCountsDashboardManager'); 
+const getDeletedCountsDashboardManager = require('./routes/count/getCountsDeleteManager'); 
+
 const counts = require('./routes/count/counts');
 const roomForecast = require('./routes/roomForecast');
 const eventForecast = require('./routes/eventForecast');
@@ -81,10 +83,12 @@ app.use('/api', restaurantRoutes);
 
 app.use('/api', getCountsDashboardManager);
 app.use('/api', counts);
+app.use('/api', getDeletedCountsDashboardManager);
 
 app.use('/api', roomForecast);
 app.use('/api', eventForecast);
 app.use('/api', roomSalesRoute);
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

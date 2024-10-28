@@ -91,15 +91,24 @@ const RoomReservationCalendar = () => {
     };
   };
 
-  const handleEventClick = (event) => {
-    console.log("Selected Event:", event); // Log to check event data
-    setSelectedEvent(event);
-    setDownPayment(event.downPayment || 0);
-    setReservationStatus(event.status || 'CONFIRMED');
-    // Set the cancellation reason only if the status is CANCELED and ensure it's correctly set
-    setCancellationRequest(event.status === 'CANCELED' ? event.cancel_reservation_request || 'No reason provided.' : '');
-    setShowModal(true);      
+  // Add this function to check and set the saved status based on the database value.
+const setInitialSavedStatus = (event) => {
+  // Set isSaved to true if the reservation is already CONFIRMED
+  setIsSaved(event.status === 'CONFIRMED');
 };
+
+const handleEventClick = (event) => {
+  setSelectedEvent(event);
+  setDownPayment(event.downPayment || 0);
+  setReservationStatus(event.status || 'CONFIRMED');
+  setCancellationRequest(event.status === 'CANCELED' ? event.cancel_reservation_request || 'No reason provided.' : '');
+  setShowModal(true);
+  
+  // Set isSaved based on the initial status of the event
+  setInitialSavedStatus(event);
+};
+
+
 
 
   
@@ -379,16 +388,17 @@ const handleChangeStatus = (status) => {
           </Box>
         </Box>
      
-        <Box display="flex" justifyContent="flex-end" mt={3}>
-    <Button variant="contained" color="primary" onClick={handleSaveChanges} sx={{ mr: 1 }}>Save Changes</Button>
-    
-    {/* Check In Button - Only show if the database status is confirmed and no unsaved changes */}
-    {(selectedEvent?.status === 'CONFIRMED' && reservationStatus === 'CONFIRMED' && isSaved) && (
+            <Box display="flex" justifyContent="flex-end" mt={3}>
+      <Button variant="contained" color="primary" onClick={handleSaveChanges} sx={{ mr: 1 }}>Save Changes</Button>
+      
+      {/* Show Check In button if the reservation status is CONFIRMED */}
+      {selectedEvent?.status === 'CONFIRMED' && reservationStatus === 'CONFIRMED' && (
         <Button variant="outlined" color="inverted" onClick={handleCheckIn}>
-            Check In
+          Check In
         </Button>
-    )}
-</Box>
+      )}
+    </Box>
+
 
 
 

@@ -1,9 +1,7 @@
 const { supabase } = require('../../supabaseClient');
 
-// API to get active venues
 const getActiveVenues = async (req, res) => {
     try {
-        // Fetch venues with active status
         const { data: venues, error } = await supabase
             .from('EVENT_VENUE')
             .select('event_venue_id, venue_name, venue_description, venue_max_pax, venue_price, venue_final_price')
@@ -14,7 +12,6 @@ const getActiveVenues = async (req, res) => {
             return res.status(500).json({ error: 'Failed to fetch active venues' });
         }
 
-        // If no venues found
         if (!venues.length) {
             return res.status(404).json({ message: 'No active venues found.' });
         }

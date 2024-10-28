@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { IoHome, IoPerson, IoBed, IoWine, IoCheckmarkCircle, IoHappy, IoAddCircle, IoStar } from 'react-icons/io5';
+import { IoHome, IoPerson, IoBed, IoWine,  IoBagOutline, IoWalkOutline, IoCheckmarkCircle, IoHappy, IoAddCircle, IoStar } from 'react-icons/io5';
 import { Grid, Box, Typography } from '@mui/material';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
@@ -52,6 +52,33 @@ const DashboardFront = () => {
     const formatDateTime = (date) => date.toLocaleString('en-US', { 
         year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' 
     });
+
+    const [rooms, setRooms] = useState({ firstFloor: [], secondFloor: [], thirdFloor: [] });
+
+    useEffect(() => {
+      fetchRooms();
+    }, []);
+  
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/getAllRoomsCheckedIn');
+        const sortedRooms = response.data.sort((a, b) => a.room_number - b.room_number);
+  
+        const groupedRooms = {
+          firstFloor: sortedRooms.filter(room => String(room.room_number).startsWith('1')),
+          secondFloor: sortedRooms.filter(room => String(room.room_number).startsWith('2')),
+          thirdFloor: sortedRooms.filter(room => String(room.room_number).startsWith('3')),
+        };
+  
+        setRooms(groupedRooms);
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+      }
+    };
+
+    const getBackgroundColor = (status) => {
+        return status === 'CHECKED_IN' ? '#a4dded' : 'lightgrey'; // green for With Guest, red for No Guest
+      };
 
     const boxes = [
         { icon: <IoHome />, label: 'Home', link: '/frontdesk_home' },
@@ -111,8 +138,92 @@ const DashboardFront = () => {
                     </Grid>
                 ))}
             </Grid>
+
+            <header>
+         
+           <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
+             <div className="column is-align-items-center">
+               <h1 className='subtitle'><strong>Rooms with Checked-In Guest</strong></h1>
+               <div className='ml-2 is-flex is-align-items-center'>
+                 <div
+                   style={{
+                     width: '20px',
+                     height: '20px',
+                     borderRadius: '50%',
+                     backgroundColor: '#a4dded',
+                     color: 'white',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     fontWeight: 'bold',
+                     marginLeft: '10px',
+                     boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)',
+                   }}
+                 ></div>
+                 <label className="ml-2">Checked_in Guest</label>
+               </div>
+             </div>
+           </div>
+
+         </header>
+
+            <div className='section-p1'>
+    
+                {/* Floor Sections */}
+                <FloorSection title="First Floor" rooms={rooms.firstFloor} getBackgroundColor={getBackgroundColor} />
+                <FloorSection title="Second Floor" rooms={rooms.secondFloor} getBackgroundColor={getBackgroundColor} />
+                <FloorSection title="Third Floor" rooms={rooms.thirdFloor} getBackgroundColor={getBackgroundColor} />
+            </div>
         </section>
+       
     );
 };
 
+const FloorSection = ({ title, rooms, getBackgroundColor }) => (
+    rooms.length > 0 && (
+      <section className='section-p1'>
+        <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
+          <div className='column'>
+            <h2 className="subtitle has-text-centered" style={{ backgroundColor: '#a4dded', color: 'black', padding: '0.5rem', borderRadius: '5px' }}>
+              {title}
+            </h2>
+          </div>
+          <div className="container section-p1">
+            <div className="columns is-multiline">
+              {rooms.map(room => (
+                <RoomBox key={room.room_id} room={room} getBackgroundColor={getBackgroundColor} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  );
+  
+  // RoomBox Component to display individual room details
+  const RoomBox = ({ room, getBackgroundColor }) => (
+    <div className="column is-one-quarter"> {/* Sets each room box to 1/4 of the row */}
+      <div className="box" style={{ margin: '0.5rem', padding: '1rem' }}>
+        <div className="has-text-centered">
+          <p className="is-size-6 has-text-weight-bold">Room {room.room_number}</p>
+        </div>
+        <div className="box" style={{ padding: '0.5rem', marginTop: '0.5rem' }}>
+          <div
+            className="box has-text-centered is-flex is-justify-content-space-between is-align-items-center"
+            style={{
+              padding: '0.5rem',
+              margin: '0',
+              backgroundColor: getBackgroundColor(room.check_in_status),
+            }}
+          >
+            <p className="is-size-7 has-text-weight-semibold">
+              {room.check_in_status === 'CHECKED_IN' ? 'With Guest' : 'No Guest'}
+            </p>
+            <IoWalkOutline size={20} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
 export default DashboardFront;

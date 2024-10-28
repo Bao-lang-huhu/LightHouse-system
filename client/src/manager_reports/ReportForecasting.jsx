@@ -8,7 +8,7 @@ import { ClipLoader } from 'react-spinners';
 const ReportForecasting = () => {
     const [roomForecastData, setRoomForecastData] = useState([]);
     const [eventForecastData, setEventForecastData] = useState([]);
-
+    const [selectedView, setSelectedView] = useState('graphs');
     const [formattedData, setFormattedData] = useState([]);
     const [historyData, setHistoryData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,6 +39,10 @@ const ReportForecasting = () => {
             setLoading(false);
         }
     };
+
+    const handleViewChange = (view) => {
+      setSelectedView(view);
+  };
 
     const condenseTo15Days = (data) => {
         const groupedData = [];
@@ -179,8 +183,8 @@ const ReportForecasting = () => {
              <div className='mb-5 mt-4'>
                 <p className='subtitle is-3'>Forecasting</p>
             </div>
-            <div className='tabs is-left is-boxed'>
-                <ul>
+            <div className='tabs is-boxed'>
+                <ul className='is-left is-boxed'>
                     <li className={activeTab === 'room' ? 'is-active' : ''} onClick={() => setActiveTab('room')}>
                         <a>Room Forecasting</a>
                     </li>
@@ -188,11 +192,20 @@ const ReportForecasting = () => {
                         <a>Event Forecasting</a>
                     </li>
                 </ul>
+                <ul className="is-right is-boxed">
+                        <li className={selectedView === 'tables' ? 'is-active' : ''}>
+                            <a onClick={() => handleViewChange('tables')}>Tables</a>
+                        </li>
+                        <li className={selectedView === 'graphs' ? 'is-active' : ''}>
+                            <a onClick={() => handleViewChange('graphs')}>Graphs</a>
+                        </li>
+                    </ul>
             </div>
 
             {activeTab === 'room' && (
                 <div>
                     <h1 className='is-size-5'>Hotel Room Occupancy Rate Forecast Based on 5 Months of Data</h1>
+                    {selectedView === 'graphs' && (
                     <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
                         <LineChart
                             margin={{ top: 20, right: 30, left: 30, bottom: 40 }}
@@ -259,31 +272,31 @@ const ReportForecasting = () => {
                             />
                         </LineChart>
                     </ResponsiveContainer>
-
+    )}
                     <div className="columns is-multiline">
-                {/* Historical Data Table */}
-                <div className="column is-half-tablet is-full-mobile">
-                    <div className="box">
-                        <h2 className="title is-5">Historical Data</h2>
-                        <table className="table is-fullwidth is-striped is-hoverable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Occupancy Rate (%)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {historyData.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{formatHistoricalDate(item.ds)}</td>
-                                        <td>{item.y.toFixed(2)}%</td>
+                    {/* Historical Data Table */}
+                    <div className="column is-half-tablet is-full-mobile">
+                        <div className="box">
+                            <h2 className="title is-5">Historical Data</h2>
+                            <table className="table is-fullwidth is-striped is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Occupancy Rate (%)</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {historyData.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{formatHistoricalDate(item.ds)}</td>
+                                            <td>{item.y.toFixed(2)}%</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-
+                 
                 {/* Forecasted Data Table */}
                     <div className="column is-half-tablet is-full-mobile">
                         <div className="box">

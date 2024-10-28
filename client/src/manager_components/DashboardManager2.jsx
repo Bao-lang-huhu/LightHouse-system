@@ -7,6 +7,9 @@ import { IoPerson } from 'react-icons/io5';
 import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
+import { Box, Typography, Grid } from '@mui/material';
+import { BarChart, LineChart, Line, Bar } from 'recharts';
+import { useTheme } from '@mui/material/styles';
 
 const DashboardManager2 = () => {
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -21,7 +24,27 @@ const DashboardManager2 = () => {
         eventCount: 0
     });
     const [chartData, setChartData] = useState([]);
-    const [staffUsername, setStaffUsername] = useState('Manager'); // State to store staff username
+    const [staffUsername, setStaffUsername] = useState('Manager'); 
+    const salesData = [
+        { name: 'Jan', sales: 400 },
+        { name: 'Feb', sales: 300 },
+        { name: 'Mar', sales: 500 },
+        { name: 'apr', sales: 400 },
+        { name: 'may', sales: 300 },
+        { name: 'june', sales: 400 },
+      ];
+      
+      const forecastData = [
+        { name: 'Jan', value: 200 },
+        { name: 'Feb', value: 250 },
+        { name: 'Mar', value: 300 },
+        { name: 'apr', value: 100 },
+        { name: 'may', value: 300 },
+        { name: 'june', value: 200 },
+      ];
+
+      const theme = useTheme();
+      
 
     useEffect(() => {
         // Fetch staff username from JWT token
@@ -93,7 +116,7 @@ const DashboardManager2 = () => {
                     <div className="column is-half">
                         <div className="notification is-white">
                             <h1 className="title is-4">Hello, {staffUsername}!</h1> {/* Updated to show staff username */}
-                            <p className="subtitle">Welcome to the Manager Dashboard.</p>
+                            <p className="subtitle">Welcome to the Reports Dashboard.</p>
                         </div>
                     </div>
                     <div className="column is-half has-text-right">
@@ -103,174 +126,103 @@ const DashboardManager2 = () => {
                     </div>
                 </div>
             </div>
-            <div className='columns is-vcentered'>
-                <div className="column is-one-half">
-                    <div className="columns is-multiline" style={{ margin: '2%' }}>
-                    <div className="column is-6">
-                            <Link to ="/manager_accounts">
-                            <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
-                                
-                                <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }} >
-                                    <span>
-                                        <IoPerson size={40} className="is-violet" />
-                                    </span>
-                                </div>
-                                <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                    
-                                    <label className="has-text-weight-semibold">Staffs</label>
-                                    <p className="is-size-5 has-text-primary">{counts.staffCount}</p>
-                                </div>
-                                
-                            </div>
-                            </Link>
-                        </div>
+            <div className='columns is-vcentered p-5 section-p1'>
+            <Grid container spacing={2}>
+                {/* Left Side - Small Graphs */}
+                <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(2) }}>
+                    {/* Sales Overview (Small Bar Graph) */}
+                    <Box
+                        sx={{
+                        backgroundColor: 'white',
+                        padding: theme.spacing(2),
+                        borderRadius: '8px',
+                        boxShadow: 1,
+                        }}
+                    >
+                        <Link to="/manager_report_sales">
+                        <Typography variant="subtitle1" fontWeight="bold">
+                        Sales Overview
+                        </Typography></Link>
+                        <BarChart width={400} height={100} data={salesData}>
+                        <Bar dataKey="sales" fill="#6495ed" />
+                        </BarChart>
+                    </Box>
 
-                        <div className="column is-6">
-                            <Link to="/manager_room">
-                            <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
-                                <div className="is-flex is-justify-content-center is-align-items-center"  style={{ flex: '1 1 50%', overflow: 'hidden' }} >
-                                    <span>
-                                        <IoPerson size={40} className="is-violet" />
-                                    </span>
-                                </div>
-                                <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                    <label className="has-text-weight-semibold">Rooms</label>
-                                    <p className="is-size-5 has-text-primary">{counts.roomCount}</p>
-                                </div>
-                            </div>
-                            </Link>
-                        </div>
+                    {/* Forecast Overview (Small Line Graph) */}
+                    <Box
+                        sx={{
+                        backgroundColor: 'white',
+                        padding: theme.spacing(2),
+                        borderRadius: '8px',
+                        boxShadow: 1,
+                        }}
+                    > <Link to="/manager_report_forecasting">
+                        <Typography variant="subtitle1" fontWeight="bold">
+                        Forecast Overview
+                        </Typography></Link>
+                        <LineChart width={400} height={100} data={forecastData}>
+                        <Line type="monotone" dataKey="value" stroke="#4169e1" />
+                        </LineChart>
+                    </Box>
 
-                        <div className="column is-6">
-                            <Link to="/manager_food">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>  
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }} >
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>                     
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Foods</label>
-                                        <p className="is-size-5 has-text-primary">{counts.foodItemCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
+                    {/* Sales & Menu Optimization (Small Bar Graph) */}
+                    <Box
+                        sx={{
+                        backgroundColor: 'white',
+                        padding: theme.spacing(2),
+                        borderRadius: '8px',
+                        boxShadow: 1,
+                        }}
+                    >
+                        <Link to="/manager_report_menu_optimization">
+                        <Typography variant="subtitle1" fontWeight="bold">
+                        Menu and Order Optimization
+                        </Typography></Link>
+                        <BarChart width={400} height={100} data={salesData}>
+                        <Bar dataKey="sales" fill="#000080" />
+                        </BarChart>
+                    </Box>
+                    </Box>
+                </Grid>
 
-                        <div className="column is-6">
-                            <Link to="/manager_drink">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Drinks</label>
-                                        <p className="is-size-5 has-text-primary">{counts.barDrinkCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_concierge">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Concierges</label>
-                                        <p className="is-size-5 has-text-primary">{counts.conciergeDetailCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_laundry">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Laundry</label>
-                                        <p className="is-size-5 has-text-primary">{counts.laundryDetailCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_venue">
-                                <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                    <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                        <span>
-                                            <IoPerson size={40} className="is-violet" />
-                                        </span>
-                                    </div>
-                                    <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                        <label className="has-text-weight-semibold">Venues</label>
-                                        <p className="is-size-5 has-text-primary">{counts.eventCount}</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-
-                        <div className="column is-6">
-                            <Link to="/manager_food_package">
-                            <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>                     
-                                <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                    <span>
-                                        <IoPerson size={40} className="is-violet" />
-                                    </span>
-                                </div>
-                                <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                    <label className="has-text-weight-semibold">Food Packages</label>
-                                    <p className="is-size-5 has-text-primary">{counts.eventFoodPackageCount}</p>
-                                </div>
-                            </div>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="column is-one-half chart-container" >
-                    <div className="column" style={{ height: '400px' }}>
-                        <ResponsiveBar
-                            data={chartData} // Use the dynamically updated data here
-                            keys={['quantity']}
-                            indexBy="service"
-                            margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
-                            colors={['#abdbe3']}
-                            padding={0.3}
-                            axisBottom={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Service',
-                                legendPosition: 'middle',
-                                legendOffset: 32,
-                            }}
-                            axisLeft={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Quantity',
-                                legendPosition: 'middle',
-                                legendOffset: -40,
-                            }}
-                            labelSkipWidth={12}
-                            labelSkipHeight={12}
-                            labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-                            animate={true}
-                        />
-                    </div>
-                </div>
+                {/* Right Side - Main Count Bar Chart */}
+                <Grid item xs={12} md={8}>
+                    <Box sx={{ height: 400, backgroundColor: 'white', padding: theme.spacing(2), borderRadius: '8px', boxShadow: 1 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" textAlign="center" gutterBottom>
+                        Service Counts
+                    </Typography>
+                    <ResponsiveBar
+                        data={chartData}
+                        keys={['quantity']}
+                        indexBy="service"
+                        margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
+                        colors={['#abdbe3']}
+                        padding={0.3}
+                        axisBottom={{
+                        tickSize: 5,
+                        tickPadding: 5,
+                        tickRotation: 0,
+                        legend: 'Service',
+                        legendPosition: 'middle',
+                        legendOffset: 32,
+                        }}
+                        axisLeft={{
+                        tickSize: 5,
+                        tickPadding: 5,
+                        tickRotation: 0,
+                        legend: 'Quantity',
+                        legendPosition: 'middle',
+                        legendOffset: -40,
+                        }}
+                        labelSkipWidth={12}
+                        labelSkipHeight={12}
+                        labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                        animate={true}
+                    />
+                    </Box>
+                </Grid>
+            </Grid>
             </div>
         </section>
     );

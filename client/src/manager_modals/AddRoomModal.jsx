@@ -88,10 +88,21 @@ const AddRoomModal = ({ isOpen, toggleModal, refreshRoomList }) => {
                 [name]: numericValue,
             }));
     
-            // Reset the error for room number when user is typing
             setErroredFields((prev) => ({
                 ...prev,
                 room_number: false,
+            }));
+        } else if (name === 'room_type_name') {
+            // Allow only letters and spaces
+            const textValue = value.replace(/[^A-Za-z\s]/g, '');
+            setRoom((prev) => ({
+                ...prev,
+                [name]: textValue,
+            }));
+    
+            setErroredFields((prev) => ({
+                ...prev,
+                room_type_name: false,
             }));
         } else {
             setRoom((prev) => ({
@@ -105,6 +116,7 @@ const AddRoomModal = ({ isOpen, toggleModal, refreshRoomList }) => {
             }));
         }
     };
+    
 
     useEffect(() => {
         if (isOpen) {
@@ -198,21 +210,22 @@ const AddRoomModal = ({ isOpen, toggleModal, refreshRoomList }) => {
                     <div className="columns">
                         {/* First Column - General Information */}
                         <div className="column is-4">
-                            <div className="field">
-                                <label className="label">Room Type</label>
-                                <div className="control">
-                                    <input
-                                        className={`input ${erroredFields.room_type_name ? 'is-danger' : ''}`} 
-                                        type="text"
-                                        name="room_type_name"
-                                        placeholder="Enter room type"
-                                        value={room.room_type_name}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {erroredFields.room_type_name && <p className="help is-danger">Please enter a valid room type.</p>}
-                                </div>
+                        <div className="field">
+                            <label className="label">Room Type</label>
+                            <div className="control">
+                                <input
+                                    className={`input ${erroredFields.room_type_name ? 'is-danger' : ''}`} 
+                                    type="text"
+                                    name="room_type_name"
+                                    placeholder="Enter room type"
+                                    value={room.room_type_name}
+                                    onChange={handleChange}
+                                    required
+                                />
+                                {erroredFields.room_type_name && <p className="help is-danger">Please enter a valid room type.</p>}
                             </div>
+                        </div>
+
 
                             <div className="field">
                             <label className="label">Room Number</label>

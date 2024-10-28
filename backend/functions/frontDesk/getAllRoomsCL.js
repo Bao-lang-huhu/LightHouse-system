@@ -14,7 +14,6 @@ const getAllRooms = async (req, res) => {
     }
     console.log("Fetched Rooms Data:", roomsData);
 
-    // Fetch related data for LAUNDRY with check-in details
     const { data: laundryData, error: laundryError } = await supabase
       .from('LAUNDRY')
       .select(`

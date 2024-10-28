@@ -30,7 +30,7 @@ const { getAdditionalItemsById } = require('../functions/frontDesk/getAdditional
 const {EditAdditionalItem } = require('../functions/frontDesk/updateAdditionalItems');
 const {returnAdditionalItem} = require('../functions/frontDesk/returnAdditionalItem');
 const { archiveAdditionalItem } = require('../functions/frontDesk/archiveAdditionalItem');
-
+const {getAllRoomsCheckedIn} = require('../functions/frontDesk/getAllRoomsCheckedIn');
 const router = express.Router();
 
 // Route for room registration
@@ -89,4 +89,7 @@ router.put('/editAdditionalItem/:add_item_id', EditAdditionalItem);
 router.put('/returnAdditionalItem/:add_item_id', returnAdditionalItem);
 
 router.put('/archiveAdditionalItem/:addItemId', archiveAdditionalItem);
+
+router.get('/getAllRoomsCheckedIn', getAllRoomsCheckedIn);
+
 module.exports = router;

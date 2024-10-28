@@ -60,9 +60,10 @@ const VenueManager = () => {
     // Handle input change in the detail view
     const handleDetailChange = (e) => {
         const { name, value } = e.target;
+    
         setSelectedVenue((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: name === 'venue_name' ? value.replace(/[^A-Za-z\s]/g, '') : value,  // Allow only letters and spaces for venue_name
             ...(name === 'venue_price' || name === 'event_disc_percentage') && {
                 venue_final_price: calculateFinalPrice(
                     name === 'venue_price' ? value : prev.venue_price,
@@ -71,6 +72,7 @@ const VenueManager = () => {
             }
         }));
     };
+    
 
     // Calculate final price based on price and discount percentage
     const calculateFinalPrice = (price, discount) => {

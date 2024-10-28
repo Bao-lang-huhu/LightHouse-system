@@ -10,7 +10,6 @@ const getCheckInData = async (req, res) => {
         staff_id,
         check_in_date_time,
         check_out_date_time,
-        initial_payment,
         payment_status,
         check_in_status,
         STAFF (

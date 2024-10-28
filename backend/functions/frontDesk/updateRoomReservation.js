@@ -29,7 +29,6 @@ const updateRoomReservation = async (req, res) => {
           room_reservation_id,  
           staff_id,               
           check_in_date_time: new Date(),  
-          initial_payment: null,
           payment_status: 'PENDING',
           check_in_status: 'CHECKED_IN',
         });

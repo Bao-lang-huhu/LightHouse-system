@@ -1,296 +1,287 @@
-import React, { useState } from 'react';
-import 'bulma/css/bulma.min.css'; // Using Bulma CSS for styling
-import '../App.css'; // Optional custom CSS
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import 'bulma/css/bulma.min.css';
+import '../App.css';
 import AllHousekeepingRecordsModal from '../frontdesk_modals/AllHousekeepingRecordsModal';
 
 const AddHousekeeping = () => {
-  const initialRooms = [
-    { id: 101 },
-    { id: 102 },
-    { id: 103 },
-    { id: 104 },
-    { id: 105 },
-    { id: 106 },
-  ]; // Initial rooms
+    const [allRooms, setAllRooms] = useState([]);
+    const [dirtyRooms, setDirtyRooms] = useState([]);
+    const [housekeepingType, setHousekeepingType] = useState('General Cleaning');
+    const [housekeepingNotes, setHousekeepingNotes] = useState('');
+    const [roomNumber, setRoomNumber] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [staffId, setStaffId] = useState(null);
+    const [selectedHousekeeping, setSelectedHousekeeping] = useState(null);
+    const [isAllRecordsModalVisible, setIsAllRecordsModalVisible] = useState(false); // State for modal visibility
+    const POLLING_INTERVAL = 5000; // Polling interval of 5 seconds
 
-  const [availableRooms, setAvailableRooms] = useState(initialRooms); // State for available rooms
-  const [selectedRoom, setSelectedRoom] = useState(null); // State to manage selected room
-  const [housekeepingNotes, setHousekeepingNotes] = useState(''); // State for housekeeping notes
-  const [housekeepingType] = useState('Request'); // Hardcoded housekeeping type
-  const [staffId, setStaffId] = useState(''); // State for Staff ID
-  const [staffName, setStaffName] = useState(''); // State for Staff Name
-  const [department, setDepartment] = useState(''); // State for Department
-  const [isModalVisible, setModalVisible] = useState(false); // State to manage modal visibility
-  const [savedRooms, setSavedRooms] = useState([]); // State to manage saved rooms
+    // Fetch all rooms
+    const fetchRooms = async () => {
+        try {
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/rooms');
+            setAllRooms(response.data);
+        } catch (error) {
+            console.error('Error fetching all rooms:', error);
+        }
+    };
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-    if (isModalVisible) {
-      // Reset selected room when closing modal
-      setSelectedRoom(null);
-    }
-  };
+    // Fetch dirty rooms
+    const fetchDirtyRooms = async () => {
+        try {
+            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/dirty-rooms');
+            setDirtyRooms(response.data);
+        } catch (error) {
+            console.error('Error fetching dirty rooms:', error);
+        }
+    };
 
-  // Handler for selecting a room
-  const handleSelectRoom = (room) => {
-    setSelectedRoom(room); // Set selected room directly
-  };
+    useEffect(() => {
+        fetchRooms();
+        fetchDirtyRooms();
 
-  const handleSaveChanges = () => {
-    // Save selected room to savedRooms if it is not already saved
-    if (selectedRoom && !savedRooms.some(r => r.id === selectedRoom.id)) {
-      setSavedRooms([...savedRooms, selectedRoom]);
+        // Polling for real-time updates
+        const interval = setInterval(() => {
+            fetchRooms();
+            fetchDirtyRooms();
+        }, POLLING_INTERVAL);
 
-      // Remove selected room from availableRooms
-      setAvailableRooms(availableRooms.filter(room => room.id !== selectedRoom.id));
+        // Cleanup interval on component unmount
+        return () => clearInterval(interval);
+    }, []);
 
-      // Clear selected room and notes after saving changes
-      setSelectedRoom(null); // Clear selected room
-      setHousekeepingNotes(''); // Clear notes
-      setStaffId(''); // Clear Staff ID
-      setStaffName(''); // Clear Staff Name
-      setDepartment(''); // Clear Department
-    }
-  };
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setStaffId(decoded.staff_id);
+            } catch (error) {
+                console.error('Error decoding token:', error);
+            }
+        }
+    }, []);
 
-  // Handler for "CLEANED" button click
-  const handleCleaned = () => {
-    alert(`Rooms ${savedRooms.map(r => r.id).join(', ')} marked as CLEANED!`);
-    setSavedRooms([]); // Clear saved rooms after cleaning
-  };
+    const filteredRooms = allRooms.filter(
+        room => !dirtyRooms.some(dirtyRoom => dirtyRoom.room_id === room.room_id)
+    );
 
-  // Handler for "CANCEL HOUSEKEEPING" button click
-  const handleCancelHousekeeping = () => {
-    alert(`Housekeeping for rooms ${savedRooms.map(r => r.id).join(', ')} has been canceled.`);
-    setSavedRooms([]); // Clear saved rooms after cancellation
-  };
+    const handleDirtyRoomClick = async (room) => {
+        if (!room.housekeeping_id) {
+            console.error("housekeeping_id is missing for the selected room.");
+            return;
+        }
+        try {
+            const response = await axios.get(`https://light-house-system-h74t-server.vercel.app/api/housekeeping/${room.housekeeping_id}`);
+            setSelectedHousekeeping(response.data);
+        } catch (error) {
+            console.error('Error fetching housekeeping details:', error);
+        }
+    };
 
-  return (
-    <section className='section-p1'>
-      <div className='columns'>
-        {/* First Left Column: Add Housekeeping */}
-        <div className="column is-3">
-          <div style={{ backgroundColor: 'white', borderRadius: '10px', height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ flex: 1 }}>
-              {/* Title and Button Section */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 className='subtitle' style={{ marginLeft: '25px', margin: 18 }}>
-                  <strong>Add Housekeeping</strong>
-                </h1>
-                <div className='control'>
-                  <button
-                    style={{ backgroundColor: 'blue', color: 'white', border: 'none', padding: '10px 10px', cursor: 'pointer' }}
-                    className='button mr-2'
-                    onClick={toggleModal} // Open the modal
-                  >
-                    ALL RECORD
-                  </button>
-                </div>
-              </div>
-              <p className='has-text-grey' style={{ marginTop: '25px', marginLeft: '18px', fontSize: '16px', margin: 10 }}>
-                Available rooms for cleaning
-              </p>
+    // Save housekeeping record
+    const handleSaveChanges = async () => {
+        if (!staffId) {
+            setErrorMessage('Failed to retrieve staff ID. Please log in again.');
+            return;
+        }
 
-              {/* Room List Section */}
-              <div className="container section-p1" style={{ maxHeight: '350px', overflowY: 'auto', flex: 1 }}>
-                <div className="columns is-multiline is-mobile">
-                  {availableRooms.map((room) => (
-                    <div key={room.id} className="column is-12">
-                      <button
-                        className="button is-fullwidth"
-                        onClick={() => handleSelectRoom(room)} // Update selected room on click
-                      >
-                        Room {room.id}
-                      </button>
+        try {
+            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/add-housekeeping', {
+                housekeepingType,
+                housekeepingNotes,
+                roomNumber,
+                staffId
+            });
+
+            setSuccessMessage(response.data.message);
+            setErrorMessage('');
+            setHousekeepingNotes('');
+            setRoomNumber('');
+
+            // Immediately refresh dirty rooms list after adding
+            fetchDirtyRooms();
+            fetchRooms();
+        } catch (error) {
+            console.error('Error saving housekeeping data:', error);
+            setSuccessMessage('');
+            setErrorMessage('Failed to save housekeeping data. Please try again.');
+        }
+    };
+
+    // Mark room as cleaned
+    const handleCleaned = async () => {
+        if (!selectedHousekeeping) return;
+
+        try {
+            await axios.put(`https://light-house-system-h74t-server.vercel.app/api/housekeeping/${selectedHousekeeping.housekeeping_id}/update`, {
+                housekeeping_status: 'CLEANED',
+                housekeeping_end: new Date().toISOString(),
+            });
+            alert('Room marked as cleaned!');
+            setSelectedHousekeeping(null);
+
+            // Immediately refresh dirty rooms list after cleaning
+            fetchDirtyRooms();
+            fetchRooms();
+        } catch (error) {
+            console.error('Error updating housekeeping status:', error);
+        }
+    };
+
+    // Cancel housekeeping
+    const handleCancelHousekeeping = async () => {
+        if (!selectedHousekeeping) return;
+
+        try {
+            await axios.put(`https://light-house-system-h74t-server.vercel.app/api/housekeeping/${selectedHousekeeping.housekeeping_id}/update`, {
+                housekeeping_status: null,
+            });
+            alert('Housekeeping canceled for this room!');
+            setSelectedHousekeeping(null);
+
+            // Immediately refresh dirty rooms list after canceling
+            fetchDirtyRooms();
+            fetchRooms();
+        } catch (error) {
+            console.error('Error updating housekeeping status:', error);
+        }
+    };
+
+    return (
+        <section className="section-p1">
+            <div className="columns">
+              
+                {/* Left Column: Available Rooms */}
+                <div className="column is-3">
+                  
+                    <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '20px' }}>
+                        <h1 className="subtitle"><strong>HOUSEKEEPING</strong></h1>
+                         {/* All Records Modal */}
+                    <AllHousekeepingRecordsModal
+                      isVisible={isAllRecordsModalVisible}
+                      onClose={() => setIsAllRecordsModalVisible(false)}
+                     /> <br></br>
+                     <h3 className="subtitle"><strong>Available Rooms for Cleaning</strong></h3>
+                        <h2 className="subtitle">All Rooms</h2>
+                        
+                        <div className="container section-p1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                            {filteredRooms.map((room) => (
+                                <div key={room.room_number}>
+                                  
+                                    <button
+                                        className="button is-fullwidth"
+                                        onClick={() => setRoomNumber(room.room_number)}
+                                    >
+                                        Room {room.room_number}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <h2 className="subtitle mt-4">Dirty Rooms</h2>
+                        <div className="container section-p1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                            {dirtyRooms.map((room) => (
+                                <div key={room.room_number}>
+                                    <button
+                                        className="button is-fullwidth"
+                                        style={{ backgroundColor: 'red', color: 'white' }}
+                                        onClick={() => handleDirtyRoomClick(room)}
+                                    >
+                                        Room {room.room_number}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        
                     </div>
-                  ))}
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Right Column: Room Housekeeping Details */}
-        <div className='column is-9'>
-          {selectedRoom ? ( // Check if a room is selected
-            <div className='box'>
-              <div className='columns'>
-                <div className='column is-6'>
-                  <div className='field'>
-                    <label className='label'>Housekeeping Type</label>
-                    <div className='control'>
-                      <input className='input' type='text' value={housekeepingType} readOnly />
+                {/* Right Column: Room Housekeeping Details */}
+                <div className="column is-9">
+                    <h1 className="title">Add Housekeeping Record</h1>
+                    <div className="box">
+                        <div className="columns">
+                            <div className="column is-6">
+                                <div className="field">
+                                    <label className="label">Housekeeping Type</label>
+                                    <div className="control">
+                                        <input
+                                            className="input"
+                                            type="text"
+                                            value={housekeepingType}
+                                            onChange={(e) => setHousekeepingType(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="field">
+                                    <label className="label">Housekeeping Notes</label>
+                                    <div className="control">
+                                        <textarea
+                                            className="textarea"
+                                            placeholder="Enter housekeeping notes here..."
+                                            value={housekeepingNotes}
+                                            onChange={(e) => setHousekeepingNotes(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="column is-6">
+                                <div className="field">
+                                    <label className="label">Room to Clean</label>
+                                    <div className="control">
+                                        <input
+                                            className="input"
+                                            type="text"
+                                            placeholder="Enter Room Number"
+                                            value={roomNumber}
+                                            onChange={(e) => setRoomNumber(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="buttons">
+                            <button className="button is-primary" onClick={handleSaveChanges}>Save Changes</button>
+                        </div>
+                        {successMessage && <p className="has-text-success">{successMessage}</p>}
+                        {errorMessage && <p className="has-text-danger">{errorMessage}</p>}
                     </div>
-                  </div>
-                  <div className='field'>
-                    <label className='label'>Housekeeping Notes</label>
-                    <div className='control'>
-                      <textarea
-                        className='textarea'
-                        placeholder='Enter housekeeping notes here...'
-                        value={housekeepingNotes}
-                        onChange={(e) => setHousekeepingNotes(e.target.value)}
-                      />
+
+                    {/* Dirty Room Details Box */}
+                    <div className="box" style={{ marginTop: '20px' }}>
+                        <h2 className="title is-4" style={{ fontSize: '1.7em' }}>Dirty Room Details</h2>
+                        {selectedHousekeeping ? (
+                            <div style={{ fontSize: '1.4em', lineHeight: '1.8em' }}>
+                                <div className="columns">
+                                    <div className="column is-half">
+                                        <p className="is-size-5"><strong>Room Number:</strong> <span style={{ color: '#AAAAA' }}>{selectedHousekeeping.room_number}</span></p>
+                                        <p className="is-size-5"><strong>Staff ID:</strong> <span style={{ color: '#AAAAA' }}>{selectedHousekeeping.staff_id}</span></p>
+                                        <p className="is-size-5"><strong>Staff Name:</strong> <span style={{ color: '#AAAAA' }}>{selectedHousekeeping.staff_name || 'N/A'}</span></p>
+                                        <p className="is-size-5"><strong>Housekeeping Notes:</strong> <span style={{ color: '#AAAAA' }}>{selectedHousekeeping.housekeeping_notes || 'No notes available'}</span></p>
+                                    </div>
+                                    <div className="column is-half">
+                                        <p className="is-size-5"><strong>Housekeeping ID:</strong> <span style={{ color: '#AAAAA' }}>{selectedHousekeeping.housekeeping_id}</span></p>
+                                    </div>
+                                </div>
+                                <div className="buttons">
+                                    <button className="button is-success" onClick={handleCleaned} style={{ fontSize: '.8em', padding: '10px 15px' }}>Cleaned</button>
+                                    <button className="button is-danger" onClick={handleCancelHousekeeping} style={{ fontSize: '.8em', padding: '10px 15px' }}>Cancel Housekeeping</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <p style={{ fontSize: '1.2em' }}>Select a dirty room to view details.</p>
+                        )}
                     </div>
-                  </div>
                 </div>
-                <div className='column is-6'>
-                  <div className='field'>
-                    <label className='label'>Room Requiring Housekeeping</label>
-                    <div className='control'>
-                      <input className='input' type='text' value={`Room ${selectedRoom.id}`} readOnly />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <hr style={{ borderColor: 'black', borderWidth: '.5px', borderStyle: 'solid' }} />
-              <div className='field is-grouped mt-4' style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <div className='control'>
-                  <button
-                    style={{ backgroundColor: 'blue', color: 'white', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
-                    className='button mr-2'
-                    onClick={handleSaveChanges}
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </div>
             </div>
-          ) : (
-            <div className='box'>
-              <p>Please select a room to mark as unclean.</p>
-            </div>
-          )}
-        </div>
-      </div>
 
-      {/* Second Section: Add Another Housekeeping Record Below */}
-      <div className='columns' style={{ minHeight: '100px' }}>
-        {/* Second Left Column: Show Selected Rooms */}
-        <div className="column is-3" style={{ backgroundColor: 'white', borderRadius: '10px', height: '100%' }}>
-          <div className='column'>
-            <h1 className='subtitle'>
-              <strong>Room Housekeeping</strong>
-            </h1>
-            <p className='has-text-grey' style={{ marginTop: '-25px', marginLeft: '18px', fontSize: '16px', margin: 10 }}>
-              Dirty rooms to clean
-            </p>
-          </div>
-
-          {/* Show saved room list only after Save Changes */}
-          {savedRooms.length > 0 && (
-            <div className="container section-p1" style={{ height: 'calc(100% - 60px)', overflowY: 'auto' }}>
-              <div className="columns is-multiline is-mobile">
-                {savedRooms.map((room) => (
-                  <div key={room.id} className="column is-12">
-                    <button
-                      className="button is-fullwidth" style={{ backgroundColor: 'red' }}
-                      onClick={() => handleSelectRoom(room)} // Select the room when clicked
-                    >
-                      Room {room.id}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Second Right Column: Room Housekeeping Details */}
-        <div className='column is-9'>
-          <div className='box'>
-            <div className='columns'>
-              <div className='column is-6'>
-                <div className='field'>
-                  <label className='label'>Housekeeping Type</label>
-                  <div className='control'>
-                    <input className='input' type='text' value={housekeepingType} readOnly />
-                  </div>
-                </div>
-                <div className='field'>
-                  <label className='label'>Housekeeping Notes</label>
-                  <div className='control'>
-                    <textarea
-                      className='textarea'
-                      placeholder='Enter housekeeping notes here...'
-                      value={housekeepingNotes}
-                      onChange={(e) => setHousekeepingNotes(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className='column is-6'>
-                <div className='field'>
-                  <label className='label'>Room to Clean</label>
-                  <div className='control'>
-                    <input className='input' type='text' value={selectedRoom ? `Room ${selectedRoom.id}` : ''} readOnly />
-                  </div>
-                </div>
-                
-                {/* New Fields: Staff ID, Staff Name, Department */}
-                <div className='field'>
-                  <label className='label'>Staff ID</label>
-                  <div className='control'>
-                    <input
-                      className='input'
-                      type='text'
-                      value={staffId}
-                      onChange={(e) => setStaffId(e.target.value)} // Update Staff ID
-                    />
-                  </div>
-                </div>
-                <div className='field'>
-                  <label className='label'>Staff Name</label>
-                  <div className='control'>
-                    <input
-                      className='input'
-                      type='text'
-                      value={staffName}
-                      onChange={(e) => setStaffName(e.target.value)} // Update Staff Name
-                    />
-                  </div>
-                </div>
-                <div className='field'>
-                  <label className='label'>Department</label>
-                  <div className='control'>
-                    <input
-                      className='input'
-                      type='text'
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)} // Update Department
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <hr style={{ borderColor: 'black', borderWidth: '.5px', borderStyle: 'solid' }} />
-            <div className='field is-grouped mt-4' style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <div className='control'>
-                <button
-                  style={{ backgroundColor: 'green', color: 'white', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
-                  className='button mr-2'
-                  onClick={handleCleaned}
-                >
-                  CLEANED
-                </button>
-              </div>
-              <div className='control'>
-                <button
-                  style={{ backgroundColor: 'red', color: 'white', border: 'none', padding: '10px 20px', cursor: 'pointer' }}
-                  className='button mr-2'
-                  onClick={handleCancelHousekeeping}
-                >
-                  CANCEL HOUSEKEEPING
-                </button>
-              </div>
-            </div>
-            {/* Modal Component */}
-            <AllHousekeepingRecordsModal isVisible={isModalVisible} onClose={toggleModal} />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+           
+        </section>
+    );
 };
 
 export default AddHousekeeping;

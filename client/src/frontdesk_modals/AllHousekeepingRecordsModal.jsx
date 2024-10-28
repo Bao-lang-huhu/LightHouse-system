@@ -1,117 +1,51 @@
-import React from 'react'; // Import React
+import React, { useState } from 'react';
+import axios from 'axios';
 import 'bulma/css/bulma.min.css';
-import { IoSearchCircle } from 'react-icons/io5'; // Import the IoSearchCircle icon
 import '../App.css';
 
 // Function to return color based on status
 const getStatusColor = (status) => {
   if (status === 'CLEANED') return 'green';
   if (status === 'DIRTY') return 'red';
-  return 'black'; // Default color if status is neither CLEANED nor DIRTY
+  return 'black';
 };
 
 // Modal component for displaying housekeeping records
-const AllHousekeepingRecordsModal = ({ isVisible, onClose }) => {
-  if (!isVisible) return null; // Don't render if not visible
+const AllHousekeepingRecordsModal = ({ isVisible, onClose, records }) => {
+  if (!isVisible) return null;
+
   return (
     <div className="modal is-active">
       <div className="modal-background" onClick={onClose}></div>
       <div className="modal-content" style={{ width: '80%', maxHeight: '80vh', overflow: 'auto' }}>
         <span className="close" onClick={onClose} aria-label="Close modal">&times;</span>
-        
-        {/* Header Section */}
-        <div style={{ backgroundColor: 'white', borderRadius: '10px 10px 0 0', padding: '20px' }}>
-          <div className="columns is-multiline is-mobile is-vcentered">
-            {/* Heading on the left */}
-            <div className="column is-narrow">
-              <h1 className="subtitle" style={{ marginLeft: '10px', fontSize: '25px' }}>
-                <strong>Housekeeping Records</strong>
-              </h1>
-            </div>
 
-            {/* Search input and button on the right */}
-            <div className="column is-4 is-hidden-mobile" style={{ padding: '0', margin: '0' }}>
-              <div className="field has-addons is-flex is-flex-direction-row is-fullwidth-mobile">
-                <div className="control is-expanded is-fullwidth">
-                  <input
-                    className="input is-fullwidth-mobile"
-                    type="date"
-                    style={{ margin: '0', fontSize: '12px', padding: '18px', marginTop: '12px' }}
-                    placeholder="Search..."
-                  />
-                </div>
-                <div className="control is-fullwidth">
-                  <button className="button is-blue is-fullwidth-mobile" style={{ height: '77%', fontSize: '12px', padding: '10px', marginTop: '12px' }}>
-                    <IoSearchCircle className="is-white" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div style={{ backgroundColor: 'white', borderRadius: '10px 10px 0 0', padding: '20px' }}>
+          <h1 className="subtitle" style={{ fontSize: '25px' }}><strong>Housekeeping Records</strong></h1>
         </div>
 
-        {/* Table Section */}
         <div style={{ backgroundColor: 'white', borderRadius: '0 0 10px 10px', padding: '20px', marginTop: '-35px' }}>
           <div className="table-container">
             <table className="table is-striped is-hoverable is-fullwidth">
               <thead>
                 <tr>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px', borderRadius: '10px 0 0 10px' }}>Housekeeping ID</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Room ID</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Staff Name</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Type</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Start</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>End</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Notes</th>
-                  <th className="has-text-left" style={{ backgroundColor: '#add8e6', fontSize: '18px', borderRadius: '0 10px 10px 0px' }}>Status</th>
+                  <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Room Number</th>
+                  <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Housekeeping Start</th>
+                  <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Housekeeping End</th>
+                  <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {/* Record Entries */}
-                <tr className="has-text-left">
-                  <td>H00001</td>
-                  <td>101</td>
-                  <td>Sarah Gary</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Cleaned and Vacuumed</td>
-                  <td style={{ color: getStatusColor('CLEANED') }}>CLEANED</td> {/* Dynamically set color */}
-                </tr>
-
-                <tr className="has-text-left">
-                  <td>H00002</td>
-                  <td>102</td>
-                  <td>Sara Gary</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Vacuumed</td>
-                  <td style={{ color: getStatusColor('CLEANED') }}>CLEANED</td> {/* Dynamically set color */}
-                </tr>
-
-                <tr className="has-text-left">
-                  <td>H00003</td>
-                  <td>102</td>
-                  <td>Sara Gary</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Vacuumed</td>
-                  <td style={{ color: getStatusColor('CLEANED') }}>CLEANED</td> {/* Dynamically set color */}
-                </tr>
-
-                {/* Additional record with 'DIRTY' status */}
-                <tr className="has-text-left">
-                  <td>H00004</td>
-                  <td>103</td>
-                  <td>John Doe</td>
-                  <td>Request</td>
-                  <td>2024-08-03 14:00:00</td>
-                  <td>2024-08-03 15:00:00</td>
-                  <td>Uncleaned</td>
-                  <td style={{ color: getStatusColor('DIRTY') }}>DIRTY</td> {/* Dynamically set color */}
-                </tr>
+                {records.map((record) => (
+                  <tr key={record.housekeeping_id} className="has-text-left">
+                    <td>{record.room_number || 'N/A'}</td>
+                    <td>{record.housekeeping_start || 'N/A'}</td>
+                    <td>{record.housekeeping_end || 'NOT DONE'}</td>
+                    <td style={{ color: getStatusColor(record.housekeeping_status) }}>
+                      {record.housekeeping_status || 'N/A'}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -121,4 +55,84 @@ const AllHousekeepingRecordsModal = ({ isVisible, onClose }) => {
   );
 };
 
-export default AllHousekeepingRecordsModal; // Export the main component
+// Main component with "ALL RECORD" button
+const HousekeepingComponent = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [records, setRecords] = useState([]);
+
+  const fetchHousekeepingRecords = async () => {
+    try {
+      // Step 1: Fetch housekeeping records
+      const housekeepingResponse = await axios.get('http://localhost:3001/api/housekeeping-records');
+
+      // Step 2: Filter out records with null `room_id` and non-null `housekeeping_status`
+      const housekeepingRecords = housekeepingResponse.data.filter(record => record.room_id && record.housekeeping_status);
+
+      // Log the records after filtering
+      console.log("Filtered Housekeeping Records (with valid room_id):", housekeepingRecords);
+
+      // Step 3: Extract unique room_ids
+      const roomIds = [...new Set(housekeepingRecords.map(record => record.room_id))];
+
+      // Log the unique room IDs being fetched
+      console.log("Unique Room IDs:", roomIds);
+
+      if (roomIds.length === 0) {
+        // If no room_ids, set records without room_number
+        setRecords(housekeepingRecords);
+        return;
+      }
+
+      // Step 4: Fetch room numbers for unique room_ids using the new endpoint
+      const roomResponse = await axios.get('http://localhost:3001/api/room-numbers', {
+        params: { room_ids: roomIds }
+      });
+
+      // Log room data response for debugging
+      console.log("Room data response:", roomResponse.data);
+
+      // Step 5: Create a mapping of room_id to room_number
+      const roomMap = {};
+      roomResponse.data.forEach(room => {
+        roomMap[room.room_id] = room.room_number;
+      });
+
+      // Log roomMap for debugging
+      console.log("Room Map:", roomMap);
+
+      // Step 6: Map room_number to each housekeeping record
+      const recordsWithRoomNumbers = housekeepingRecords.map(record => {
+        const roomNumber = roomMap[record.room_id] || 'N/A';
+        console.log(`Mapping room_id ${record.room_id} to room_number ${roomNumber}`);
+        return {
+          ...record,
+          room_number: roomNumber
+        };
+      });
+
+      // Step 7: Set the records with room numbers
+      setRecords(recordsWithRoomNumbers);
+    } catch (error) {
+      console.error('Error fetching housekeeping records:', error);
+    }
+  };
+
+  const handleAllRecordsClick = () => {
+    fetchHousekeepingRecords(); // Fetch data when the button is clicked
+    setIsModalVisible(true); // Show the modal
+  };
+
+  return (
+    <div>
+      <button className="button is-primary" onClick={handleAllRecordsClick}>ALL RECORD</button>
+
+      <AllHousekeepingRecordsModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        records={records}
+      />
+    </div>
+  );
+};
+
+export default HousekeepingComponent;

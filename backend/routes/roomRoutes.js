@@ -26,12 +26,12 @@ const {getCheckIn} = require('../functions/frontDesk/getCheckIn');
 const {getCheckInBill} = require('../functions/frontDesk/getCheckInBill');
 const {updateCheckOut } = require('../functions/frontDesk/updateCheckOut');
 const {getAdditionalItems} = require('../functions/frontDesk/getAdditionalItems');
-const { getAdditionalItemsById } = require('../functions/frontDesk/getAdditionalItemsById');
+const {getAdditionalItemsById } = require('../functions/frontDesk/getAdditionalItemsById');
 const {EditAdditionalItem } = require('../functions/frontDesk/updateAdditionalItems');
 const {returnAdditionalItem} = require('../functions/frontDesk/returnAdditionalItem');
-const { archiveAdditionalItem } = require('../functions/frontDesk/archiveAdditionalItem');
+const {archiveAdditionalItem } = require('../functions/frontDesk/archiveAdditionalItem');
 const {getAllRoomsCheckedIn} = require('../functions/frontDesk/getAllRoomsCheckedIn');
-
+const {getAllRoomHM} = require('../functions/frontDesk/getAllRoomsHM');
 const { supabase } = require('../supabaseClient');
 const router = express.Router();
 
@@ -95,6 +95,8 @@ router.put('/archiveAdditionalItem/:addItemId', archiveAdditionalItem);
 router.get('/getAllRoomsCheckedIn', getAllRoomsCheckedIn);
 
 router.get('/getAllRoomsCheckedIn', getAllRoomsCheckedIn);
+
+router.get('/getAllRoomsHM', getAllRoomHM);
 
 router.get('/rooms', async (req, res) => {
     try {

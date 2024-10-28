@@ -19,6 +19,10 @@ import GRoomReservation from "./pages/G_RoomReservation";
 import GReservationsRoomDetails from "./pages/G_RoomReservationsRoomDetails";
 import GVirtualTour from "./pages/G_VirtualTour";
 
+import AddHousekeeping from './frontdesk_components/AddHousekeeping';
+import AddMaintenance from './frontdesk_components/AddMaintenance';
+
+
 import ALogin from "./manager_pages/A_Login";
 
 import MDashboard from "./manager_pages/M_Dashboard";
@@ -61,6 +65,10 @@ import RTableMain from "./restaurant_pages/R_TableMain";
 import RTablReservations from "./restaurant_pages/R_TableRevservation";
 import RTableRevCalendar from "./restaurant_pages/R_TableCalendar";
 
+import FAddHousekeeping from './frontdesk_pages/FAddHousekeeping';
+import FAddMaintenance from './frontdesk_pages/FAddMaintenance';
+
+
 import BHomeBar from "./bar_pages/B_Home";
 import BDashboard from "./bar_pages/B_Dashboard";
 import BAllOrders from "./bar_pages/B_AllOrders";
@@ -76,89 +84,77 @@ function App() {
   return (
     <div>
       <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<GLogin/>}/>
-        <Route path="/register" element={<GRegister/>}/>
-        <Route path="/profile_guest" element={<GProfile/>}/>
-
-        <Route path="/room_search" element={<GRoomSearch/>}/>
-        <Route path="/room_search/room_details" element={<GRoomDetails/>}/>
-        <Route path="/room_search/book_room_reservations" element={<GRoomReservation/>}/>
-
-        <Route path="/reservations" element={<GReservations/>}/>
-        <Route path="/reservations/room_reservation_details/:room_reservation_id" element={<GReservationsRoomDetails/>}/>
-        <Route path = "/virtual_tour" element ={<GVirtualTour/>}/>
-
-
-        <Route path="/faq" element={<GFaq/>}/>
-        <Route path="/terms_and_conditions" element={<GTerms/>}/>
-        <Route path="/cancel_policy" element={<GCancel/>}/>
-        <Route path="/website_data_policy" element={<GWebsiteData/>}/>
-
-        <Route path="/" element={<GHome/>}/>
-        <Route path = "/about_us" element ={<GAbout/>}/>
-        <Route path = "/contact_us" element ={<GContact/>}/>
-
-        <Route path="/event_filtering" element={<GEvent_1/>}/>
-        <Route path="/resturant_filtering" element={<GResturant_1/>}/>
-        <Route path="/resturant_tables" element={<GResturant_2/>}/>
-
-        <Route path = "/staff_login" element ={<ALogin/>}/>
-
-        <Route path = "/manager_dashboard" element ={<MDashboard/>}/>
-        <Route path = "/manager_dashboard_reports" element ={<MDashboard2/>}/>
-        <Route path = "/manager_home" element ={<MHome/>}/>
-        <Route path = "/manager_accounts" element ={<MAccounts/>}/>
-        <Route path = "/manager_room" element ={<MRoom/>}/>
-        <Route path = "/manager_food" element ={<MFood/>}/>
-        <Route path = "/manager_drink" element ={<MDrink/>}/>
-        <Route path = "/manager_concierge" element ={<MConcierge/>}/>
-        <Route path = "/manager_laundry" element ={<MLaundry/>}/>
-        <Route path = "/manager_venue" element ={<MVenue/>}/>
-        <Route path = "/manager_food_package" element ={<MFoodPackage/>}/>
-        <Route path = "/manager_report_sales" element ={<MReportSales/>}/>
-        <Route path = "/manager_report_menu_optimization" element ={<MReportMenuOp/>}/>
-        <Route path = "/manager_report_room_occupancy_rate" element ={<MReportRoomOccupancy/>}/>
-        <Route path = "/manager_report_forecasting" element ={<MReportForecasting/>}/>
-        <Route path = "/manager_forecast" element ={<MForecast/>}/>
-        <Route path = "/manager_event_forecast" element ={<MEventForecastComponent/>}/>
-        <Route path = "/manager_sales" element ={<MSales/>}/>
-
-
-        <Route path = "/frontdesk_dashboard" element ={<FDashboard/>}/>
-        <Route path = "/frontdesk_home" element ={<FHome/>}/>
-        <Route path = "/frontdesk_room_walk_in" element ={<FRoomWalkIn/>}/>
-        <Route path = "/frontdesk_room_walk_in/room_booking" element ={<FRoomBook/>}/>
-        <Route path="/frontdesk_event_walk_in" element={<FEventWalkIn/>}/>
-        <Route path="/frontdesk_room_reservation" element={<FRoomReservation/>}/>
-        <Route path ="/frontdesk_concierge_and_laundry" element={<FConciergeLaundry/>}/>
-        <Route path="/frontdesk_additional_item" element={<FAdditionalItem/>}/>
-        <Route path="/frontdesk_maintenance_and_housekeeping" element={<FMainHouse/>}/>
-        <Route path="/frontdesk_event_reservation" element={<FEventReservation/>}></Route>
-        <Route path="/frontdesk_check_in" element={<FCheckInTable/>}></Route>
-
-        
-        
-        <Route path = "/restaurant_home" element ={<RHomeRestaurant/>}/>
-        <Route path = "/restaurant_dashboard" element ={<RDashboard/>}/>
-        <Route path = "/restaurant_dashboard_table" element ={<RDashboard2/>}/>
-        <Route path = "/restaurant_all_orders" element ={<RAllOrders/>}/>
-        <Route path = "/restaurant_order" element ={<ROrder/>}/>
-        <Route path = "/restaurant_incoming_orders" element ={<RIncomingOrder/>}/>
-        <Route path ="/restaurant_order/proceed_order" element={<RProceedRestaurant/>}/>
-        <Route path = "/restaurant_table_maintenance" element ={<RTableMain/>}/>
-        <Route path = "/restaurant_table_reservations" element ={<RTablReservations/>}/>
-        <Route path = "/restaurant_table_reservations_calendar" element ={<RTableRevCalendar/>}/>
-
-
-        <Route path = "/bar_home" element ={<BHomeBar/>}/>
-        <Route path = "/bar_dashboard" element ={<BDashboard/>}/>
-        <Route path = "/bar_all_orders" element ={<BAllOrders/>}/>
-        <Route path = "/bar_order" element ={<BOrder/>}/>
-        <Route path = "/bar_incoming_orders" element ={<BIncomingOrder/>}/>
-        <Route path = "/bar_order/proceed_order" element ={<BProceedBarOrder/>}/>
-
-      </Routes>
+        <Routes>
+        <Route path="/add-housekeeping" element={<FAddHousekeeping />} />
+        <Route path="/add-maintenance" element={<FAddMaintenance />} /> 
+          <Route path="/login" element={<GLogin/>}/>
+          <Route path="/register" element={<GRegister/>}/>
+          <Route path="/profile_guest" element={<GProfile/>}/>
+          <Route path="/room_search" element={<GRoomSearch/>}/>
+          <Route path="/room_search/room_details" element={<GRoomDetails/>}/>
+          <Route path="/room_search/book_room_reservations" element={<GRoomReservation/>}/>
+          <Route path="/reservations" element={<GReservations/>}/>
+          <Route path="/reservations/room_reservation_details/:room_reservation_id" element={<GReservationsRoomDetails/>}/>
+          <Route path="/virtual_tour" element={<GVirtualTour/>}/>
+          <Route path="/add-housekeeping" element={<AddHousekeeping />} />
+          <Route path="/add-maintenance" element={<AddMaintenance />} />
+          <Route path="/faq" element={<GFaq/>}/>
+          <Route path="/terms_and_conditions" element={<GTerms/>}/>
+          <Route path="/cancel_policy" element={<GCancel/>}/>
+          <Route path="/website_data_policy" element={<GWebsiteData/>}/>
+          <Route path="/" element={<GHome/>}/>
+          <Route path="/about_us" element={<GAbout/>}/>
+          <Route path="/contact_us" element={<GContact/>}/>
+          <Route path="/event_filtering" element={<GEvent_1/>}/>
+          <Route path="/resturant_filtering" element={<GResturant_1/>}/>
+          <Route path="/resturant_tables" element={<GResturant_2/>}/>
+          <Route path="/staff_login" element={<ALogin/>}/>
+          <Route path="/manager_dashboard" element={<MDashboard/>}/>
+          <Route path="/manager_dashboard_reports" element={<MDashboard2/>}/>
+          <Route path="/manager_home" element={<MHome/>}/>
+          <Route path="/manager_accounts" element={<MAccounts/>}/>
+          <Route path="/manager_room" element={<MRoom/>}/>
+          <Route path="/manager_food" element={<MFood/>}/>
+          <Route path="/manager_drink" element={<MDrink/>}/>
+          <Route path="/manager_concierge" element={<MConcierge/>}/>
+          <Route path="/manager_laundry" element={<MLaundry/>}/>
+          <Route path="/manager_venue" element={<MVenue/>}/>
+          <Route path="/manager_food_package" element={<MFoodPackage/>}/>
+          <Route path="/manager_report_sales" element={<MReportSales/>}/>
+          <Route path="/manager_report_menu_optimization" element={<MReportMenuOp/>}/>
+          <Route path="/manager_report_room_occupancy_rate" element={<MReportRoomOccupancy/>}/>
+          <Route path="/manager_report_forecasting" element={<MReportForecasting/>}/>
+          <Route path="/manager_forecast" element={<MForecast/>}/>
+          <Route path="/manager_event_forecast" element={<MEventForecastComponent/>}/>
+          <Route path="/manager_sales" element={<MSales/>}/>
+          <Route path="/frontdesk_dashboard" element={<FDashboard/>}/>
+          <Route path="/frontdesk_home" element={<FHome/>}/>
+          <Route path="/frontdesk_room_walk_in" element={<FRoomWalkIn/>}/>
+          <Route path="/frontdesk_room_walk_in/room_booking" element={<FRoomBook/>}/>
+          <Route path="/frontdesk_event_walk_in" element={<FEventWalkIn/>}/>
+          <Route path="/frontdesk_room_reservation" element={<FRoomReservation/>}/>
+          <Route path="/frontdesk_concierge_and_laundry" element={<FConciergeLaundry/>}/>
+          <Route path="/frontdesk_additional_item" element={<FAdditionalItem/>}/>
+          <Route path="/frontdesk_maintenance_and_housekeeping" element={<FMainHouse/>}/>
+          <Route path="/frontdesk_event_reservation" element={<FEventReservation/>}/>
+          <Route path="/frontdesk_check_in" element={<FCheckInTable/>}/>
+          <Route path="/restaurant_home" element={<RHomeRestaurant/>}/>
+          <Route path="/restaurant_dashboard" element={<RDashboard/>}/>
+          <Route path="/restaurant_dashboard_table" element={<RDashboard2/>}/>
+          <Route path="/restaurant_all_orders" element={<RAllOrders/>}/>
+          <Route path="/restaurant_order" element={<ROrder/>}/>
+          <Route path="/restaurant_incoming_orders" element={<RIncomingOrder/>}/>
+          <Route path="/restaurant_order/proceed_order" element={<RProceedRestaurant/>}/>
+          <Route path="/restaurant_table_maintenance" element={<RTableMain/>}/>
+          <Route path="/restaurant_table_reservations" element={<RTablReservations/>}/>
+          <Route path="/restaurant_table_reservations_calendar" element={<RTableRevCalendar/>}/>
+          <Route path="/bar_home" element={<BHomeBar/>}/>
+          <Route path="/bar_dashboard" element={<BDashboard/>}/>
+          <Route path="/bar_all_orders" element={<BAllOrders/>}/>
+          <Route path="/bar_order" element={<BOrder/>}/>
+          <Route path="/bar_incoming_orders" element={<BIncomingOrder/>}/>
+          <Route path="/bar_order/proceed_order" element={<BProceedBarOrder/>}/>
+        </Routes>
       </BrowserRouter>
     </div>
   );

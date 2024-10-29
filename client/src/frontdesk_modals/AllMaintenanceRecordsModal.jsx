@@ -1,79 +1,93 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import 'bulma/css/bulma.min.css';
+import {
+  Dialog, DialogTitle, DialogContent, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, TablePagination, Paper, Button, Typography
+} from '@mui/material';
 
 // Function to return color based on maintenance status
 const getStatusColor = (status) => {
-    if (status === 'COMPLETE') return 'green';
-    if (status === 'ONGOING') return 'orange';
-    return 'black';
+  if (status === 'COMPLETE') return 'green';
+  if (status === 'ONGOING') return 'orange';
+  return 'black';
 };
 
 const AllMaintenanceRecordsModal = ({ isVisible, onClose }) => {
-    const [maintenanceRecords, setMaintenanceRecords] = useState([]);
+  const [maintenanceRecords, setMaintenanceRecords] = useState([]);
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
-    useEffect(() => {
-        if (isVisible) {
-            fetchMaintenanceRecords();
-        }
-    }, [isVisible]);
+  useEffect(() => {
+    if (isVisible) {
+      fetchMaintenanceRecords();
+    }
+  }, [isVisible]);
 
-    // Fetch all maintenance records (both ongoing and completed)
-    const fetchMaintenanceRecords = async () => {
-        try {
-            const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/maintenance-records');
-            setMaintenanceRecords(response.data);
-        } catch (error) {
-            console.error('Error fetching maintenance records:', error);
-        }
-    };
+  const fetchMaintenanceRecords = async () => {
+    try {
+      const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/maintenance-records');
+      setMaintenanceRecords(response.data);
+    } catch (error) {
+      console.error('Error fetching maintenance records:', error);
+    }
+  };
 
-    if (!isVisible) return null;
+  const handlePageChange = (event, newPage) => setPage(newPage);
 
-    return (
-        <div className="modal is-active">
-            <div className="modal-background" onClick={onClose}></div>
-            <div className="modal-content" style={{ width: '80%', maxHeight: '80vh', overflow: 'auto' }}>
-                <span className="close" onClick={onClose} aria-label="Close modal">&times;</span>
+  return (
+    <Dialog open={isVisible} onClose={onClose} fullWidth maxWidth="lg">
+      <DialogTitle>
+        <Typography variant="h5" fontWeight="bold">Maintenance Records</Typography>
+      </DialogTitle>
+      <DialogContent dividers>
+        <TableContainer component={Paper}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>Room Number</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Notes</TableCell>
+                <TableCell>Start Time</TableCell>
+                <TableCell>End Time</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {maintenanceRecords.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((record) => (
+                <TableRow key={record.maintenance_id}>
+                  <TableCell>{record.room_number || 'N/A'}</TableCell>
+                  <TableCell>{record.maintenance_type || 'N/A'}</TableCell>
+                  <TableCell style={{ color: getStatusColor(record.maintenance_status) }}>
+                    {record.maintenance_status || 'N/A'}
+                  </TableCell>
+                  <TableCell>{record.maintenance_notes || 'No notes available'}</TableCell>
+                  <TableCell>{new Date(record.maintenance_date_time_start).toLocaleString()}</TableCell>
+                  <TableCell>
+                    {record.maintenance_date_time_end
+                      ? new Date(record.maintenance_date_time_end).toLocaleString()
+                      : 'Ongoing'}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-                <div style={{ backgroundColor: 'white', borderRadius: '10px 10px 0 0', padding: '20px' }}>
-                    <h1 className="subtitle" style={{ fontSize: '25px', fontWeight: 'bold' }}>Maintenance Records</h1>
-                </div>
-
-                <div style={{ backgroundColor: 'white', borderRadius: '0 0 10px 10px', padding: '20px', marginTop: '-35px' }}>
-                    <div className="table-container">
-                        <table className="table is-striped is-hoverable is-fullwidth">
-                            <thead>
-                                <tr>
-                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Room Number</th>
-                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Type</th>
-                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Status</th>
-                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Notes</th>
-                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>Start Time</th>
-                                    <th style={{ backgroundColor: '#add8e6', fontSize: '18px' }}>End Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {maintenanceRecords.map((record) => (
-                                    <tr key={record.maintenance_id}>
-                                        <td>{record.room_number || 'N/A'}</td>
-                                        <td>{record.maintenance_type || 'N/A'}</td>
-                                        <td style={{ color: getStatusColor(record.maintenance_status) }}>
-                                            {record.maintenance_status || 'N/A'}
-                                        </td>
-                                        <td>{record.maintenance_notes || 'No notes available'}</td>
-                                        <td>{new Date(record.maintenance_date_time_start).toLocaleString()}</td>
-                                        <td>{record.maintenance_date_time_end ? new Date(record.maintenance_date_time_end).toLocaleString() : 'Ongoing'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <button className="modal-close is-large" aria-label="close" onClick={onClose}></button>
-        </div>
-    );
+        <TablePagination
+          rowsPerPageOptions={[10]}
+          component="div"
+          count={maintenanceRecords.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handlePageChange}
+          labelRowsPerPage="Records per page"
+        />
+      </DialogContent>
+      <Button onClick={onClose} variant="contained" color="primary" sx={{ m: 2 }}>
+        Close
+      </Button>
+    </Dialog>
+  );
 };
 
 export default AllMaintenanceRecordsModal;

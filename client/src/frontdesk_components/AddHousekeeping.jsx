@@ -93,74 +93,102 @@ const AddHousekeeping = () => {
         }
     };
 
-    // Save housekeeping record
-    const handleSaveChanges = async () => {
-        if (!staffId) {
-            setErrorMessage('Failed to retrieve staff ID. Please log in again.');
-            return;
-        }
-
-        try {
-            const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/add-housekeeping', {
-                housekeepingType,
-                housekeepingNotes,
-                roomNumber,
-                staffId
-            });
-
-            setSuccessMessage(response.data.message);
-            setErrorMessage('');
-            setHousekeepingNotes('');
-            setRoomNumber('');
-
-            // Immediately refresh dirty rooms list after adding
-            fetchDirtyRooms();
-            fetchRooms();
-        } catch (error) {
-            console.error('Error saving housekeeping data:', error);
-            setSuccessMessage('');
-            setErrorMessage('Failed to save housekeeping data. Please try again.');
-        }
-    };
-
-    // Mark room as cleaned
-    const handleCleaned = async () => {
-        if (!selectedHousekeeping) return;
-
-        try {
-            await axios.put(`https://light-house-system-h74t-server.vercel.app/api/housekeeping/${selectedHousekeeping.housekeeping_id}/update`, {
-                housekeeping_status: 'CLEANED',
-                housekeeping_end: new Date().toISOString(),
-            });
-            alert('Room marked as cleaned!');
-            setSelectedHousekeeping(null);
-
-            // Immediately refresh dirty rooms list after cleaning
-            fetchDirtyRooms();
-            fetchRooms();
-        } catch (error) {
-            console.error('Error updating housekeeping status:', error);
-        }
-    };
-
-    // Cancel housekeeping
-    const handleCancelHousekeeping = async () => {
-        if (!selectedHousekeeping) return;
-
-        try {
-            await axios.put(`http://localhost:3001/api/housekeeping/${selectedHousekeeping.housekeeping_id}/update`, {
-                housekeeping_status: null,
-            });
-            alert('Housekeeping canceled for this room!');
-            setSelectedHousekeeping(null);
-
-            // Immediately refresh dirty rooms list after canceling
-            fetchDirtyRooms();
-            fetchRooms();
-        } catch (error) {
-            console.error('Error updating housekeeping status:', error);
-        }
-    };
+  // Modified handleSaveChanges with notification
+  const handleSaveChanges = async () => {
+      if (!staffId) {
+          setNotification({
+              open: true,
+              message: 'Failed to retrieve staff ID. Please log in again.',
+              severity: 'error',
+          });
+          return;
+      }
+  
+      try {
+          const response = await axios.post('https://light-house-system-h74t-server.vercel.app/api/add-housekeeping', {
+              housekeepingType,
+              housekeepingNotes,
+              roomNumber,
+              staffId
+          });
+  
+          setNotification({
+              open: true,
+              message: response.data.message || 'Housekeeping record saved successfully.',
+              severity: 'success',
+          });
+          
+          setHousekeepingNotes('');
+          setRoomNumber('');
+          fetchDirtyRooms();
+          fetchRooms();
+      } catch (error) {
+          console.error('Error saving housekeeping data:', error);
+          setNotification({
+              open: true,
+              message: 'Failed to save housekeeping data. Please try again.',
+              severity: 'error',
+          });
+      }
+  };
+  
+  // Modified handleCleaned with notification
+  const handleCleaned = async () => {
+      if (!selectedHousekeeping) return;
+  
+      try {
+          await axios.put(`https://light-house-system-h74t-server.vercel.app/api/housekeeping/${selectedHousekeeping.housekeeping_id}/update`, {
+              housekeeping_status: 'CLEANED',
+              housekeeping_end: new Date().toISOString(),
+          });
+  
+          setNotification({
+              open: true,
+              message: 'Room marked as cleaned!',
+              severity: 'success',
+          });
+  
+          setSelectedHousekeeping(null);
+          fetchDirtyRooms();
+          fetchRooms();
+      } catch (error) {
+          console.error('Error updating housekeeping status:', error);
+          setNotification({
+              open: true,
+              message: 'Failed to mark room as cleaned. Please try again.',
+              severity: 'error',
+          });
+      }
+  };
+  
+  // Modified handleCancelHousekeeping with notification
+  const handleCancelHousekeeping = async () => {
+      if (!selectedHousekeeping) return;
+  
+      try {
+          await axios.put(`https://light-house-system-h74t-server.vercel.app/api/housekeeping/${selectedHousekeeping.housekeeping_id}/update`, {
+              housekeeping_status: null,
+          });
+  
+          setNotification({
+              open: true,
+              message: 'Housekeeping canceled for this room!',
+              severity: 'success',
+          });
+  
+          setSelectedHousekeeping(null);
+          fetchDirtyRooms();
+          fetchRooms();
+      } catch (error) {
+          console.error('Error updating housekeeping status:', error);
+          setNotification({
+              open: true,
+              message: 'Failed to cancel housekeeping. Please try again.',
+              severity: 'error',
+          });
+      }
+  };
+  
 
     return (
         <section className="section-p1">
@@ -212,17 +240,18 @@ const AddHousekeeping = () => {
                         </div>
                         <h4 className="label"><strong>Dirty Rooms</strong></h4>
                         <div className="container section-p1" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        <div className="columns is-multiline is-mobile">
                             {dirtyRooms.map((room) => (
-                                <div key={room.room_number}>
+                                <div key={room.room_number} className="column is-12">
                                     <button
-                                        className="button is-fullwidth"
-                                        style={{ backgroundColor: 'red', color: 'white' }}
+                                        className="button is-fullwidth is-blue"
                                         onClick={() => handleDirtyRoomClick(room)}
                                     >
                                         Room {room.room_number}
                                     </button>
                                 </div>
                             ))}
+                            </div>
                         </div>
 
                         

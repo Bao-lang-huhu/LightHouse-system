@@ -174,13 +174,7 @@ const ReportForecasting = () => {
     </div>;
 
     if (error) return <p>{error}</p>;
-<<<<<<< HEAD
 
-
-
-
-=======
->>>>>>> d48977db53d8ae7ca24fdb366c622a0ad45c61db
     return (
         <section className='section-p1'>
              <div className='mb-5 mt-4'>
@@ -275,11 +269,7 @@ const ReportForecasting = () => {
                             />
                         </LineChart>
                     </ResponsiveContainer>
-<<<<<<< HEAD
     )} {selectedView === 'tables' && (
-=======
-    )}
->>>>>>> d48977db53d8ae7ca24fdb366c622a0ad45c61db
                     <div className="columns is-multiline">
                     {/* Historical Data Table */}
                     <div className="column is-half-tablet is-full-mobile">
@@ -329,23 +319,15 @@ const ReportForecasting = () => {
                         </div>
                     </div>
                 </div>
-<<<<<<< HEAD
                   )}
                 </div>
               
-=======
-                </div>
-                
->>>>>>> d48977db53d8ae7ca24fdb366c622a0ad45c61db
             )}
 
             {activeTab === 'event' && (
                 <div className='event-forecast-container'>
                 <h1 className='is-size-5'>Event Trends Monthly Forecast Based on Trends</h1>
-<<<<<<< HEAD
                 {selectedView === 'graphs' && (
-=======
->>>>>>> d48977db53d8ae7ca24fdb366c622a0ad45c61db
                 <ResponsiveContainer width="100%" height={500}>
                   <LineChart
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -380,11 +362,7 @@ const ReportForecasting = () => {
                     ))}
                   </LineChart>
                 </ResponsiveContainer>
-<<<<<<< HEAD
            )}  {selectedView === 'tables' && (
-=======
-          
->>>>>>> d48977db53d8ae7ca24fdb366c622a0ad45c61db
                 <div className="columns is-multiline">
                     {/* Historical Event Data */}
                     <div className="column is-half-tablet is-full-mobile">
@@ -440,11 +418,7 @@ const ReportForecasting = () => {
                         </div>
                     </div>
                 </div>
-<<<<<<< HEAD
  )}
-=======
-
->>>>>>> d48977db53d8ae7ca24fdb366c622a0ad45c61db
               </div>
             )}
         </section>

@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 app.use(cors({
     origin: [
         'http://localhost:3000',
-        'https://light-house-system-df35-front.vercel.app/' // Also allow requests from production frontend
+        'https://light-house-system-df35-front.vercel.app' // Also allow requests from production frontend
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
@@ -47,7 +47,7 @@ app.use(cors({
 app.options('*', (req, res) => {
     const allowedOrigins = [
         'http://localhost:3000',
-        'https://light-house-system-df35-front.vercel.app/'
+        'https://light-house-system-df35-front.vercel.app'
     ];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {

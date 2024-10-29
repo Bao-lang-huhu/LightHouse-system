@@ -15,12 +15,11 @@ const ReportForecasting = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('room'); // State to handle active tab
 
+    // Base URL for the backend
+    const baseUrl = 'https://light-house-system-h74t-server.vercel.app';
+
     const fetchForecastData = async () => {
         try {
-            const baseUrl = process.env.NODE_ENV === 'development' 
-                ? 'https://light-house-system-h74t-server.vercel.app'
-                : 'https://chic-endurance-production.up.railway.app';
-
             const response = await axios.post(`${baseUrl}/api/manager_forecast`);
             const data = response.data;
 

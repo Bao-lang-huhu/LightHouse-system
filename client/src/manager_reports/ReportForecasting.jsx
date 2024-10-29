@@ -19,7 +19,7 @@ const ReportForecasting = () => {
         try {
             const baseUrl = process.env.NODE_ENV === 'development' 
                 ? 'https://light-house-system-h74t-server.vercel.app'
-                : 'https://chic-endurance-production.up.railway.app';
+                : 'https://lavish-consideration-production.up.railway.app';
 
             const response = await axios.post(`${baseUrl}/api/manager_forecast`);
             const data = response.data;

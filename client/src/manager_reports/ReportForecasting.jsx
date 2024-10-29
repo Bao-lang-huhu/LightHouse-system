@@ -93,11 +93,15 @@ const ReportForecasting = () => {
       const fetchForecast = async () => {
         try {
           const response = await axios.post(`${backendUrl}/api/event_forecast`);
-          // Round forecasted values to integers
-          const adjustedData = response.data.map(item => ({
-            ...item,
-            y: item.isHistorical ? item.y : Math.round(item.y) // Only round forecasted (non-historical) data
-          }));
+          
+          const adjustedData = response.data
+            .map(item => ({
+              ...item,
+              y: item.isHistorical ? item.y : Math.round(item.y),
+              ds: new Date(item.ds) // Convert to Date object for consistent sorting
+            }))
+            .sort((a, b) => a.ds - b.ds); // Sort by Date objects
+    
           setEventForecastData(adjustedData);
           setLoading(false);
         } catch (error) {
@@ -108,40 +112,66 @@ const ReportForecasting = () => {
       };
       fetchForecast();
     }, []);
-  
+    
     useEffect(() => {
-      // Group the data by event type and sort by date
       const eventTypeMap = {};
+    
       eventForecastData.forEach(item => {
         const { ds, y, event_type, isHistorical } = item;
-  
+        const timestamp = new Date(ds).getTime(); // Convert ds to timestamp
+    
         if (!eventTypeMap[event_type]) {
           eventTypeMap[event_type] = [];
         }
-  
-        eventTypeMap[event_type].push({ ds, y, isHistorical });
+    
+        eventTypeMap[event_type].push({ ds: timestamp, y, isHistorical });
       });
-  
-      // Sort each event type's data by date (ascending)
+    
       Object.keys(eventTypeMap).forEach(type => {
-        eventTypeMap[type].sort((a, b) => new Date(a.ds) - new Date(b.ds));
+        eventTypeMap[type].sort((a, b) => a.ds - b.ds); // Sort by timestamp
       });
-  
-      // Convert to array format for rendering
+    
       const formattedDataArr = Object.keys(eventTypeMap).map(type => ({
         type,
         data: eventTypeMap[type]
       }));
-  
+    
       setFormattedData(formattedDataArr);
     }, [eventForecastData]);
-  
+    
     const formatMonthYear = (date) => {
       const parsedDate = new Date(date);
       return `${parsedDate.toLocaleString('default', { month: 'short' })} ${parsedDate.getFullYear()}`;
     };
-  
 
+    const fillMissingMonths = (data) => {
+      // Get the earliest and latest dates in the dataset
+      const minDate = new Date(Math.min(...data.map(item => item.ds)));
+      const maxDate = new Date(Math.max(...data.map(item => item.ds)));
+    
+      const filledData = [];
+      let currentDate = new Date(minDate);
+    
+      // Iterate from minDate to maxDate, month by month
+      while (currentDate <= maxDate) {
+        const formattedDate = currentDate.getTime(); // Use timestamp to compare
+    
+        // Find if the currentDate exists in the data
+        const existingData = data.find(item => item.ds === formattedDate);
+    
+        if (existingData) {
+          filledData.push(existingData);
+        } else {
+          filledData.push({ ds: formattedDate, y: 0, isHistorical: true });
+        }
+    
+        // Move to the next month
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+    
+      return filledData;
+    };
+    
 
     const generateDarkColor = () => {
       // Create an array of preset dark, solid color hues with RGB values.
@@ -173,6 +203,7 @@ const ReportForecasting = () => {
     </div>;
 
     if (error) return <p>{error}</p>;
+    
 
     return (
         <section className='section-p1'>
@@ -327,41 +358,44 @@ const ReportForecasting = () => {
                 <div className='event-forecast-container'>
                 <h1 className='is-size-5'>Event Trends Monthly Forecast Based on Trends</h1>
                 {selectedView === 'graphs' && (
-                <ResponsiveContainer width="100%" height={500}>
-                  <LineChart
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="ds"
-                        type="category"
-                        scale="point"
-                        tickFormatter={formatMonthYear}
-                        allowDuplicatedCategory={false}
-                        interval={0} 
-                        tickMargin={-50}
-                      >
-                        <Label value="Month" offset={5} tickMargin={40} position="insideBottom" />
-                      </XAxis>
-                    <YAxis label={{ value: 'Number of Events', angle: -90, position: 'insideLeft' }} />
-                    <Tooltip labelFormatter={(label) => formatMonthYear(label)} offset={-20}  />
-                    <Legend />
-          
-                    {formattedData.map((item) => (
-                      <Line
-                        key={item.type}
-                        data={item.data}
-                        dataKey="y"
-                        name={item.type}
-                        type="monotone"
-                        stroke={generateDarkColor()} 
-                        dot={false}   
-                        strokeDasharray={item.data.some(d => !d.isHistorical) ? '5 5' : '0'}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
-           )}  {selectedView === 'tables' && (
+ 
+<ResponsiveContainer width="100%" height={500}>
+  <LineChart margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis
+  dataKey="ds"
+  type="number"
+  domain={['dataMin', 'dataMax']}
+  tickFormatter={(timestamp) => formatMonthYear(new Date(timestamp))}
+  scale="time"
+  allowDuplicatedCategory={false}
+  interval={0}
+>
+
+      <Label value="Month" offset={5} tickMargin={40} position="insideBottom" />
+    </XAxis>
+    <YAxis label={{ value: 'Number of Events', angle: -90, position: 'insideLeft' }} />
+    <Tooltip labelFormatter={(timestamp) => formatMonthYear(new Date(timestamp))} offset={-20} />
+    <Legend />
+    
+    {formattedData.map((item) => (
+      <Line
+        key={item.type}
+        data={item.data}
+        dataKey="y"
+        name={item.type}
+        type="monotone"
+        stroke={generateDarkColor()} 
+        dot={false}
+        strokeDasharray={item.data.some(d => !d.isHistorical) ? '5 5' : '0'}
+      />
+    ))}
+  </LineChart>
+</ResponsiveContainer>
+
+)}
+
+  {selectedView === 'tables' && (
                 <div className="columns is-multiline">
                     {/* Historical Event Data */}
                     <div className="column is-half-tablet is-full-mobile">

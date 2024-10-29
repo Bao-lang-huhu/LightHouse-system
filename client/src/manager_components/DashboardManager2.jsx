@@ -8,7 +8,7 @@ import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
 import { Box, Typography, Grid } from '@mui/material';
-import { BarChart, LineChart, Line, Bar } from 'recharts';
+import { BarChart, LineChart, Line, Bar, ResponsiveContainer } from 'recharts';
 import { useTheme } from '@mui/material/styles';
 
 const DashboardManager2 = () => {
@@ -126,104 +126,123 @@ const DashboardManager2 = () => {
                     </div>
                 </div>
             </div>
-            <div className='columns is-vcentered p-5 section-p1'>
-            <Grid container spacing={2}>
-                {/* Left Side - Small Graphs */}
-                <Grid item xs={12} md={4}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(2) }}>
-                    {/* Sales Overview (Small Bar Graph) */}
-                    <Box
-                        sx={{
-                        backgroundColor: 'white',
-                        padding: theme.spacing(2),
-                        borderRadius: '8px',
-                        boxShadow: 1,
-                        }}
-                    >
-                        <Link to="/manager_report_sales">
-                        <Typography variant="subtitle1" fontWeight="bold">
-                        Sales Overview
-                        </Typography></Link>
-                        <BarChart width={400} height={100} data={salesData}>
-                        <Bar dataKey="sales" fill="#6495ed" />
-                        </BarChart>
-                    </Box>
+            <div className='columns is-vcentered p-5 section-p1'> 
+                <Grid container spacing={2}>
+                    {/* Left Side - Small Graphs */}
+                    <Grid item xs={12} md={4}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(2) }}>
+                            {/* Sales Overview (Small Bar Graph) */}
+                            <Box
+                                sx={{
+                                    backgroundColor: 'white',
+                                    padding: theme.spacing(2),
+                                    borderRadius: '8px',
+                                    boxShadow: 1,
+                                    maxWidth: '100%',
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                <Link to="/manager_report_sales">
+                                    <Typography variant="subtitle1" fontWeight="bold">
+                                        Sales Overview
+                                    </Typography>
+                                </Link>
+                                <ResponsiveContainer width="100%" height={100}>
+                                    <BarChart data={salesData}>
+                                        <Bar dataKey="sales" fill="#6495ed" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </Box>
 
-                    {/* Forecast Overview (Small Line Graph) */}
-                    <Box
-                        sx={{
-                        backgroundColor: 'white',
-                        padding: theme.spacing(2),
-                        borderRadius: '8px',
-                        boxShadow: 1,
-                        }}
-                    > <Link to="/manager_report_forecasting">
-                        <Typography variant="subtitle1" fontWeight="bold">
-                        Forecast Overview
-                        </Typography></Link>
-                        <LineChart width={400} height={100} data={forecastData}>
-                        <Line type="monotone" dataKey="value" stroke="#4169e1" />
-                        </LineChart>
-                    </Box>
+                            {/* Forecast Overview (Small Line Graph) */}
+                            <Box
+                                sx={{
+                                    backgroundColor: 'white',
+                                    padding: theme.spacing(2),
+                                    borderRadius: '8px',
+                                    boxShadow: 1,
+                                    maxWidth: '100%',
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                <Link to="/manager_report_forecasting">
+                                    <Typography variant="subtitle1" fontWeight="bold">
+                                        Forecast Overview
+                                    </Typography>
+                                </Link>
+                                <ResponsiveContainer width="100%" height={100}>
+                                    <LineChart data={forecastData}>
+                                        <Line type="monotone" dataKey="value" stroke="#4169e1" />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </Box>
 
-                    {/* Sales & Menu Optimization (Small Bar Graph) */}
-                    <Box
-                        sx={{
-                        backgroundColor: 'white',
-                        padding: theme.spacing(2),
-                        borderRadius: '8px',
-                        boxShadow: 1,
-                        }}
-                    >
-                        <Link to="/manager_report_menu_optimization">
-                        <Typography variant="subtitle1" fontWeight="bold">
-                        Menu and Order Optimization
-                        </Typography></Link>
-                        <BarChart width={400} height={100} data={salesData}>
-                        <Bar dataKey="sales" fill="#000080" />
-                        </BarChart>
-                    </Box>
-                    </Box>
+                            {/* Sales & Menu Optimization (Small Bar Graph) */}
+                            <Box
+                                sx={{
+                                    backgroundColor: 'white',
+                                    padding: theme.spacing(2),
+                                    borderRadius: '8px',
+                                    boxShadow: 1,
+                                    maxWidth: '100%',
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                <Link to="/manager_report_menu_optimization">
+                                    <Typography variant="subtitle1" fontWeight="bold">
+                                        Menu and Order Optimization
+                                    </Typography>
+                                </Link>
+                                <ResponsiveContainer width="100%" height={100}>
+                                    <BarChart data={salesData}>
+                                        <Bar dataKey="sales" fill="#000080" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </Box>
+                        </Box>
+                    </Grid>
+
+                    {/* Right Side - Main Count Bar Chart */}
+                    <Grid item xs={12} md={8}>
+                        <Box sx={{ height: 400, backgroundColor: 'white', padding: theme.spacing(2), borderRadius: '8px', boxShadow: 1, overflow: 'hidden' }}>
+                            <Typography variant="subtitle1" fontWeight="bold" textAlign="center" gutterBottom>
+                                Service Counts
+                            </Typography>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveBar
+                                    data={chartData}
+                                    keys={['quantity']}
+                                    indexBy="service"
+                                    margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
+                                    colors={['#abdbe3']}
+                                    padding={0.3}
+                                    axisBottom={{
+                                        tickSize: 5,
+                                        tickPadding: 5,
+                                        tickRotation: 0,
+                                        legend: 'Service',
+                                        legendPosition: 'middle',
+                                        legendOffset: 32,
+                                    }}
+                                    axisLeft={{
+                                        tickSize: 5,
+                                        tickPadding: 5,
+                                        tickRotation: 0,
+                                        legend: 'Quantity',
+                                        legendPosition: 'middle',
+                                        legendOffset: -40,
+                                    }}
+                                    labelSkipWidth={12}
+                                    labelSkipHeight={12}
+                                    labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                                    animate={true}
+                                />
+                            </ResponsiveContainer>
+                        </Box>
+                    </Grid>
                 </Grid>
-
-                {/* Right Side - Main Count Bar Chart */}
-                <Grid item xs={12} md={8}>
-                    <Box sx={{ height: 400, backgroundColor: 'white', padding: theme.spacing(2), borderRadius: '8px', boxShadow: 1 }}>
-                    <Typography variant="subtitle1" fontWeight="bold" textAlign="center" gutterBottom>
-                        Service Counts
-                    </Typography>
-                    <ResponsiveBar
-                        data={chartData}
-                        keys={['quantity']}
-                        indexBy="service"
-                        margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
-                        colors={['#abdbe3']}
-                        padding={0.3}
-                        axisBottom={{
-                        tickSize: 5,
-                        tickPadding: 5,
-                        tickRotation: 0,
-                        legend: 'Service',
-                        legendPosition: 'middle',
-                        legendOffset: 32,
-                        }}
-                        axisLeft={{
-                        tickSize: 5,
-                        tickPadding: 5,
-                        tickRotation: 0,
-                        legend: 'Quantity',
-                        legendPosition: 'middle',
-                        legendOffset: -40,
-                        }}
-                        labelSkipWidth={12}
-                        labelSkipHeight={12}
-                        labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-                        animate={true}
-                    />
-                    </Box>
-                </Grid>
-            </Grid>
             </div>
+
         </section>
     );
 };

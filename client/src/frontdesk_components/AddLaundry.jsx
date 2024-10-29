@@ -394,7 +394,7 @@ const handleSaveChanges = async () => {
                 {/* Title and Button Section */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h1 className='subtitle' style={{ marginLeft: '25px', margin: 18 }}>
-                    <strong>Add Laundry</strong>
+                    <strong>Laundry</strong>
                   </h1>
                   <div className='control'>
                   <Button variant="contained" color="primary" onClick={openModal} >

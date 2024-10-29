@@ -20,7 +20,7 @@ const EditRoomVTModal = ({ isOpen, toggleModal, roomTypeName }) => {
             setLoading(true); // Start loading
             try {
                 const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getRoomVirtualTourByTypeName', {
-                    params: { vt_name: roomTypeName } // Use roomTypeName for the query
+                    params: { vt_name: roomTypeName } 
                 });
 
                 console.log('Fetched Virtual Tour Data:', response.data); // Log the fetched data
@@ -60,49 +60,52 @@ const EditRoomVTModal = ({ isOpen, toggleModal, roomTypeName }) => {
         toggleModal();
     };
 
-    // Convert selected file to Base64
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Check file size (3 MB = 3 * 1024 * 1024 bytes)
+            if (file.size > 3 * 1024 * 1024) {
+                setError("File size exceeds 3 MB. Please upload a smaller file.");
+                return;
+            }
             const reader = new FileReader();
             reader.onloadend = () => {
                 setVtPhoto(reader.result); // Base64 string
             };
             reader.readAsDataURL(file);
+            setError(''); // Clear any previous error if the file size is valid
         }
     };
 
-// Handle form submission to update the virtual tour
-const handleUpdate = async () => {
-    if (!roomTypeName) {
-        setError('Virtual tour name is required.');
-        return;
-    }
-
-    setLoading(true); // Start loading while updating
-    try {
-        const response = await axios.put('https://light-house-system-h74t-server.vercel.app/api/updateRoomVT', {
-            vt_name: roomTypeName, // Use `roomTypeName` instead of `vt_id`
-            vt_description: vtDescription,
-            vt_photo_base64: vtPhoto,
-            vt_status: 'ACTIVE'
-        });
-
-        if (response.status === 200) {
-            setSuccess('Virtual tour updated successfully.');
-            setError('');
-            setTimeout(() => {
-                handleClose(); 
-            }, 2000);
+    const handleUpdate = async () => {
+        if (!roomTypeName) {
+            setError('Virtual tour name is required.');
+            return;
         }
-    } catch (error) {
-        setError('Failed to update virtual tour. Please try again.');
-        console.error('Error updating virtual tour:', error);
-    } finally {
-        setLoading(false); 
-    }
-};
 
+        setLoading(true);
+        try {
+            const response = await axios.put('https://light-house-system-h74t-server.vercel.app/api/updateRoomVT', {
+                vt_name: roomTypeName,
+                vt_description: vtDescription,
+                vt_photo_base64: vtPhoto,
+                vt_status: 'ACTIVE'
+            });
+
+            if (response.status === 200) {
+                setSuccess('Virtual tour updated successfully.');
+                setError('');
+                setTimeout(() => {
+                    handleClose();
+                }, 2000);
+            }
+        } catch (error) {
+            setError('Failed to update virtual tour. Please try again.');
+            console.error('Error updating virtual tour:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`}>
             <div className="modal-background" onClick={handleClose}></div>
@@ -139,8 +142,8 @@ const handleUpdate = async () => {
                                 </div>
                             </div>
                             <div className="field">
-                                <label className="label">Upload New Photo (Optional)</label>
-                                <div className="control">
+                            <label className="label">Upload New Photo (Optional, max 3 MB)</label>
+                            <div className="control">
                                     <input
                                         type="file"
                                         accept="image/*"

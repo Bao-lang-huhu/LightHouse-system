@@ -700,7 +700,8 @@ const RoomManager = () => {
                     isOpen={isRoomVTModalOpen} 
                     toggleModal={toggleRoomVTModal}  
                     roomId={currentRoomId} 
-                    roomTypeName={currentRoomTypeName} // Pass the correct state
+                    roomTypeName={currentRoomTypeName}
+                    refreshRoomList = {refreshRoomList} // Pass the correct state
                 />
 
                 {isEditRoomVTModalOpen && (

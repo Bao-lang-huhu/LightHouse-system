@@ -5,7 +5,7 @@ import './modals_m.css';
 import ErrorMsg from '../messages/errorMsg';
 import SuccessMsg from '../messages/successMsg';
 
-const AddRoomVTModal = ({ isOpen, toggleModal, roomId, roomTypeName }) => {
+const AddRoomVTModal = ({ isOpen, toggleModal, roomId, roomTypeName, refreshRoomList }) => {
     const [vtName, setVtName] = useState('');
     const [vtDescription, setVtDescription] = useState('');
     const [vtPhoto, setVtPhoto] = useState('');
@@ -32,12 +32,17 @@ const AddRoomVTModal = ({ isOpen, toggleModal, roomId, roomTypeName }) => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Check file size (3 MB = 3 * 1024 * 1024 bytes)
+            if (file.size > 3 * 1024 * 1024) {
+                setError("File size exceeds 3 MB. Please upload a smaller file.");
+                return;
+            }
             const reader = new FileReader();
             reader.onloadend = () => {
                 setVtPhoto(reader.result); // Base64 string
-                setVtPhotoPreview(reader.result); // Set preview to Base64 string
             };
             reader.readAsDataURL(file);
+            setError(''); // Clear any previous error if the file size is valid
         }
     };
 
@@ -60,7 +65,10 @@ const AddRoomVTModal = ({ isOpen, toggleModal, roomId, roomTypeName }) => {
             if (response.status === 200) {
                 setSuccess('Virtual tour added successfully.');
                 setError('');
-                handleClose();
+                refreshRoomList();
+                setTimeout(() => {
+                    handleClose(); // Close the modal after success message
+                }, 3000); 
             }
         } catch (error) {
             setError('Failed to add virtual tour. Please try again.');
@@ -102,7 +110,7 @@ const AddRoomVTModal = ({ isOpen, toggleModal, roomId, roomTypeName }) => {
                         </div>
                     </div>
                     <div className="field">
-                        <label className="label">Upload 360 or Panorama Photo</label>
+                    <label className="label">Upload New 360 or Panorama Photo (Optional, max 3 MB)</label>
                         <div className="control">
                             <input
                                 type="file"

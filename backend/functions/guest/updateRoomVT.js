@@ -47,6 +47,13 @@ const updateRoomVT = async (req, res) => {
             return res.status(400).json({ error: 'Virtual Tour Name is required.' });
         }
 
+        // Check if the Base64 image exceeds 3 MB (approximately 4 million characters)
+        const MAX_SIZE = 3 * 1024 * 1024; // 3 MB in bytes
+        if (vt_photo_base64 && vt_photo_base64.length * 0.75 > MAX_SIZE) {
+            console.error('Image size exceeds 3 MB limit.');
+            return res.status(400).json({ error: 'Image size exceeds 3 MB limit.' });
+        }
+
         let updatedFields = {};
         if (vt_description) updatedFields.vt_description = vt_description;
         if (vt_status) updatedFields.vt_status = vt_status;
@@ -57,7 +64,7 @@ const updateRoomVT = async (req, res) => {
         const { data, error } = await supabase
             .from('VIRTUAL_TOUR')
             .update(updatedFields)
-            .ilike('vt_name', vt_name); // Use ilike for case-insensitive match
+            .ilike('vt_name', vt_name);
 
         console.log("Supabase update response data:", data);
         console.log("Supabase update response error:", error);
@@ -67,7 +74,6 @@ const updateRoomVT = async (req, res) => {
             return res.status(500).json({ error: 'Failed to update virtual tour.' });
         }
 
-        // Change response handling to treat as successful if there is no error
         if (!data || data.length === 0) {
             console.log('Update operation completed successfully, even if no rows were explicitly returned.');
             return res.status(200).json({ message: 'Virtual tour updated successfully.' });

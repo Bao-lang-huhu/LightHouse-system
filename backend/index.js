@@ -21,7 +21,7 @@ const housekeepingRoutes = require('./routes/housekeepingRoutes');
 const maintenanceRoutes = require('./routes/maintenanceRoutes');
 
 const counts = require('./routes/count/counts');
-const roomForecast = require('./routes/roomForecast');
+const forecastRoute = require('./routes/forecastRoute');
 const eventForecast = require('./routes/eventForecast');
 const roomSalesRoute = require('./routes/roomSalesRoutes');
 
@@ -89,7 +89,7 @@ app.use('/api', getCountsDashboardManager);
 app.use('/api', counts);
 app.use('/api', getDeletedCountsDashboardManager);
 
-app.use('/api', roomForecast);
+app.use('/api', forecastRoute);
 app.use('/api', eventForecast);
 app.use('/api', roomSalesRoute);
 

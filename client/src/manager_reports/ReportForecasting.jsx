@@ -161,10 +161,251 @@ const ReportForecasting = () => {
     );
 
     if (error) return <p>{error}</p>;
-
     return (
-        // Your rendering logic here
-        // This part remains the same as in your original code
+        <section className='section-p1'>
+             <div className='mb-5 mt-4'>
+                <p className='subtitle is-3'>Forecasting</p>
+            </div>
+            <div className='tabs is-boxed'>
+                <ul className='is-left is-boxed'>
+                    <li className={activeTab === 'room' ? 'is-active' : ''} onClick={() => setActiveTab('room')}>
+                        <a>Room Forecasting</a>
+                    </li>
+                    <li className={activeTab === 'event' ? 'is-active' : ''} onClick={() => setActiveTab('event')}>
+                        <a>Event Forecasting</a>
+                    </li>
+                </ul>
+                <ul className="is-right is-boxed">
+                        <li className={selectedView === 'tables' ? 'is-active' : ''}>
+                            <a onClick={() => handleViewChange('tables')}>Tables</a>
+                        </li>
+                        <li className={selectedView === 'graphs' ? 'is-active' : ''}>
+                            <a onClick={() => handleViewChange('graphs')}>Graphs</a>
+                        </li>
+                    </ul>
+            </div>
+
+            {activeTab === 'room' && (
+                <div>
+                    <h1 className='is-size-5'>Hotel Room Occupancy Rate Forecast Based on 5 Months of Data</h1>
+                    {selectedView === 'graphs' && (
+                    <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
+                        <LineChart
+                            margin={{ top: 20, right: 30, left: 30, bottom: 40 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="ds"
+                                tickFormatter={(value) => {
+                                    if (typeof value === 'string' && value.includes('-')) {
+                                        return value; 
+                                    }
+                                    return formatHistoricalDate(value); 
+                                }}
+                                type="category"
+                                allowDuplicatedCategory={false}
+                            >
+                                <Label 
+                                    value="Date" 
+                                    offset={-20} 
+                                    position="insideBottom" 
+                                    style={{ fontSize: window.innerWidth < 600 ? '14px' : '18px' }}
+                                />
+                            </XAxis>
+                            <YAxis 
+                                tickFormatter={(value) => `${value.toFixed(2)}%`}
+                                width={window.innerWidth < 600 ? 50 : 80}
+                            >
+
+
+                                <Label 
+                                    value="Occupancy Rate (%)" 
+                                    angle={-90} 
+                                    position="insideLeft" 
+                                    offset={-10}
+                                    style={{ textAnchor: 'middle', fontSize: window.innerWidth < 600 ? '14px' : '18px' }}
+                                />
+                            </YAxis>
+                            <Tooltip 
+                                formatter={(value) => `${value.toFixed(2)}%`} 
+                                labelFormatter={(label) => label}
+                            />
+                            <Legend 
+                                layout="horizontal" 
+                                verticalAlign="bottom" 
+                                align="center"
+                                wrapperStyle={{ paddingTop: 30, margin: 0 }} 
+                            />
+                            <Line
+                                data={historyData.map(item => ({ ...item, ds: new Date(item.ds), isForecast: false }))}
+                                dataKey="y"
+                                name="Historical Data"
+                                stroke="#0000CD"
+                                strokeWidth={2}
+                                dot={{ fill: '#0000CD', r: window.innerWidth < 600 ? 2 : 4 }}
+                            />
+                            <Line
+                                data={roomForecastData.map(item => ({ ...item }))}
+                                dataKey="yhat"
+                                name="Forecasted Data"
+                                stroke="#000080"
+                                strokeWidth={2}
+                                dot={{ fill: '#000080', r: window.innerWidth < 600 ? 2 : 4 }}
+                                strokeDasharray="5 5"
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+    )}
+                    <div className="columns is-multiline">
+                    {/* Historical Data Table */}
+                    <div className="column is-half-tablet is-full-mobile">
+                        <div className="box">
+                            <h2 className="title is-5">Historical Data</h2>
+                            <table className="table is-fullwidth is-striped is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Occupancy Rate (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {historyData.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{formatHistoricalDate(item.ds)}</td>
+                                            <td>{item.y.toFixed(2)}%</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                 
+                {/* Forecasted Data Table */}
+                    <div className="column is-half-tablet is-full-mobile">
+                        <div className="box">
+                            <h2 className="title is-5">Forecasted Data</h2>
+                            <table className="table is-fullwidth is-striped is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Occupancy Rate (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {roomForecastData.map((item, index) => (
+                                    <tr key={index}>
+                                        <td>{item.ds}</td>
+                                        <td>{item.yhat.toFixed(2)}%</td>
+                                    </tr>
+                                ))}
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+            )}
+
+            {activeTab === 'event' && (
+                <div className='event-forecast-container'>
+                <h1 className='is-size-5'>Event Trends Monthly Forecast Based on Trends</h1>
+                <ResponsiveContainer width="100%" height={500}>
+                  <LineChart
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="ds"
+                        type="category"
+                        scale="point"
+                        tickFormatter={formatMonthYear}
+                        allowDuplicatedCategory={false}
+                        interval={0} 
+                        tickMargin={-50}
+                      >
+                        <Label value="Month" offset={5} tickMargin={40} position="insideBottom" />
+                      </XAxis>
+                    <YAxis label={{ value: 'Number of Events', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip labelFormatter={(label) => formatMonthYear(label)} offset={-20}  />
+                    <Legend />
+          
+                    {formattedData.map((item) => (
+                      <Line
+                        key={item.type}
+                        data={item.data}
+                        dataKey="y"
+                        name={item.type}
+                        type="monotone"
+                        stroke={generateDarkColor()} 
+                        dot={false}   
+                        strokeDasharray={item.data.some(d => !d.isHistorical) ? '5 5' : '0'}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+          
+                <div className="columns is-multiline">
+                    {/* Historical Event Data */}
+                    <div className="column is-half-tablet is-full-mobile">
+                        <div className="box">
+                            <h2 className="title is-5">Historical Event Data</h2>
+                            <div className="table-container">
+                                <table className="table is-fullwidth is-striped is-hoverable">
+                                    <thead>
+                                        <tr>
+                                            <th>Event Type</th>
+                                            <th>Month</th>
+                                            <th>Number of Events</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {eventForecastData.filter(item => item.isHistorical).map((item, index) => (
+                                            <tr key={index}>
+                                                <td>{item.event_type}</td>
+                                                <td>{formatMonthYear(item.ds)}</td>
+                                                <td>{item.y}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Forecasted Event Data */}
+                    <div className="column is-half-tablet is-full-mobile">
+                        <div className="box">
+                            <h2 className="title is-5">Forecasted Event Data</h2>
+                            <div className="table-container">
+                                <table className="table is-fullwidth is-striped is-hoverable">
+                                    <thead>
+                                        <tr>
+                                            <th>Event Type</th>
+                                            <th>Month</th>
+                                            <th>Predicted Events</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {eventForecastData.filter(item => !item.isHistorical).map((item, index) => (
+                                            <tr key={index}>
+                                                <td>{item.event_type}</td>
+                                                <td>{formatMonthYear(item.ds)}</td>
+                                                <td>{item.y}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+              </div>
+            )}
+        </section>
     );
 };
 

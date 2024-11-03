@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
@@ -58,13 +57,7 @@ router.post('/event_forecast', async (req, res) => {
       });
     });
 
-    const nextMonthDate = new Date(latestDate);
-    nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-    const nextMonth = `${nextMonthDate.getFullYear()}-${nextMonthDate.getMonth() + 1}-01`;
-
     try {
-      console.log("Sending data to Flask service for forecasting:", forecastData);
-
       const eventTypeGroups = forecastData.reduce((acc, item) => {
         if (!acc[item.event_type]) {
           acc[item.event_type] = [];
@@ -74,38 +67,25 @@ router.post('/event_forecast', async (req, res) => {
       }, {});
 
       const forecastResults = [];
-
       for (const [eventType, data] of Object.entries(eventTypeGroups)) {
         if (data.length < 2) {
           console.log(`Skipping forecast for ${eventType} due to insufficient data`);
           continue;
         }
 
-        try {
-          const response = await axios.post(`${flaskApiUrl}/forecast`, data);
-          const forecastedItems = response.data.map(forecast => ({
-            ds: nextMonth,
-            y: forecast.yhat,
-            event_type: eventType,
-            isHistorical: false
-          }));
-          forecastResults.push(...forecastedItems);
-        } catch (axiosError) {
-          if (axiosError.response && axiosError.response.status === 404) {
-            console.log(`No forecast data available for ${eventType}. Skipping.`);
-            continue;
-          } else {
-            throw axiosError;
-          }
-        }
+        const response = await axios.post(`${flaskApiUrl}/forecast`, { data, months: 3 });
+        const forecastedItems = response.data.map((forecast, index) => ({
+          ds: new Date(latestDate.getFullYear(), latestDate.getMonth() + index + 1, 1).toISOString().split('T')[0],
+          y: forecast.yhat,
+          event_type: eventType,
+          isHistorical: false
+        }));
+        forecastResults.push(...forecastedItems);
       }
 
       res.json([...forecastData, ...forecastResults]);
     } catch (axiosError) {
       console.error('Error communicating with Flask service:', axiosError.message);
-      if (axiosError.response) {
-        console.error('Flask service responded with:', axiosError.response.data);
-      }
       res.status(500).json({ error: 'Failed to fetch forecast from Flask service' });
     }
   } catch (error) {

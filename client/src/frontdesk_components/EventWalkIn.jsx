@@ -302,7 +302,7 @@ function EventWalkIn() {
                 guestData.guest_email = email;
             }
     
-            const guestResponse = await axios.post('http://localhost:3001/api/registerGuestRoom', guestData);
+            const guestResponse = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerGuestRoom', guestData);
             if (guestResponse.status === 201) {
                 const guest_id = guestResponse.data.guest_id;
                 await handleSubmit(guest_id); // Pass the guest_id to handleSubmit

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Text, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './SalesComponent.css';
 import { ClipLoader } from 'react-spinners';
 
@@ -43,6 +43,7 @@ const ReportSales = () => {
             setLoading(false);
         }
     };
+    const dataMax = Math.max(...salesData.map(d => d.totalSales)) || 0;
 
     useEffect(() => {
         fetchSalesData(viewType);
@@ -142,20 +143,48 @@ if (error) {
 
 
 {selectedView === 'graphs' && (
-                <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={salesData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="period" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar 
-                            dataKey="totalSales" 
-                            name="Total Sales" 
-                            fill={generateRandomMutedBlue()} 
-                        />
-                    </BarChart>
-                </ResponsiveContainer>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+    <ResponsiveContainer width="90%" height={500}>
+        <BarChart 
+            data={salesData} 
+            margin={{ top: 20, right: 20, left: 100, bottom: 60 }}
+        >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+                dataKey="period" 
+                label={{
+                    value: viewType === 'monthly' ? "Month/s" : "Year/s", // Dynamic label based on viewType
+                    position: "insideBottom",
+                    offset: -10,
+                    dy: 30,
+                    style: { fontSize: '20px', fontWeight: 'bold' }
+                }} 
+                tick={{ fontSize: '16px' }}
+            />
+            <YAxis 
+                domain={[0, Math.ceil(dataMax / 100000) * 100000]} // Ensure Y-axis uses dataMax
+                tick={{ fontSize: '16px' }}
+                label={{
+                value: "Sales in Thousand (PH Pesos)",
+                angle: -90,
+                position: "insideLeft",
+                offset: -20,
+                dy: 80, 
+                style: { fontSize: '20px', fontWeight: 'bold' }
+            }}
+                    />
+            <Tooltip />
+            <Legend />
+            <Bar 
+                dataKey="totalSales" 
+                name="Total Sales" 
+                fill={generateRandomMutedBlue()} 
+                label={<CustomBarLabel />} // Custom label for each bar
+            />
+        </BarChart>
+    </ResponsiveContainer>
+</div>
+
   )}
   {selectedView === 'tables' && (
                 <div className="sales-table">
@@ -179,6 +208,21 @@ if (error) {
                 </div>  )}
             </div>
         </section>
+    );
+};
+
+const CustomBarLabel = ({ x, y, width, value }) => {
+    return (
+        <text
+            x={x + width / 2}
+            y={y + 20}  // Position below the bar
+            fill="white"
+            textAnchor="middle"
+            fontSize="16px"
+            fontWeight="bold"
+        >
+            {value}
+        </text>
     );
 };
 

@@ -49,13 +49,18 @@ const RoomBooking = () => {
                 guest_lname: lastName,
                 guest_birthdate: birthdate,
                 guest_address: address,
-                guest_email: email,
+               
                 guest_country: country,
                 guest_phone_no: phoneNumber,
                 guest_gender: gender,
             };
 
-            const guestResponse = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerGuestRoom', guestData);
+             // Only add email to guestData if it's provided
+            if (email) {
+                guestData.guest_email = email;
+            }
+
+            const guestResponse = await axios.post('http://localhost:3001/api/registerGuestRoom', guestData);
             if (guestResponse.status === 201) {
                 const guest_id = guestResponse.data.guest_id;
                 await handleReservation(guest_id);
@@ -109,23 +114,31 @@ const RoomBooking = () => {
     const handleEmailChange = (e) => {
         const value = e.target.value;
         setEmail(value);
-
-        // Simple email validation using regex
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(value)) {
-            setErrors(prevErrors => ({
-                ...prevErrors,
-                email: "Please enter a valid email address"
-            }));
+      
+        // Only validate if email is provided
+        if (value) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(value)) {
+                setErrors(prevErrors => ({
+                    ...prevErrors,
+                    email: "Please enter a valid email address"
+                }));
+            } else {
+                setErrors(prevErrors => ({
+                    ...prevErrors,
+                    email: ""
+                }));
+            }
         } else {
+            // Clear error if email is empty, since it's optional
             setErrors(prevErrors => ({
                 ...prevErrors,
                 email: ""
             }));
         }
-    };
-
+      };
     const handleReservation = async (guest_id) => {
+        if (validateInput()){
         setLoading(true); 
         try {
             if (!room || !checkInDate || !checkOutDate || !guest_id) {
@@ -165,32 +178,46 @@ const RoomBooking = () => {
         } finally {
             setLoading(false); // Set loading to false after the process is complete
         }
+    }
     };
 
-    const validateInputs = () => {
+    const validateInput = () => {
         const newErrors = {};
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple regex for basic email validation
+
         if (!firstName) newErrors.firstName = "First name is required";
         if (!lastName) newErrors.lastName = "Last name is required";
         if (!gender) newErrors.gender = "Gender is required";
         if (!birthdate) newErrors.birthdate = "Birthdate is required";
         if (!address) newErrors.address = "Address is required";
         if (!country) newErrors.country = "Country is required";
-        if (!email) {
-            newErrors.email = "Email is required";
-        } else {
-            // Simple email validation check
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                newErrors.email = "Please enter a valid email address";
-            }
-        }
         if (!phoneNumber) newErrors.phoneNumber = "Phone number is required";
+        if (email && !emailPattern.test(email)) newErrors.email = "Please enter a valid email address";
+        
 
         setErrors(newErrors);
-
-        // Return true if there are no errors
         return Object.keys(newErrors).length === 0;
     };
+    
+    const handleBlur = (field) => {
+        // Basic validation for email field only when it loses focus
+        if (field === "email" && email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
+            if (!emailPattern.test(email)) {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    email: "Please enter a valid email address"
+                }));
+            } else {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    email: ""
+                }));
+            }
+        } else {
+            validateInput(); // Validate other fields as before
+        }
+      };
 
     return (
         <section className='section-p1'>
@@ -213,58 +240,62 @@ const RoomBooking = () => {
                 <div className="columns is-multiline">
                     {/* Guest Details Input */}
                     <div className="column is-one-half">
-                       <TextField 
-                            fullWidth 
-                            label="First Name" 
-                            placeholder="Enter your first name" 
-                            value={firstName} 
-                            onChange={handleFirstNameChange} 
-                            margin="normal"
-                            error={!!errors.firstName}
-                            helperText={errors.firstName}
-                        />
-                        <TextField 
-                            fullWidth 
-                            label="Last Name" 
-                            placeholder="Enter your last name" 
-                            value={lastName} 
-                            onChange={handleLastNameChange} 
-                            margin="normal"
-                            error={!!errors.lastName}
-                            helperText={errors.lastName}
-                        />
-                        <FormControl fullWidth margin="normal" error={!!errors.gender}>
-                            <FormLabel>Gender</FormLabel>
-                            <Select value={gender} onChange={handleGenderChange} displayEmpty>
-                                <MenuItem value=""><em>Select Gender</em></MenuItem>
-                                <MenuItem value="MALE">Male</MenuItem>
-                                <MenuItem value="FEMALE">Female</MenuItem>
-                                <MenuItem value="NON-BINARY">Non-Binary</MenuItem>
-                                <MenuItem value="PREFER NOT TO SAY">Prefer Not To Say</MenuItem>
-                            </Select>
-                            {errors.gender && <p style={{ color: 'red', marginTop: '5px' }}>{errors.gender}</p>}
-                        </FormControl>
-                        <TextField 
-                            fullWidth 
-                            type="date" 
-                            label="Birthdate" 
-                            InputLabelProps={{ shrink: true }} 
-                            value={birthdate} 
-                            onChange={(e) => setBirthdate(e.target.value)} 
-                            margin="normal"
-                            error={!!errors.birthdate}
-                            helperText={errors.birthdate}
-                        />
-                        <TextField 
-                            fullWidth 
-                            label="Address" 
-                            value={address} 
-                            onChange={(e) => setAddress(e.target.value)} 
-                            margin="normal"
-                            error={!!errors.address}
-                            helperText={errors.address}
-                        />
-                        <FormControl fullWidth margin="normal" error={!!errors.country}>
+                            <TextField
+                                fullWidth
+                                label="First Name"
+                                placeholder="Enter your first name"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                onBlur={() => handleBlur("firstName")}
+                                margin="normal"
+                                error={!!errors.firstName} // Shows red border if there's an error
+                                helperText={errors.firstName} 
+                            />
+                            <TextField
+                                fullWidth
+                                label="Last Name"
+                                placeholder="Enter your last name"
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                                onBlur={() => handleBlur("lastName")}
+                                margin="normal"
+                                error={!!errors.lastName} 
+                                helperText={errors.lastName} 
+                            />
+                            <FormControl fullWidth margin="normal">
+                                <FormLabel>Gender</FormLabel>
+                                <Select value={gender} onChange={handleGenderChange} displayEmpty>
+                                    <MenuItem value=""><em>Select Gender</em></MenuItem>
+                                    <MenuItem value="MALE">Male</MenuItem>
+                                    <MenuItem value="FEMALE">Female</MenuItem>
+                                    <MenuItem value="NON-BINARY">Non-Binary</MenuItem>
+                                    <MenuItem value="PREFER NOT TO SAY">Prefer Not To Say</MenuItem>
+                                </Select>
+                                {errors.gender && <p style={{ color: 'red', marginTop: '5px' }}>{errors.gender}</p>}
+                                </FormControl>
+                            <TextField
+                                fullWidth
+                                type="date"
+                                label="Birthdate"
+                                InputLabelProps={{ shrink: true }}
+                                value={birthdate}
+                                onChange={(e) => setBirthdate(e.target.value)}
+                                onBlur={() => handleBlur("birthdate")}
+                                margin="normal"
+                                error={!!errors.birthdate}
+                                helperText={errors.birthdate}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Address"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                onBlur={() => handleBlur("address")}
+                                margin="normal"
+                                error={!!errors.address}
+                                helperText={errors.address}
+                            />
+                            <FormControl fullWidth margin="normal" error={!!errors.country}>
                             <FormLabel>Country</FormLabel>
                             <Select
                                 value={country}
@@ -307,34 +338,36 @@ const RoomBooking = () => {
                                 <MenuItem value="United States">United States</MenuItem>
                             </Select>
                             {errors.country && <p style={{ color: 'red', marginTop: '5px' }}>{errors.country}</p>}
-                        </FormControl>                        
-                        <TextField  
-                            fullWidth 
-                            type="email" 
-                            label="Email" 
-                            value={email} 
-                            onChange={handleEmailChange} 
-                            margin="normal"
-                            error={!!errors.email}
-                            helperText={errors.email}
-                        />
-                        <TextField 
-                            fullWidth 
-                            label="Phone Number" 
-                            value={phoneNumber} 
-                            onChange={(e) => setPhoneNumber(e.target.value)} 
-                            margin="normal"
-                            error={!!errors.phoneNumber}
-                            helperText={errors.phoneNumber}
-                        />
-                        <TextField 
-                            fullWidth 
-                            label="Company Name" 
-                            value={companyName} 
-                            onChange={(e) => setCompanyName(e.target.value)} 
-                            margin="normal"
-                        />
-                    </div>
+                        </FormControl>  
+                            <TextField
+                                fullWidth
+                                type="email"
+                                label="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                margin="normal"
+                                onBlur={() => handleBlur("email")}
+                                error={!!errors.email}
+                                helperText={errors.email}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Phone Number"
+                                value={phoneNumber}
+                                onBlur={() => handleBlur("phoneNumber")}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                margin="normal"
+                                error={!!errors.phoneNumber}
+                                helperText={errors.phoneNumber}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Company Name"
+                                value={companyName}
+                                onChange={(e) => setCompanyName(e.target.value)}
+                                margin="normal"
+                            />
+                        </div>
 
                     {/* Room Information */}
                     <div className="column is-one-half">

@@ -14,7 +14,7 @@ const registerGuestRoom = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!guest_fname || !guest_lname || !guest_birthdate || !guest_address || !guest_email || !guest_country || !guest_phone_no || !guest_gender) {
+    if (!guest_fname || !guest_lname || !guest_birthdate || !guest_address || !guest_country || !guest_phone_no || !guest_gender) {
         console.log('Registration failed: Missing required fields.');
         return res.status(400).json({ error: "All fields are required." });
     }

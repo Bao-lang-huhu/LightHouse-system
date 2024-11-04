@@ -2,7 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { Canvas, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, Environment, Html } from '@react-three/drei';
-import { TextureLoader } from 'three';
+import { TextureLoader , Color, AdditiveBlending, MeshStandardMaterial} from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import * as THREE from 'three';
 import IconButton from '@mui/material/IconButton';
@@ -35,44 +35,7 @@ const RoomTexture = ({ texturePath }) => {
   );
 };
 
-const PhoneModel = ({ position, infoText, texturePath, scale = [0.04, 0.03, 0.03],  rotation = [0, 0, 0] }) => {
-  const obj = useLoader(OBJLoader, phoneObj);
-  const texture = useLoader(TextureLoader, texturePath);
-  const [showInfo, setShowInfo] = useState(false);
 
-  useEffect(() => {
-    obj.traverse((child) => {
-      if (child.isMesh) {
-        child.material = new THREE.MeshStandardMaterial({ map: texture });
-        child.material.needsUpdate = true;
-      }
-    });
-  }, [obj, texture]);
-
-  const handleClick = () => {
-    setShowInfo(!showInfo);
-  };
-
-
-  return (
-    <>
-      <primitive object={obj} position={position} scale={scale} onClick={handleClick} rotation={rotation.map(THREE.MathUtils.degToRad)}/>
-      {showInfo && (
-        <Html position={position}>
-          <div style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            color: 'white',
-            padding: '10px',
-            borderRadius: '5px',
-            maxWidth: '150px'
-          }}>
-            <p>{infoText}</p>
-          </div>
-        </Html>
-      )}
-    </>
-  );
-};
 
 const WiFiModel = ({ position, infoText, scale = [0.009, 0.009, 0.009] }) => {
   const obj = useLoader(OBJLoader, wifiObj);
@@ -101,8 +64,22 @@ const WiFiModel = ({ position, infoText, scale = [0.009, 0.009, 0.009] }) => {
   };
 
   return (
-    <>
-      <primitive object={obj} position={position} scale={scale} onClick={handleClick} />
+    <group position={position}>
+      {/* Main WiFi object */}
+      <primitive object={obj} scale={scale} onClick={handleClick} />
+
+      {/* Glow effect */}
+      <mesh scale={scale.map((s) => s * 1.5)} position={[0, 0, 0]}>
+        <sphereGeometry args={[80, 32, 32]} />
+        <meshBasicMaterial
+          color={new Color('#1976d2')}
+          blending={AdditiveBlending}
+          transparent={true}
+          opacity={0.2}
+        />
+      </mesh>
+
+      {/* Info text */}
       {showInfo && (
         <Html position={position}>
           <div style={{
@@ -110,15 +87,16 @@ const WiFiModel = ({ position, infoText, scale = [0.009, 0.009, 0.009] }) => {
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            maxWidth: '180px'
+            maxWidth: '180px',
           }}>
             <p>{infoText}</p>
           </div>
         </Html>
       )}
-    </>
+    </group>
   );
 };
+
 
 const BagModel = ({ position, infoText, texturePath, scale = [0.03, 0.06, 0.03], rotation = [0, 0, 0] }) => {
   const obj = useLoader(OBJLoader, bagObj);
@@ -139,16 +117,29 @@ const BagModel = ({ position, infoText, texturePath, scale = [0.03, 0.06, 0.03],
   };
 
   return (
-    <>
+    <group position={position}>
+      {/* Main object */}
       <primitive
         object={obj}
-        position={position}
         scale={scale}
-        onClick={handleClick}
         rotation={rotation.map(THREE.MathUtils.degToRad)}
+        onClick={handleClick}
       />
+
+      {/* Glow effect as a surrounding transparent ring */}
+      <mesh scale={scale.map((s) => s * 1.5)} position={[0, 0, 0]}>
+        <sphereGeometry args={[25, 32, 32]} /> {/* Adjusted radius */}
+        <meshBasicMaterial
+          color={new THREE.Color('#1976d2')}
+          blending={THREE.AdditiveBlending}
+          transparent={true}
+          opacity={0.2} // Adjust opacity to control glow intensity
+        />
+      </mesh>
+
+      {/* Info text */}
       {showInfo && (
-        <Html position={position}>
+        <Html position={[0, 0.5, 0]}>
           <div style={{
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
@@ -160,10 +151,68 @@ const BagModel = ({ position, infoText, texturePath, scale = [0.03, 0.06, 0.03],
           </div>
         </Html>
       )}
-    </>
+    </group>
   );
 };
 
+
+const HighlightedModel = ({ position, infoText, texturePath, objPath, scale = [0.03, 0.03, 0.03], rotation = [0, 0, 0] }) => {
+  const obj = useLoader(OBJLoader, objPath);
+  const texture = useLoader(TextureLoader, texturePath);
+  const [showInfo, setShowInfo] = useState(false);
+
+  useEffect(() => {
+    obj.traverse((child) => {
+      if (child.isMesh) {
+        child.material = new THREE.MeshStandardMaterial({ map: texture });
+        child.material.needsUpdate = true;
+      }
+    });
+  }, [obj, texture]);
+
+  const handleClick = () => {
+    setShowInfo(!showInfo);
+  };
+
+  return (
+    <group position={position}>
+      {/* Main object */}
+      <primitive
+        object={obj}
+        scale={scale}
+        rotation={rotation.map(THREE.MathUtils.degToRad)}
+        onClick={handleClick}
+      />
+
+      {/* Glow effect as a transparent surrounding sphere */}
+    <mesh scale={scale.map((s) => s * 1.5)} position={[0, 0, 0]}>
+      <sphereGeometry args={[11, 32, 32]} /> {/* Increase the radius to 1.5 */}
+      <meshBasicMaterial
+        color={new Color('#1976d2')}
+        blending={AdditiveBlending}
+        transparent={true}
+        opacity={0.3}
+      />
+    </mesh>
+
+
+      {/* Info text */}
+      {showInfo && (
+        <Html position={position}>
+          <div style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '5px',
+            maxWidth: '150px'
+          }}>
+            <p>{infoText}</p>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
 
 
 const CameraControls = () => {
@@ -209,6 +258,7 @@ const ZoomComponent = ({ zoomEnabled }) => {
 };
 
 const VirtualTour = () => {
+  const [isSupported, setIsSupported] = useState(true);
   const [roomTypes, setRoomTypes] = useState({});
   const [selectedRoomType, setSelectedRoomType] = useState('');
   const [selectedRoomTour, setSelectedRoomTour] = useState(null);
@@ -219,6 +269,28 @@ const VirtualTour = () => {
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const [roomsAnchorEl, setRoomsAnchorEl] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for WebGL and Worker support
+    const isWebGLAvailable = () => {
+        try {
+            const canvas = document.createElement('canvas');
+            return !!window.WebGLRenderingContext && !!canvas.getContext('webgl');
+        } catch (e) {
+            return false;
+        }
+    };
+
+    const isWorkerSupported = () => !!window.Worker;
+
+    // Set support status
+    if (!isWebGLAvailable() || !isWorkerSupported()) {
+        setIsSupported(false);
+        setLoading(false); // Stop loading spinner if unsupported
+    } else {
+        setLoading(false); // Stop loading if supported, continue fetching
+    }
+}, []);
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -276,6 +348,16 @@ const VirtualTour = () => {
     handleRoomsMenuClose();
   };
 
+  if (!isSupported) {
+    return (
+      <div className='section-p1 section-m1'>
+        <div style={{ textAlign: 'center', padding: '20px', backgroundColor: 'rgba(255, 0, 0, 0.1)' }}>
+            <h2>Browser Not Supported</h2>
+            <p>Your browser does not support the virtual tour. Please try a different browser that supports WebGL and Worker features.</p>
+        </div></div>
+    );
+}
+
   return (
     <section>
       <div style={{ margin: '20px' }}>  
@@ -296,15 +378,17 @@ const VirtualTour = () => {
             )}
             {showARWidgets && selectedRoomTour && (
               <>
-                <PhoneModel 
+                <HighlightedModel
                   position={[2, 0, 4]} 
                   infoText="Phone No: Front Desk - 09551850136 - 234-345-453 "
                   texturePath={phoneTexture} 
                   rotation={[180, 0 ,  180]} 
+                  objPath={phoneObj}
                 />
                 <WiFiModel
                   position={[-2, 1, -4]}
                   infoText="Wi-Fi Password:(Room Number) +(Voucher) eg.101ABCDEFGF"
+                  objPath={wifiObj}
                 />
                  <BagModel
                   position={[0, -3, -1]}

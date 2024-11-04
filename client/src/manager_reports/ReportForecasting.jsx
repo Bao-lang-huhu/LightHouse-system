@@ -14,7 +14,10 @@ const ReportForecasting = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('room');
 
-    const baseUrl = 'https://light-house-system-h74t-server.vercel.app';
+    // Set baseUrl based on environment
+    const baseUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:3001'
+        : 'https://light-house-system-h74t-server.vercel.app';
 
     const fetchForecastData = async () => {
         try {

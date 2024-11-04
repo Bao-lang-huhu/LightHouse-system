@@ -157,6 +157,11 @@ const ArchAccounts = () => {
                                 staff.staff_fname.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 staff.staff_lname.toLowerCase().includes(searchTerm.toLowerCase())
                             )
+                            .sort((a, b) => {
+                                const nameA = a.staff_fname.toLowerCase();
+                                const nameB = b.staff_fname.toLowerCase();
+                                return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+                            })
                             .map((staff) => (
                                 <div 
                                     className="staff-space" 
@@ -176,7 +181,7 @@ const ArchAccounts = () => {
                                             <div
                                                 className="status-circle"
                                                 style={{
-                                                    backgroundColor: getStatusColor (staff.staff_status), 
+                                                    backgroundColor: getStatusColor(staff.staff_status), 
                                                     width: '10px',
                                                     height: '10px'
                                                 }}

@@ -202,35 +202,42 @@ const FoodManager = () => {
 
                     {/* Food List */}
                     <div style={{ marginBottom: "5px" }}>
-                        {filteredFoods.map((food) => (
-                            <div
-                                key={food.food_id}
-                                className={`staff-space ${selectedFood && selectedFood.food_id === food.food_id ? 'is-active' : ''}`} // Highlight selected food
-                                onClick={() => handleFoodClick(food)} // Handle food item click
-                                style={{
-                                    cursor: 'pointer',
-                                    padding: '1rem',
-                                    backgroundColor: selectedFood?.food_id === food.food_id ? '#e8f4ff' : 'transparent'
-                                }}
-                            >
-                                <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
-                                    <IoFastFoodOutline style={{ marginRight: '5px', textAlign: 'center' }} />
-                                    <div className="column is-flex is-align-items-center">
-                                        <h3 style={{ marginRight: "8px" }}>{food.food_name}</h3>
-                                        <div
-                                            className="status-circle"
-                                            style={{
-                                                backgroundColor: getStatusColor(food.food_status), // Color based on status
-                                                borderRadius: '50%',
-                                                width: '10px',
-                                                height: '10px'
-                                            }}
-                                        ></div>
+                        {filteredFoods
+                            .sort((a, b) => {
+                                const foodNameA = a.food_name.toLowerCase();
+                                const foodNameB = b.food_name.toLowerCase();
+                                return foodNameA < foodNameB ? -1 : foodNameA > foodNameB ? 1 : 0;
+                            })
+                            .map((food) => (
+                                <div
+                                    key={food.food_id}
+                                    className={`staff-space ${selectedFood && selectedFood.food_id === food.food_id ? 'is-active' : ''}`} // Highlight selected food
+                                    onClick={() => handleFoodClick(food)} // Handle food item click
+                                    style={{
+                                        cursor: 'pointer',
+                                        padding: '1rem',
+                                        backgroundColor: selectedFood?.food_id === food.food_id ? '#e8f4ff' : 'transparent'
+                                    }}
+                                >
+                                    <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
+                                        <IoFastFoodOutline style={{ marginRight: '5px', textAlign: 'center' }} />
+                                        <div className="column is-flex is-align-items-center">
+                                            <h3 style={{ marginRight: "8px" }}>{food.food_name}</h3>
+                                            <div
+                                                className="status-circle"
+                                                style={{
+                                                    backgroundColor: getStatusColor(food.food_status), // Color based on status
+                                                    borderRadius: '50%',
+                                                    width: '10px',
+                                                    height: '10px'
+                                                }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
+
                 </div>
 
                 <div className="column" style={{ backgroundColor: "white" }}>

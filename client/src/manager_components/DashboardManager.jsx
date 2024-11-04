@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import 'bulma/css/bulma.min.css';
-import '../App.css';
-import './components_m.css';
+import { Box, Container, Typography, Grid, Paper, Avatar } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { IoPerson, IoHome, IoFastFood, IoWine, IoBagCheck, IoShirt, IoCalendar, IoRestaurant } from 'react-icons/io5';
-import { ResponsiveBar } from '@nivo/bar';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode'; // Import jwtDecode
+import {jwtDecode} from 'jwt-decode';
 
 const DashboardManager = () => {
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -20,29 +17,24 @@ const DashboardManager = () => {
         eventFoodPackageCount: 0,
         eventCount: 0
     });
-    const [chartData, setChartData] = useState([]);
-    const [staffUsername, setStaffUsername] = useState('Manager'); // State to store staff username
+    const [staffUsername, setStaffUsername] = useState('Manager');
 
     useEffect(() => {
-        // Fetch staff username from JWT token
-        const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
+        const token = localStorage.getItem('token');
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                setStaffUsername(decoded.staff_username); // Extract and set staff username
+                setStaffUsername(decoded.staff_username);
             } catch (error) {
                 console.error('Error decoding token:', error);
-                setStaffUsername('Manager');
             }
         }
 
-        // Fetch counts data
         const fetchCounts = async () => {
             try {
-                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/counts'); // Replace with your API endpoint
+                const response = await axios.get('https://light-house-system-h74t-server.vercel.app/api/counts');
                 const data = response.data;
-
-                const validatedData = {
+                setCounts({
                     staffCount: data.staffCount || 0,
                     roomCount: data.roomCount || 0,
                     foodItemCount: data.foodItemCount || 0,
@@ -51,20 +43,7 @@ const DashboardManager = () => {
                     laundryDetailCount: data.laundryDetailCount || 0,
                     eventFoodPackageCount: data.eventFoodPackageCount || 0,
                     eventCount: data.eventCount || 0,
-                };
-
-                setCounts(validatedData);
-
-                setChartData([
-                    { service: 'Staffs', quantity: validatedData.staffCount },
-                    { service: 'Rooms', quantity: validatedData.roomCount },
-                    { service: 'Food', quantity: validatedData.foodItemCount },
-                    { service: 'Drinks', quantity: validatedData.barDrinkCount },
-                    { service: 'Laundry', quantity: validatedData.laundryDetailCount },
-                    { service: 'Concierge', quantity: validatedData.conciergeDetailCount },
-                    { service: 'Venue', quantity: validatedData.eventCount },
-                    { service: 'Food Package', quantity: validatedData.eventFoodPackageCount },
-                ]);
+                });
             } catch (error) {
                 console.error('Error fetching counts:', error);
             }
@@ -74,10 +53,7 @@ const DashboardManager = () => {
     }, []);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentDateTime(new Date());
-        }, 1000);
-
+        const timer = setInterval(() => setCurrentDateTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
@@ -87,88 +63,73 @@ const DashboardManager = () => {
     };
 
     const sections = [
-        { label: 'Staffs', count: counts.staffCount, link: '/manager_accounts', icon: <IoPerson size={40} className="is-violet" /> },
-        { label: 'Rooms', count: counts.roomCount, link: '/manager_room', icon: <IoHome size={40} className="is-violet" /> },
-        { label: 'Foods', count: counts.foodItemCount, link: '/manager_food', icon: <IoFastFood size={40} className="is-violet" /> },
-        { label: 'Drinks', count: counts.barDrinkCount, link: '/manager_drink', icon: <IoWine size={40} className="is-violet" /> },
-        { label: 'Concierges', count: counts.conciergeDetailCount, link: '/manager_concierge', icon: <IoBagCheck size={40} className="is-violet" /> },
-        { label: 'Laundry', count: counts.laundryDetailCount, link: '/manager_laundry', icon: <IoShirt size={40} className="is-violet" /> },
-        { label: 'Venues', count: counts.eventCount, link: '/manager_venue', icon: <IoCalendar size={40} className="is-violet" /> },
-        { label: 'Food Packages', count: counts.eventFoodPackageCount, link: '/manager_food_package', icon: <IoRestaurant size={40} className="is-violet" /> }
+        { label: 'Staffs', count: counts.staffCount, link: '/manager_accounts', icon: <IoPerson size={40} /> },
+        { label: 'Rooms', count: counts.roomCount, link: '/manager_room', icon: <IoHome size={40} /> },
+        { label: 'Foods', count: counts.foodItemCount, link: '/manager_food', icon: <IoFastFood size={40} /> },
+        { label: 'Drinks', count: counts.barDrinkCount, link: '/manager_drink', icon: <IoWine size={40} /> },
+        { label: 'Concierges', count: counts.conciergeDetailCount, link: '/manager_concierge', icon: <IoBagCheck size={40} /> },
+        { label: 'Laundry', count: counts.laundryDetailCount, link: '/manager_laundry', icon: <IoShirt size={40} /> },
+        { label: 'Venues', count: counts.eventCount, link: '/manager_venue', icon: <IoCalendar size={40} /> },
+        { label: 'Food Packages', count: counts.eventFoodPackageCount, link: '/manager_food_package', icon: <IoRestaurant size={40} /> }
     ];
 
     return (
-        <section className='section-p1'>
-            <div className="container has-background-light p-5">
-                <div className="columns is-vcentered">
-                    <div className="column is-half">
-                        <div className="notification is-white">
-                            <h1 className="title is-4">Hello, {staffUsername}!</h1> {/* Updated to show staff username */}
-                            <p className="subtitle">Welcome to the Manager Dashboard.</p>
-                        </div>
-                    </div>
-                    <div className="column is-half has-text-right">
-                        <div className="box">
-                            <p className="title is-5">{formatDateTime(currentDateTime)}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className='columns is-vcentered'>
-            <div className="column is-one-half">
-                    <div className="columns is-multiline" style={{ margin: '2%' }}>
-                        {sections.map((section) => (
-                            <div key={section.label} className="column is-6">
-                                <Link to={section.link}>
-                                    <div className="box is-flex is-flex-direction-row is-flex-direction-column-mobile" style={{ padding: '1rem' }}>
-                                        <div className="is-flex is-justify-content-center is-align-items-center" style={{ flex: '1 1 50%', overflow: 'hidden' }}>
-                                            <span>{section.icon}</span>
-                                        </div>
-                                        <div className="ml-3" style={{ flex: '1 1 50%', overflow: 'hidden', textAlign: 'center' }}>
-                                            <label className="has-text-weight-semibold">{section.label}</label>
-                                            <p className="is-size-5 has-text-primary">{section.count}</p>
-                                        </div>
-                                    </div>
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                    </div>
+        <Box component="section" sx={{ pt: 8, pb: 4 }}>
+            <Container maxWidth="lg">
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Typography variant="h4">Hello, {staffUsername}!</Typography>
+                    <Typography variant="h6">{formatDateTime(currentDateTime)}</Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+                    <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                        Service Maintenance
+                    </Typography>
 
-                <div className="column is-one-half chart-container" >
-                    <div className="column" style={{ height: '400px' }}>
-                        <ResponsiveBar
-                            data={chartData} // Use the dynamically updated data here
-                            keys={['quantity']}
-                            indexBy="service"
-                            margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
-                            colors={['#abdbe3']}
-                            padding={0.3}
-                            axisBottom={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Service',
-                                legendPosition: 'middle',
-                                legendOffset: 32,
-                            }}
-                            axisLeft={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Quantity',
-                                legendPosition: 'middle',
-                                legendOffset: -40,
-                            }}
-                            labelSkipWidth={12}
-                            labelSkipHeight={12}
-                            labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
-                            animate={true}
-                        />
-                    </div>
-                </div>
-            </div>
-        </section>
+                </Box>
+
+                <Grid container spacing={4}>
+                    {sections.map((section) => (
+                        <Grid item xs={12} sm={6} md={3} key={section.label}>
+                            <Link to={section.link} style={{ textDecoration: 'none' }}>
+                                <Paper
+                                    elevation={3}
+                                    sx={{
+                                        padding: 2,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        textAlign: 'center',
+                                        '&:hover': {
+                                            backgroundColor: '#e0f7fa',
+                                            boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
+                                        },
+                                    }}
+                                >
+                                    <Avatar
+                                        sx={{
+                                            backgroundColor: 'primary.main',
+                                            color: 'white',
+                                            width: 56,
+                                            height: 56,
+                                            mb: 1,
+                                            '&:hover': { backgroundColor: 'primary.dark' },
+                                        }}
+                                    >
+                                        {section.icon}
+                                    </Avatar>
+                                    <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+                                        {section.label}
+                                    </Typography>
+                                    <Typography variant="h5" sx={{ color: 'primary.dark' }}>
+                                        {section.count}
+                                    </Typography>
+                                </Paper>
+                            </Link>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Container>
+        </Box>
     );
 };
 

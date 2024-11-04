@@ -11,7 +11,7 @@ const ManagerLayout2 = ({children}) => {
     <React.Fragment>
         <div className="columns mt-6">
             <Navbar_manager/>
-            {!hideFooter && <div style={{ paddingTop: '3rem' }}> <SidebarManager2/> </div>}
+            {!hideFooter && <div > <SidebarManager2/> </div>}
                 <div className="column" style={{backgroundColor:"#e5e5f2"}}>
                     <main>{children}</main>
                 </div>

@@ -164,34 +164,44 @@ const LaundryManager = () => {
 
                     {/* Laundry List */}
                     <div style={{ marginBottom: "5px" }}>
-                        {filteredLaundry.map((laundry) => (
-                            <div
-                                key={laundry.laundry_id}
-                                className={`staff-space ${selectedLaundry && selectedLaundry.laundry_id === laundry.laundry_id ? 'is-active' : ''}`} // Highlight selected laundry
-                                onClick={() => handleLaundryClick(laundry)} // Handle laundry click
-                                style={{ cursor: 'pointer',  padding: '1rem', backgroundColor: selectedLaundry?.laundry_id === laundry.laundry_id ? '#e8f4ff' : 'transparent' 
-                                }} // Add cursor pointer
-                            >
-                                <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
-                                    <IoShirtOutline style={{ marginRight: '5px', textAlign: 'center' }} />
-                                    <div className="column is-flex is-align-items-center">
-                                        <h3 style={{ marginRight: "8px" }}>
-                                            {laundry.laundry_item}
-                                        </h3>
-                                        <div
-                                            className="status-circle"
-                                            style={{
-                                                backgroundColor: getStatusColor(laundry.laundry_status), // Color based on status
-                                                borderRadius: '50%',
-                                                width: '10px',
-                                                height: '10px'
-                                            }}
-                                        ></div>
+                        {filteredLaundry
+                            .sort((a, b) => {
+                                const laundryItemA = a.laundry_item.toLowerCase();
+                                const laundryItemB = b.laundry_item.toLowerCase();
+                                return laundryItemA < laundryItemB ? -1 : laundryItemA > laundryItemB ? 1 : 0;
+                            })
+                            .map((laundry) => (
+                                <div
+                                    key={laundry.laundry_id}
+                                    className={`staff-space ${selectedLaundry && selectedLaundry.laundry_id === laundry.laundry_id ? 'is-active' : ''}`} // Highlight selected laundry
+                                    onClick={() => handleLaundryClick(laundry)} // Handle laundry click
+                                    style={{ 
+                                        cursor: 'pointer',  
+                                        padding: '1rem', 
+                                        backgroundColor: selectedLaundry?.laundry_id === laundry.laundry_id ? '#e8f4ff' : 'transparent' 
+                                    }} // Add cursor pointer
+                                >
+                                    <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
+                                        <IoShirtOutline style={{ marginRight: '5px', textAlign: 'center' }} />
+                                        <div className="column is-flex is-align-items-center">
+                                            <h3 style={{ marginRight: "8px" }}>
+                                                {laundry.laundry_item}
+                                            </h3>
+                                            <div
+                                                className="status-circle"
+                                                style={{
+                                                    backgroundColor: getStatusColor(laundry.laundry_status), // Color based on status
+                                                    borderRadius: '50%',
+                                                    width: '10px',
+                                                    height: '10px'
+                                                }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
+
                 </div>
 
                 <div className="column" style={{ backgroundColor: "white" }}>

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
+import React, { useState } from 'react'; 
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import 'bulma/css/bulma.min.css';
 import logo from "../images/logo.png";
 import './layouts.css';
 import '../App.css';
 import { IoLogOut } from 'react-icons/io5';
+import Avatar from '@mui/material/Avatar'; // MUI Avatar
+import { deepPurple } from '@mui/material/colors';
 
 function Navbar_manager() {
   const [isActive, setIsActive] = useState(false);
@@ -46,6 +48,13 @@ function Navbar_manager() {
             {!isLoginPage && (
               <div className="navbar-item">
                 <div className="buttons">
+                  <Link to="/manager_profile" className="button is-white">
+                    <Avatar
+                      sx={{ width: 56, height: 56, bgcolor: "#1976d2" }}
+                    >
+                      MP
+                    </Avatar>
+                  </Link>
                   <button onClick={handleLogout} className="button is-blue">
                     <strong><IoLogOut className='icon-button-space' /> Log out</strong>
                   </button>

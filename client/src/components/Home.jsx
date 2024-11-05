@@ -29,7 +29,6 @@ const Home = () => {
     const today = moment().toDate();
     const twoMonthsFromToday = moment().add(2, 'months').toDate();
 
-    // Fetch rooms with MAIN photos
     useEffect(() => {
         const fetchRooms = async () => {
             try {
@@ -83,9 +82,9 @@ const Home = () => {
             });
     
             if (response.data.rooms.length > 0) {
-                navigate(`/room_search?checkIn=${moment(checkInDate).format('YYYY-MM-DD')}&checkOut=${moment(checkOutDate).format('YYYY-MM-DD')}&adults=${adults}&children=${children}&roomPax=${totalGuests}&available=true`);
+                navigate(`/room_search?checkIn=${moment(checkInDate).format('YYYY-MM-DD')}&checkOut=${moment(checkOutDate).format('YYYY-MM-DD')}&adults=${adults}&children=${children}&roomPax=${totalGuests}&numberOfRooms=${numberOfRooms}&available=true`);
             } else {
-                navigate(`/room_search?checkIn=${moment(checkInDate).format('YYYY-MM-DD')}&checkOut=${moment(checkOutDate).format('YYYY-MM-DD')}&adults=${adults}&children=${children}&roomPax=${totalGuests}&available=false`);
+                navigate(`/room_search?checkIn=${moment(checkInDate).format('YYYY-MM-DD')}&checkOut=${moment(checkOutDate).format('YYYY-MM-DD')}&adults=${adults}&children=${children}&roomPax=${totalGuests}&numberOfRooms=${numberOfRooms}&available=false`);
             }
         } catch (error) {
             setError('Error fetching available rooms');
@@ -93,6 +92,7 @@ const Home = () => {
             setLoading(false); // Reset loading when the search is complete
         }
     };
+    
     
 
     return (
@@ -379,3 +379,6 @@ const Home = () => {
 };
 
 export default Home;
+
+
+

@@ -252,6 +252,22 @@ h6 {
   align-items: center;
   text-align: center;
 }
+
+.floating-button-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.floating-button-container .button {
+  width: auto; /* Adjust width as needed */
+  padding: 1rem 2rem; /* Optional padding for a larger button */
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2); /* Optional shadow for emphasis */
+}
+
+
+
 /*BUTTONS------------------------------------------------------------------*/
 /*BREADCRUMBS--------------------------------------------------------------*/
 .breadcrumbs {

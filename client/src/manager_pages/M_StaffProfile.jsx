@@ -1,12 +1,12 @@
-import ManagerLayout from "../layouts/Manager_Layout";
+import ProfileLayout from "../layouts/ProfileLayout";
 import StaffProfile from "../manager_components/StaffProfile";
 import ProtectedRoute from "../auth/protectedRoute";
 const MStaffProfile = () => {
     return (
-        <ProtectedRoute allowedRoles={['manager']}>
-            <ManagerLayout>
+        <ProtectedRoute allowedRoles={['manager', 'restaurantDesk', 'barDesk', 'frontDesk']}>
+            <ProfileLayout>
                 <StaffProfile/>
-            </ManagerLayout>
+            </ProfileLayout>
         </ProtectedRoute>
       )
 }

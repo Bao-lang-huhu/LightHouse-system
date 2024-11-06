@@ -272,7 +272,6 @@ const RoomReservation = () => {
                             ></textarea>
                         </div>
                     </div>
-
                 </div>
 
                 <div className="field">

@@ -1,266 +1,210 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts';
 import axios from 'axios';
-import './reports_m.css';
 import { ClipLoader } from 'react-spinners';
+import './reports_m.css';
 
-const ReportForecasting = () => {
-    const [roomForecastData, setRoomForecastData] = useState([]);
+const Forecasting = () => {
     const [eventForecastData, setEventForecastData] = useState([]);
-    const [selectedView, setSelectedView] = useState('graphs');
-    const [formattedData, setFormattedData] = useState([]);
-    const [historyData, setHistoryData] = useState([]);
+    const [roomOccupancyData, setRoomOccupancyData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('room');
+    const [forecastMonths, setForecastMonths] = useState(3);
+    const [activeTab, setActiveTab] = useState('events');
+    const [viewMode, setViewMode] = useState('chart'); // 'chart' or 'table'
 
-    // Set baseUrl based on environment
-    const baseUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:3001'
-        : 'https://light-house-system-h74t-server.vercel.app';
+    const baseUrl = 'http://localhost:3001';
 
-    const fetchForecastData = async () => {
+    const fetchEventForecastData = async () => {
         try {
-            const response = await axios.post(`${baseUrl}/api/manager_forecast`, { months: 3 });
+            const response = await axios.post(`${baseUrl}/api/event_forecast`, { months: forecastMonths });
             const data = response.data;
 
-            const historical = data.filter(item => item.isHistorical);
-            const forecasted = data.filter(item => !item.isHistorical);
+            const eventTypes = Array.from(new Set(data.map(item => item.event_type)));
+            const completeData = [];
 
-            setHistoryData(historical);
-            setRoomForecastData(forecasted);
+            eventTypes.forEach(eventType => {
+                const historicalData = data
+                    .filter(item => item.event_type === eventType && item.isHistorical)
+                    .sort((a, b) => new Date(a.ds) - new Date(b.ds));
+
+                const forecastedData = data
+                    .filter(item => item.event_type === eventType && !item.isHistorical)
+                    .sort((a, b) => new Date(a.ds) - new Date(b.ds))
+                    .slice(0, forecastMonths);
+
+                if (forecastedData.length > 0 && historicalData.length > 0) {
+                    const lastHistoricalPoint = historicalData[historicalData.length - 1];
+                    const duplicatedPoint = {
+                        ...lastHistoricalPoint,
+                        isHistorical: false
+                    };
+                    completeData.push(...historicalData, duplicatedPoint, ...forecastedData);
+                } else {
+                    completeData.push(...historicalData, ...forecastedData);
+                }
+            });
+
+            setEventForecastData(completeData.sort((a, b) => new Date(a.ds) - new Date(b.ds)));
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching forecast:', err);
-            setError('Failed to fetch forecast data');
-            setLoading(false);
-        }
-    };
-
-    const fetchEventForecast = async () => {
-        try {
-            const response = await axios.post(`${baseUrl}/api/event_forecast`, { months: 3 });
-            const adjustedData = response.data
-                .map(item => ({
-                    ...item,
-                    y: item.isHistorical ? item.y : Math.round(item.y),
-                    ds: new Date(item.ds)
-                }))
-                .sort((a, b) => a.ds - b.ds);
-
-            setEventForecastData(adjustedData);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching event forecast data:', error);
+            console.error('Error fetching event forecast:', err);
             setError('Failed to fetch event forecast data');
             setLoading(false);
         }
     };
 
-    const handleViewChange = (view) => setSelectedView(view);
+    const fetchRoomOccupancyData = async () => {
+        try {
+            const response = await axios.post(`${baseUrl}/api/manager_forecast`, { months: forecastMonths });
+            const data = response.data;
 
-    useEffect(() => {
-        fetchForecastData();
-        fetchEventForecast();
-    }, []);
+            const historicalData = data
+                .filter(item => item.isHistorical)
+                .sort((a, b) => new Date(a.ds) - new Date(b.ds));
 
-    useEffect(() => {
-        const eventTypeMap = {};
+            const forecastedData = data
+                .filter(item => !item.isHistorical)
+                .sort((a, b) => new Date(a.ds) - new Date(b.ds))
+                .slice(0, forecastMonths);
 
-        eventForecastData.forEach(item => {
-            const { ds, y, event_type, isHistorical } = item;
-            const timestamp = new Date(ds).getTime();
-
-            if (!eventTypeMap[event_type]) {
-                eventTypeMap[event_type] = [];
+            if (forecastedData.length > 0 && historicalData.length > 0) {
+                const lastHistoricalPoint = historicalData[historicalData.length - 1];
+                const duplicatedPoint = {
+                    ...lastHistoricalPoint,
+                    isHistorical: false
+                };
+                setRoomOccupancyData([...historicalData, duplicatedPoint, ...forecastedData]);
+            } else {
+                setRoomOccupancyData([...historicalData, ...forecastedData]);
             }
-
-            eventTypeMap[event_type].push({ ds: timestamp, y, isHistorical });
-        });
-
-        Object.keys(eventTypeMap).forEach(type => {
-            eventTypeMap[type].sort((a, b) => a.ds - b.ds);
-        });
-
-        const formattedDataArr = Object.keys(eventTypeMap).map(type => ({
-            type,
-            data: eventTypeMap[type]
-        }));
-
-        setFormattedData(formattedDataArr);
-    }, [eventForecastData]);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching room occupancy forecast:', err);
+            setError('Failed to fetch room occupancy forecast data');
+            setLoading(false);
+        }
+    };
 
     const formatMonthYear = (date) => {
         const parsedDate = new Date(date);
         return `${parsedDate.toLocaleString('default', { month: 'short' })} ${parsedDate.getFullYear()}`;
     };
 
-    // Function to generate random dark colors
-    const generateDarkColor = () => {
-        const darkColorOptions = [
-            { r: 139, g: 0, b: 0 },      // Dark Red
-            { r: 184, g: 134, b: 11 },   // Dark Goldenrod
-            { r: 0, g: 100, b: 0 },      // Dark Green
-            { r: 0, g: 0, b: 139 },      // Dark Blue
-            { r: 72, g: 61, b: 139 },    // Dark Slate Blue
-            { r: 85, g: 107, b: 47 },    // Dark Olive Green
-            { r: 139, g: 69, b: 19 },    // Saddle Brown
-            { r: 47, g: 79, b: 79 }      // Dark Slate Gray
-        ];
+    useEffect(() => {
+        if (activeTab === 'events') {
+            fetchEventForecastData();
+        } else {
+            fetchRoomOccupancyData();
+        }
+    }, [activeTab, forecastMonths]);
 
-        const selectedColor = darkColorOptions[Math.floor(Math.random() * darkColorOptions.length)];
-        const redHex = selectedColor.r.toString(16).padStart(2, '0');
-        const greenHex = selectedColor.g.toString(16).padStart(2, '0');
-        const blueHex = selectedColor.b.toString(16).padStart(2, '0');
-
-        return `#${redHex}${greenHex}${blueHex}`;
-    };
-
-    if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
-        <ClipLoader color="#123abc" loading={loading} size={50} />
-    </div>;
+    if (loading) return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+            <ClipLoader color="#123abc" loading={loading} size={50} />
+        </div>
+    );
 
     if (error) return <p>{error}</p>;
 
+    const renderTable = (data, isHistorical) => (
+        <table className="forecast-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>{activeTab === 'events' ? 'Event Type' : 'Occupancy Rate'}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {data.filter(item => item.isHistorical === isHistorical).map((item, index) => (
+                    <tr key={index}>
+                        <td>{formatMonthYear(item.ds)}</td>
+                        <td>{activeTab === 'events' ? item.event_type : `${Math.round(item.y)}%`}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
+
     return (
         <section className='section-p1'>
-            <div className='mb-5 mt-4'>
-                <p className='subtitle is-3'>Forecasting</p>
-            </div>
-            <div className='tabs is-boxed'>
-                <ul className='is-left is-boxed'>
-                    <li className={activeTab === 'room' ? 'is-active' : ''} onClick={() => setActiveTab('room')}>
-                        <a>Room Forecasting</a>
-                    </li>
-                    <li className={activeTab === 'event' ? 'is-active' : ''} onClick={() => setActiveTab('event')}>
-                        <a>Event Forecasting</a>
-                    </li>
-                </ul>
-                <ul className="is-right is-boxed">
-                    <li className={selectedView === 'tables' ? 'is-active' : ''}>
-                        <a onClick={() => handleViewChange('tables')}>Tables</a>
-                    </li>
-                    <li className={selectedView === 'graphs' ? 'is-active' : ''}>
-                        <a onClick={() => handleViewChange('graphs')}>Graphs</a>
-                    </li>
-                </ul>
+            <div className='tabs'>
+                <button onClick={() => setActiveTab('events')} className={activeTab === 'events' ? 'active' : ''}>
+                    Event Forecasting
+                </button>
+                <button onClick={() => setActiveTab('room_occupancy')} className={activeTab === 'room_occupancy' ? 'active' : ''}>
+                    Room Occupancy Forecasting
+                </button>
             </div>
 
-            {activeTab === 'room' && (
-                <div>
-                    <h1 className='is-size-5'>Hotel Room Occupancy Rate Forecast (Next 3 Months)</h1>
-                    {selectedView === 'graphs' && (
+            <div className='filter'>
+                <label>View Mode: </label>
+                <select value={viewMode} onChange={(e) => setViewMode(e.target.value)}>
+                    <option value="chart">Chart</option>
+                    <option value="table">Table</option>
+                </select>
+                <label>Show Forecast for: </label>
+                <select value={forecastMonths} onChange={(e) => setForecastMonths(Number(e.target.value))}>
+                    <option value={1}>1 Month</option>
+                    <option value={2}>2 Months</option>
+                    <option value={3}>3 Months</option>
+                </select>
+            </div>
+
+            {viewMode === 'chart' ? (
+                activeTab === 'events' ? (
+                    <div>
+                        <p className='subtitle is-3'>Event Forecasting (Historical & Next {forecastMonths} Month{forecastMonths > 1 ? 's' : ''})</p>
                         <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
-                            <LineChart data={roomForecastData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }}>
+                            <LineChart data={eventForecastData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="ds" tickFormatter={formatMonthYear} />
-                                <YAxis tickFormatter={(value) => `${value.toFixed(2)}%`} />
-                                <Tooltip formatter={(value) => `${value.toFixed(2)}%`} />
-                                <Legend />
-                                <Line type="monotone" data={historyData} dataKey="y" name="Historical Data" stroke="#0000CD" />
-                                <Line type="monotone" data={roomForecastData} dataKey="yhat" name="Forecasted Data" stroke="#000080" strokeDasharray="5 5" />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    )}
-                    {selectedView === 'tables' && (
-                        <div className="columns is-multiline">
-                            <div className="column is-half-tablet is-full-mobile">
-                                <h2 className="title is-5">Historical Data</h2>
-                                <table className="table is-fullwidth is-striped">
-                                    <thead><tr><th>Date</th><th>Occupancy Rate (%)</th></tr></thead>
-                                    <tbody>
-                                        {historyData.map((item, index) => (
-                                            <tr key={index}>
-                                                <td>{formatMonthYear(item.ds)}</td>
-                                                <td>{item.y.toFixed(2)}%</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="column is-half-tablet is-full-mobile">
-                                <h2 className="title is-5">Forecasted Data (Next 3 Months)</h2>
-                                <table className="table is-fullwidth is-striped">
-                                    <thead><tr><th>Date</th><th>Occupancy Rate (%)</th></tr></thead>
-                                    <tbody>
-                                        {roomForecastData.map((item, index) => (
-                                            <tr key={index}>
-                                                <td>{formatMonthYear(item.ds)}</td>
-                                                <td>{item.yhat.toFixed(2)}%</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {activeTab === 'event' && (
-                <div>
-                    <h1 className='is-size-5'>Event Trends Monthly Forecast (Next 3 Months)</h1>
-                    {selectedView === 'graphs' && (
-                        <ResponsiveContainer width="100%" height={500}>
-                            <LineChart>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="ds" tickFormatter={formatMonthYear} />
-                                <YAxis label={{ value: 'Number of Events', angle: -90 }} />
-                                <Tooltip />
-                                <Legend />
-                                {formattedData.map((item) => (
-                                    <Line
-                                        key={item.type}
-                                        data={item.data}
-                                        dataKey="y"
-                                        name={item.type}
-                                        type="monotone"
-                                        stroke={generateDarkColor()}
-                                        dot={false}
-                                        strokeDasharray={item.data.some(d => !d.isHistorical) ? '5 5' : '0'}
-                                    />
+                                <XAxis dataKey="ds" type="category" tickFormatter={formatMonthYear} allowDuplicatedCategory={false}>
+                                    <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: window.innerWidth < 600 ? '14px' : '18px' }} />
+                                </XAxis>
+                                <YAxis width={window.innerWidth < 600 ? 50 : 80} label={{ value: "Event Count", angle: -90, position: "insideLeft", offset: -10, style: { textAnchor: 'middle', fontSize: window.innerWidth < 600 ? '14px' : '18px' } }} />
+                                <Tooltip formatter={(value) => Math.round(value)} />
+                                <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+                                {["ANNIVERSARY", "WEDDING", "BIRTHDAY", "EXHIBITION", "CHRISTMAS", "SEMINAR"].map((eventType, index) => (
+                                    <React.Fragment key={eventType}>
+                                        <Line type="linear" dataKey={(item) => item.event_type === eventType && item.isHistorical ? item.y : null} name={`${eventType} (Historical)`} stroke={["#0000CD", "#FF4500", "#32CD32", "#FF6347", "#8A2BE2", "#FFA500"][index]} strokeWidth={2} dot={{ r: 2 }} connectNulls />
+                                        <Line type="linear" dataKey={(item) => item.event_type === eventType && !item.isHistorical ? item.y : null} name={`${eventType} (Forecasted)`} stroke={["#0000CD", "#FF4500", "#32CD32", "#FF6347", "#8A2BE2", "#FFA500"][index]} strokeWidth={2} dot={{ r: 2 }} strokeDasharray="5 5" connectNulls />
+                                    </React.Fragment>
                                 ))}
                             </LineChart>
                         </ResponsiveContainer>
-                    )}
-                    {selectedView === 'tables' && (
-                        <div className="columns is-multiline">
-                            <div className="column is-half-tablet is-full-mobile">
-                                <h2 className="title is-5">Historical Event Data</h2>
-                                <table className="table is-fullwidth is-striped">
-                                    <thead><tr><th>Event Type</th><th>Month</th><th>Number of Events</th></tr></thead>
-                                    <tbody>
-                                        {eventForecastData.filter(item => item.isHistorical).map((item, index) => (
-                                            <tr key={index}>
-                                                <td>{item.event_type}</td>
-                                                <td>{formatMonthYear(item.ds)}</td>
-                                                <td>{item.y}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="column is-half-tablet is-full-mobile">
-                                <h2 className="title is-5">Forecasted Event Data (Next 3 Months)</h2>
-                                <table className="table is-fullwidth is-striped">
-                                    <thead><tr><th>Event Type</th><th>Month</th><th>Predicted Events</th></tr></thead>
-                                    <tbody>
-                                        {eventForecastData.filter(item => !item.isHistorical).map((item, index) => (
-                                            <tr key={index}>
-                                                <td>{item.event_type}</td>
-                                                <td>{formatMonthYear(item.ds)}</td>
-                                                <td>{item.y}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
+                    </div>
+                ) : (
+                    <div>
+                        <p className='subtitle is-3'>Room Occupancy Forecasting (Historical & Next {forecastMonths} Month{forecastMonths > 1 ? 's' : ''})</p>
+                        <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
+                            <LineChart data={roomOccupancyData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="ds" type="category" tickFormatter={formatMonthYear} allowDuplicatedCategory={false}>
+                                    <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: window.innerWidth < 600 ? '14px' : '18px' }} />
+                                </XAxis>
+                                <YAxis width={window.innerWidth < 600 ? 50 : 80} label={{ value: "Occupancy Rate (%)", angle: -90, position: "insideLeft", offset: -10, style: { textAnchor: 'middle', fontSize: window.innerWidth < 600 ? '14px' : '18px' } }} tickFormatter={(tick) => `${Math.round(tick)}%`} />
+                                <Tooltip formatter={(value) => `${Math.round(value)}%`} />
+                                <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+                                <Line type="linear" dataKey={(item) => item.isHistorical ? item.y : null} name="Room Occupancy (Historical)" stroke="#32CD32" strokeWidth={2} dot={{ r: 2 }} connectNulls />
+                                <Line type="linear" dataKey={(item) => !item.isHistorical ? item.y : null} name="Room Occupancy (Forecasted)" stroke="#32CD32" strokeWidth={2} dot={{ r: 2 }} strokeDasharray="5 5" connectNulls />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                )
+            ) : (
+                <div className="table-container">
+                    <div className="table-cell">
+                        <p className="subtitle">Historical Data</p>
+                        {renderTable(activeTab === 'events' ? eventForecastData : roomOccupancyData, true)}
+                    </div>
+                    <div className="table-cell">
+                        <p className="subtitle">Forecasted Data</p>
+                        {renderTable(activeTab === 'events' ? eventForecastData : roomOccupancyData, false)}
+                    </div>
                 </div>
             )}
         </section>
     );
 };
 
-export default ReportForecasting;
+export default Forecasting;

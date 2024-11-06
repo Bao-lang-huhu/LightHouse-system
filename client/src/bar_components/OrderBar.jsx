@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import 'bulma/css/bulma.min.css';
 import '../App.css';
 import '../manager_components/components_m.css';
-import { IconButton, TextField } from '@mui/material';
-import { IoRemoveOutline, IoAddOutline, IoTrashBinOutline } from 'react-icons/io5';
+import { Box, Container, Grid, Typography, TextField, Select, MenuItem, InputLabel, FormControl, Avatar, Paper, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton } from '@mui/material';
+import { IoAddOutline, IoRemoveOutline, IoTrashBinOutline, IoPencil } from 'react-icons/io5';
+import ClipLoader from 'react-spinners/ClipLoader';
+
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { ClipLoader } from 'react-spinners';
-import Avatar from '@mui/material/Avatar';
 
 const OrderBar = () => {
   const [drinkItems, setDrinkItems] = useState([]);
@@ -102,176 +102,173 @@ const OrderBar = () => {
   return (
     <section className='section-p1'>
       <header>
-        <div className='container-white-space'>
-          <div className="column is-multiline is-mobile">
-            <h1 className="subtitle">
-              <strong>Add Drink Order</strong>
-            </h1>
-          </div>
-          <div className="columns">
-            <div className="column is-4">
-              <h1 className="subtitle">Filter (Drink)</h1>
-              <div className="field">
-                <label className="label">Search</label>
-                <div className="control">
-                  <input 
-                    className="input" 
-                    type="text" 
-                    placeholder="Search for a drink item"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="field">
-                <label className="label">Drink Category</label>
-                <div className="control">
-                  <div className="select is-fullwidth">
-                    <select 
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}>
-                      <option value="">Select drink category</option>
-                      <option value="WHISKEY">Whiskey</option>
-                      <option value="COCKTAIL">Cocktail</option>
-                      <option value="BEER">Beer</option>
-                      <option value="WINE">Wine</option>
-                      <option value="NON-ALCOHOLIC">Non-Alcoholic</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="column is-8">
-              <h1 className="subtitle">Drink Menu</h1>
-              <div className="columns is-multiline" style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
-                {loading ? (
-                  // Show ClipLoader while loading data
-                  <div className="has-text-centered" style={{ width: '100%' }}>
-                    <ClipLoader color="blue" size={50} />
-                  </div>
-                ) : (
-                  filteredDrinkItems.map((item) => (
-                    <div className="column is-fullwidth-mobile is-8-tablet is-4-desktop" key={item.drink_id}>
-                      <div className="box">
-                        <div className="card-image">
-                          <figure className="image is-4by3" style={{ width: "100%", height: '30%' }}>
-                            <img src={item.drink_photo} alt={item.drink_name} />
-                          </figure>
-                        </div>
-                        <div className="card-content">
-                          <p className="title is-6">{item.drink_name}</p>
-                          <p className="subtitle is-7">₱{item.drink_price.toFixed(2)}</p>
-                          <button 
-                            className="button is-small is-blue is-fullwidth" 
-                            onClick={() => handleAddDrinkItem(item)}
-                          >
-                            <IoAddOutline /> Add
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Header */}
+        <Box component="header" bgcolor="background.paper" py={2}>
+          <Container maxWidth="lg">
+            <Typography variant="h5" fontWeight="bold">
+              Add Order
+            </Typography>
+          </Container>
+        </Box>
       </header>
 
+      
       <section className="section-p1">
-        <div className='container-white-space'>
-          <div className="column is-multiline is-mobile">
-            <h1 className="subtitle">
-              <strong>Order</strong>
-            </h1>
-          </div>
-          {showError && (
-            <div className="notification is-danger">
-              <button className="delete" onClick={() => setShowError(false)}></button>
-              <strong>Precondition Failed:</strong> No drink items in the order. Please add drink items before proceeding.
-            </div>
-          )}
-          <div className='columns'>
-            <div className='column is-8'>
-              <div className="table-container">
-                <table className="table is-fullwidth is-striped is-hoverable">
-                  <thead>
-                    <tr>
-                      <th className="has-text-centered">Image</th>
-                      <th className="has-text-centered">Drink Name</th>
-                      <th className="has-text-centered">Quantity</th>
-                      <th className="has-text-centered">Subtotal</th>
-                      <th className="has-text-centered">Action</th>
-                    </tr>
-                  </thead>
+        <Grid container spacing={2}>
 
-                  <tbody>
-                    {drinkOrders.map((item) => (
-                      <tr key={item.drink_id}>
-                        <td>
+          {/* Filter Section */}
+          <Grid container spacing={2} alignItems="center">
+            {/* Filter Label */}
+            <Grid item xs={12} md={2}>
+              <Typography variant="h6">Filter (Drink)</Typography>
+            </Grid>
+
+            {/* Search Field */}
+            <Grid item xs={12} md={5}>
+              <TextField
+                label="Search"
+                placeholder="Search for a drink item"
+                fullWidth
+                margin="normal"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </Grid>
+
+            {/* Drink Category Selector */}
+            <Grid item xs={12} md={5}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Drink Category</InputLabel>
+                <Select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                  <MenuItem value="">Select drink category</MenuItem>
+                  <MenuItem value="WHISKEY">Whiskey</MenuItem>
+                  <MenuItem value="COCKTAIL">Cocktail</MenuItem>
+                  <MenuItem value="BEER">Beer</MenuItem>
+                  <MenuItem value="WINE">Wine</MenuItem>
+                  <MenuItem value="NON-ALCOHOLIC">Non-Alcoholic</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+
+          {/* Main Content Section */}
+          <Grid item xs={12} container spacing={2}>
+            {/* Drink Items Section */}
+            <Grid item xs={12} md={7}>
+              <Typography variant="h6" className='m-2'>Drink Menu</Typography>
+              <Grid container spacing={2} style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                {loading ? (
+                  <Grid item xs={12} style={{ textAlign: 'center' }}>
+                    <ClipLoader color="blue" size={50} />
+                  </Grid>
+                ) : (
+                  filteredDrinkItems.map((item) => (
+                    <Grid item xs={12} sm={6} md={4} key={item.drink_id}>
+                      <Paper elevation={3} style={{ padding: '10px' }}>
                         <Avatar
-                          src={item.drink_photo || 'https://via.placeholder.com/64'}
+                          src={item.drink_photo}
+                          variant="square"
+                          style={{ width: '100%', height: '150px' }}
                           alt={item.drink_name}
-                          style={{
-                            width: 64,
-                            height: 64,
-                            margin: 'auto',
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                          imgProps={{ style: { objectFit: 'cover' } }}
                         />
-                        </td>
-                        <td>{item.drink_name}</td>
-                        <td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
-                          <div className='button-gap-mui'>
-                            <IconButton className='button is-blue' onClick={() => handleQuantityChange(item.drink_id, -1)}>
-                              <IoRemoveOutline />
-                            </IconButton>
-                            <TextField 
-                              type="number"  
-                              value={item.quantity}
-                              InputProps={{
-                                readOnly: true,
-                                style: { textAlign: 'center' }
-                              }} 
-                              style={{ width: '60px' }} 
-                            />
-                            <IconButton className='button is-blue' onClick={() => handleQuantityChange(item.drink_id, 1)} >
-                              <IoAddOutline />
-                            </IconButton>
-                          </div>
-                        </td>
-                        <td>₱{(item.drink_price * item.quantity).toFixed(2)}</td>
-                        <td>
-                          <button
-                            className="button is-small is-red"
+                        <Typography variant="subtitle1">{item.drink_name}</Typography>
+                        <Typography variant="body2">₱{item.drink_price.toFixed(2)}</Typography>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          fullWidth
+                          startIcon={<IoAddOutline />}
+                          onClick={() => handleAddDrinkItem(item)}
+                        >
+                          Add
+                        </Button>
+                      </Paper>
+                    </Grid>
+                  ))
+                )}
+              </Grid>
+            </Grid>
+
+            {/* Order Summary Section */}
+            <Grid item xs={12} md={5}>
+              <Typography variant="h6">Order</Typography>
+              {showError && (
+                <Paper elevation={3} style={{ padding: '10px', backgroundColor: '#f8d7da' }}>
+                  <Typography variant="body2" color="error">
+                    <strong>Precondition Failed:</strong> No drink items in the order. Please add drink items before proceeding.
+                  </Typography>
+                </Paper>
+              )}
+
+              <TableContainer component={Paper} style={{ marginTop: '10px' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center">Image</TableCell>
+                      <TableCell align="center">Drink Name</TableCell>
+                      <TableCell align="center">Quantity</TableCell>
+                      <TableCell align="center">Subtotal</TableCell>
+                      <TableCell align="center">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {drinkOrders.map((item) => (
+                      <TableRow key={item.drink_id}>
+                        <TableCell align="center">
+                          <Avatar src={item.drink_photo || 'https://via.placeholder.com/64'} alt={item.drink_name} />
+                        </TableCell>
+                        <TableCell align="center">{item.drink_name}</TableCell>
+                        <TableCell align="center">
+                          <IconButton onClick={() => handleQuantityChange(item.drink_id, -1)}>
+                            <IoRemoveOutline />
+                          </IconButton>
+                          <TextField
+                            type="number"
+                            value={item.quantity}
+                            inputProps={{ readOnly: true, style: { textAlign: 'center' } }}
+                            style={{ width: '50px' }}
+                          />
+                          <IconButton onClick={() => handleQuantityChange(item.drink_id, 1)}>
+                            <IoAddOutline />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell align="center">₱{(item.drink_price * item.quantity).toFixed(2)}</TableCell>
+                        <TableCell align="center">
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            startIcon={<IoTrashBinOutline />}
                             onClick={() => handleRemoveItem(item.drink_id)}
                           >
-                            <IoTrashBinOutline style={{ margin: '0 1rem 0 0' }} /> Cancel
-                          </button>
-                        </td>
-                      </tr>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-            <div className='column is-4'>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p className='title is-6'>Total: ₱{total.toFixed(2)}</p>
-              </div>
-              <button className="button is-dark-blue is-fullwidth" style={{ marginTop: '1rem' }} onClick={handleProceedOrder}>
+              <Typography variant="subtitle1" style={{ marginTop: '10px' }}>
+                Total: ₱{total.toFixed(2)}
+              </Typography>
+
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                onClick={handleProceedOrder}
+                style={{ marginTop: '10px' }}
+              >
                 Proceed Order
-              </button>
-            </div>
-          </div>
-
-        </div>
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
       </section>
+
     </section>
   );
 };

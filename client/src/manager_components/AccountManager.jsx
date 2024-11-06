@@ -297,13 +297,18 @@ const AccountManager = () => {
                         </div>
                     </div>
 
-                    {/* Staff List */}
+                   {/* Staff List */}
                     <div style={{ marginBottom: "5px" }}>
                         {staffList
                             .filter(staff =>
                                 staff.staff_fname.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 staff.staff_lname.toLowerCase().includes(searchTerm.toLowerCase())
                             )
+                            .sort((a, b) => {
+                                const nameA = a.staff_fname.toLowerCase();
+                                const nameB = b.staff_fname.toLowerCase();
+                                return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+                            })
                             .map((staff) => (
                                 <div 
                                     className="staff-space" 
@@ -323,7 +328,7 @@ const AccountManager = () => {
                                             <div
                                                 className="status-circle"
                                                 style={{
-                                                    backgroundColor: getStatusColor (staff.staff_status), 
+                                                    backgroundColor: getStatusColor(staff.staff_status), 
                                                     width: '10px',
                                                     height: '10px'
                                                 }}
@@ -333,6 +338,7 @@ const AccountManager = () => {
                                 </div>
                             ))}
                     </div>
+
                 </div>
 
                 <div className="column" style={{ backgroundColor: "white" }}>

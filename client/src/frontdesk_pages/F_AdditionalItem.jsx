@@ -4,10 +4,9 @@ import ProtectedRoute from "../auth/protectedRoute";
 const FAdditionalItem = () => {
     return (
         <ProtectedRoute allowedRoles={['frontDesk']}>
-        <FrontDeskLayout>
-            <AdditionalItem/>
-            
-        </FrontDeskLayout>
+            <FrontDeskLayout>
+                <AdditionalItem/>           
+            </FrontDeskLayout>
         </ProtectedRoute>
       )
 }

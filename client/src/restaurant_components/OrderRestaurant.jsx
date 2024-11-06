@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import 'bulma/css/bulma.min.css';
 import '../App.css';
 import './components_r.css';
-import { IconButton, TextField } from '@mui/material';
+import { Grid, TextField, Box,Button, Container, Select, MenuItem, IconButton, Avatar, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, InputLabel, FormControl } from '@mui/material';
 import { IoRemoveOutline, IoAddOutline, IoTrashBinOutline, IoPencil } from 'react-icons/io5';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
-import Avatar from '@mui/material/Avatar';
 
 const OrderRestaurant = () => {
   const [foodItems, setFoodItems] = useState([]);
@@ -109,195 +108,207 @@ const OrderRestaurant = () => {
 
   return (
     <section className='section-p1'>
-      <header>
-        <div className='container-white-space'>
-          <div className="column is-multiline is-mobile">
-            <h1 className="subtitle">
-              <strong>Add Order</strong>
-            </h1>
-          </div>
-          <div className="columns">
-            <div className="column is-4">
-              <h1 className="subtitle">Filter (Food)</h1>
-              <div className="field">
-                <label className="label">Search</label>
-                <div className="control">
-                  <input 
-                    className="input" 
-                    type="text" 
-                    placeholder="Search for a food item"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="field">
-                <label className="label">Food Category</label>
-                <div className="control">
-                  <div className="select is-fullwidth">
-                    <select 
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                    >
-                      <option value="">Select food category</option>
-                      <option value="CHICKEN">CHICKEN</option>
-                      <option value="BEEF">BEEF</option>
-                      <option value="BURGER">BURGER</option>
-                      <option value="SALAD">SALAD</option>
-                      <option value="PASTA">PASTA</option>
-                      <option value="PORK">PORK</option>
-                      <option value="BREAKFAST">BREAKFAST</option>
-                      <option value="MEAL">MEAL</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="column is-8">
-              <h1 className="subtitle">Food Menu</h1>
-              <div className="columns is-multiline" style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
-                {loading ? (
-                  // Show ClipLoader when loading
-                  <div className="has-text-centered" style={{ width: '100%' }}>
-                    <ClipLoader color="blue" size={50} />
-                  </div>
-                ) : (
-                  // Render food items once loaded
-                  filteredFoodItems.map((item) => (
-                    <div className="column is-fullwidth-mobile is-8-tablet is-4-desktop" key={item.food_id}>
-                      <div className="box">
-                        <div className="card-image">
-                          <figure className="image is-4by3" style={{ width: "100%", height: '30%' }}>
-                            <img src={item.food_photo} alt={item.food_name} />
-                          </figure>
-                        </div>
-                        <div className="card-content">
-                          <p className="title is-6">{item.food_name}</p>
-                          <p className="subtitle is-7">₱{item.food_price.toFixed(2)}</p>
-                          <button
-                            className="button is-small is-blue is-fullwidth"
-                            onClick={() => handleAddFoodItem(item)}
-                          >
-                            <IoAddOutline /> Add
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+       <Box component="header" bgcolor="background.paper" py={2}>
+      <Container maxWidth="lg">
+        <Box display="flex" justifyContent="flex-start">
+          <Typography variant="h5" fontWeight="bold">
+            Add Order
+          </Typography>
+        </Box>
+      </Container>
+    </Box>
 
       <section className="section-p1">
-        <div className='container-white-space'>
-          <div className="column is-multiline is-mobile">
-            <h1 className="subtitle">
-              <strong>Order</strong>
-            </h1>
-          </div>
-          {/* Display error message if showError is true */}
+      <Grid container spacing={2}>
+
+      {/* Filter Section */}
+      <Grid container spacing={2} alignItems="center">
+      {/* Filter Label */}
+      <Grid item xs={12} md={2}>
+        <Typography variant="h6">Filter (Food)</Typography>
+      </Grid>
+      
+      {/* Search Field */}
+      <Grid item xs={12} md={5}>
+        <TextField
+          label="Search"
+          placeholder="Search for a food item"
+          fullWidth
+          margin="normal"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Grid>
+
+      {/* Food Category Selector */}
+      <Grid item xs={12} md={5}>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Food Category</InputLabel>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <MenuItem value="">Select food category</MenuItem>
+            <MenuItem value="CHICKEN">CHICKEN</MenuItem>
+            <MenuItem value="BEEF">BEEF</MenuItem>
+            <MenuItem value="BURGER">BURGER</MenuItem>
+            <MenuItem value="SALAD">SALAD</MenuItem>
+            <MenuItem value="PASTA">PASTA</MenuItem>
+            <MenuItem value="PORK">PORK</MenuItem>
+            <MenuItem value="BREAKFAST">BREAKFAST</MenuItem>
+            <MenuItem value="MEAL">MEAL</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+    </Grid>
+
+      {/* Main Content Section */}
+      <Grid item xs={12} container spacing={2}>
+        {/* Food Items Section */}
+        <Grid item xs={12} md={7}>
+          <Typography variant="h6" className='m-2'>Food Menu</Typography>
+          <Grid container spacing={2} style={{ maxHeight: '500px', overflowY: 'auto' }}>
+            {loading ? (
+              <Grid item xs={12} style={{ textAlign: 'center' }}>
+                <ClipLoader color="blue" size={50} />
+              </Grid>
+            ) : (
+              filteredFoodItems.map((item) => (
+                <Grid item xs={12} sm={6} md={4} key={item.food_id}>
+                  <Paper elevation={3} style={{ padding: '10px' }}>
+                    <Avatar
+                      src={item.food_photo}
+                      variant="square"
+                      style={{ width: '100%', height: '150px' }}
+                      alt={item.food_name}
+                    />
+                    <Typography variant="subtitle1">{item.food_name}</Typography>
+                    <Typography variant="body2">₱{item.food_price.toFixed(2)}</Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      startIcon={<IoAddOutline />}
+                      onClick={() => handleAddFoodItem(item)}
+                    >
+                      Add
+                    </Button>
+                  </Paper>
+                </Grid>
+              ))
+            )}
+          </Grid>
+        </Grid>
+
+        {/* Order Summary Section */}
+        <Grid item xs={12} md={5}>
+          <Typography variant="h6">Order</Typography>
           {showError && (
-            <div className="notification is-danger">
-              <button className="delete" onClick={() => setShowError(false)}></button>
-              <strong>Precondition Failed:</strong> No food items in the order. Please add food items before proceeding.
-            </div>
+            <Paper elevation={3} style={{ padding: '10px', backgroundColor: '#f8d7da' }}>
+              <Typography variant="body2" color="error">
+                <strong>Precondition Failed:</strong> No food items in the order. Please add food items before proceeding.
+              </Typography>
+            </Paper>
           )}
-          <div className='columns'>
-            <div className='column is-8'>
-              <div className="table-container">
-                <table className="table is-fullwidth is-striped is-hoverable">
-                  <thead>
-                    <tr>
-                      <th className="has-text-centered">Image</th>
-                      <th className="has-text-centered">Food Name</th>
-                      <th className="has-text-centered">Quantity</th>
-                      <th className="has-text-centered">Subtotal</th>
-                      <th className="has-text-centered">Action</th>
-                    </tr>
-                  </thead>
+          
+          <TableContainer component={Paper} style={{ marginTop: '10px' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">Image</TableCell>
+                  <TableCell align="center">Food Name</TableCell>
+                  <TableCell align="center">Quantity</TableCell>
+                  <TableCell align="center">Subtotal</TableCell>
+                  <TableCell align="center">Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {foodOrders.map((item) => (
+                  <TableRow key={item.food_id}>
+                    <TableCell align="center">
+                      <Avatar src={item.food_photo || 'https://via.placeholder.com/64'} alt={item.food_name} />
+                    </TableCell>
+                    <TableCell align="center">{item.food_name}</TableCell>
+                    <TableCell align="center">
+                      <IconButton onClick={() => handleQuantityChange(item.food_id, -1)}>
+                        <IoRemoveOutline />
+                      </IconButton>
+                      <TextField
+                        type="number"
+                        value={item.quantity}
+                        inputProps={{ readOnly: true, style: { textAlign: 'center' } }}
+                        style={{ width: '50px' }}
+                      />
+                      <IconButton onClick={() => handleQuantityChange(item.food_id, 1)}>
+                        <IoAddOutline />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell align="center">₱{(item.food_price * item.quantity).toFixed(2)}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="outlined"
+                        color="primary" // Use primary to start with, but override colors
+                        fullWidth
+                        style={{ 
+                          backgroundColor: '#fff', // Set to white or an inverted color
+                          color: '#1976d2', // Primary blue from Material-UI, adjust as needed
+                          marginTop: '10px' 
+                        }}
+                        startIcon={<IoTrashBinOutline />}
+                        onClick={() => handleRemoveItem(item.food_id)}
+                      ></Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-                  <tbody>
-                    {foodOrders.map((item) => (
-                      <tr key={item.food_id}>
-                        <td>
-                        <Avatar
-                          src={item.food_photo || 'https://via.placeholder.com/64'}
-                          alt={item.food_name}
-                          style={{
-                            width: 64,
-                            height: 64,
-                            margin: 'auto',
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                          imgProps={{ style: { objectFit: 'cover' } }}
-                        />
-                        </td>
-                        <td>{item.food_name}</td>
-                        <td style={{ verticalAlign: 'middle', textAlign: 'center' }}>
-                          <div className='button-gap-mui'>
-                            <IconButton className='button is-blue' onClick={() => handleQuantityChange(item.food_id, -1)}>
-                              <IoRemoveOutline />
-                            </IconButton>
-                                <TextField 
-                                  type="number"  
-                                  value={item.quantity}
-                                  InputProps={{
-                                    readOnly: true,
-                                    style: { textAlign: 'center' }
-                                  }} 
-                                  style={{ width: '60px' }} 
-                                />
-                            <IconButton className='button is-blue' onClick={() => handleQuantityChange(item.food_id, 1)} >
-                              <IoAddOutline />
-                            </IconButton>
-                          </div>
-                        </td>
-                        <td>₱{(item.food_price * item.quantity).toFixed(2)}</td>
-                        <td>
-                          <button
-                            className="button is-small is-red"
-                            onClick={() => handleRemoveItem(item.food_id)}
-                          >
-                            <IoTrashBinOutline style={{ margin: '0 1rem 0 0' }} /> Cancel
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          <Typography variant="subtitle1" style={{ marginTop: '10px' }}>
+            Total: ₱{total.toFixed(2)}
+          </Typography>
+          
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            startIcon={<IoPencil />}
+            onClick={() => setShowNotes(!showNotes)}
+            style={{ marginTop: '10px' }}
+          >
+            {showNotes ? 'Hide Notes' : 'Add Notes'}
+          </Button>
+          
+          {showNotes && (
+            <TextField
+              multiline
+              rows={4}
+              variant="outlined"
+              fullWidth
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Enter your notes here..."
+              style={{ marginTop: '10px' }}
+            />
+          )}
+          
+          <Button 
+            variant="contained"
+            color="primary" // Use primary to start with, but override colors
+            fullWidth
+            onClick={handleProceedOrder}
+            style={{ 
+              backgroundColor: '#fff', // Set to white or an inverted color
+              color: '#1976d2', // Primary blue from Material-UI, adjust as needed
+              marginTop: '10px' 
+            }}
+          >
+            Proceed Order
+          </Button>
 
-            <div className='column is-4'>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p className='title is-6'>Total: ₱{total.toFixed(2)}</p>
-                <button className="button is-blue" onClick={() => setShowNotes(!showNotes)}>
-                  <IoPencil style={{ margin: '0 5px' }} /> {showNotes ? 'Hide Notes' : 'Add Notes'}
-                </button>
-              </div>
-              {showNotes && (
-                <div style={{ marginTop: '1rem' }}>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Enter your notes here..."
-                    className='textarea-appear'
-                  />
-                </div>
-              )}
-              <button className="button is-dark-blue is-fullwidth" style={{ marginTop: '1rem' }} onClick={handleProceedOrder}>
-                Proceed Order
-              </button>
-            </div>
-          </div>
-
-        </div>
+        </Grid>
+      </Grid>
+    </Grid>
       </section>
     </section>
   );

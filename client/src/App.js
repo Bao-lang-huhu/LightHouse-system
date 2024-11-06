@@ -47,6 +47,7 @@ import MAConcierges from "./manager_pages/MA_Concierge";
 import MALaundry from "./manager_pages/MA_Laundry";
 import MAPackages from "./manager_pages/MA_Packages";
 import MAVenues from "./manager_pages/MA_Venues";
+import MStaffProfile from "./manager_pages/M_StaffProfile";
 
 
 import FDashboard from "./frontdesk_pages/F_Dashboard";
@@ -133,6 +134,8 @@ function App() {
         <Route path = "/manager_report_menu_optimization" element ={<MReportMenuOp/>}/>
         <Route path = "/manager_report_room_occupancy_rate" element ={<MReportRoomOccupancy/>}/>
         <Route path = "/manager_report_forecasting" element ={<MReportForecasting/>}/>
+        <Route path = "/manager_profile" element ={<MStaffProfile/>}/>
+
 
         <Route path = "/manager_archive_dashboard" element ={<MADashboard/>}/>
         <Route path = "/manager_archive_accounts" element ={<MAAccounts/>}/>

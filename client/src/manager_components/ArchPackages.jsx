@@ -129,33 +129,44 @@ const ArchPackages = () => {
 
                     {/* Food Package List */}
                     <div style={{ marginBottom: "5px" }}>
-                        {filteredPackages.map((pkg) => (
-                            <div
-                                key={pkg.event_fd_pckg_id}
-                                className={`staff-space ${selectedPackage && selectedPackage.event_fd_pckg_id === pkg.event_fd_pckg_id ? 'is-active' : ''}`} // Highlight selected food package
-                                onClick={() => handlePackageClick(pkg)} // Handle food package click
-                                style={{ cursor: 'pointer', padding: '1rem', backgroundColor: selectedPackage && selectedPackage.event_fd_pckg_id === pkg.event_fd_pckg_id ? '#e8f4ff' : 'transparent' }} // Add cursor pointer
-                            >
-                                <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
-                                    <IoFastFoodOutline style={{ marginRight: '5px', textAlign: 'center' }} />
-                                    <div className="column is-flex is-align-items-center">
-                                        <h3 style={{ marginRight: "8px" }}>
-                                            {pkg.event_fd_pckg_name}
-                                        </h3>
-                                        <div
-                                            className="status-circle"
-                                            style={{
-                                                backgroundColor: getStatusColor(pkg.event_fd_status), 
-                                                borderRadius: '50%',
-                                                width: '10px',
-                                                height: '10px'
-                                            }}
-                                        ></div>
+                        {filteredPackages
+                            .sort((a, b) => {
+                                const packageNameA = a.event_fd_pckg_name.toLowerCase();
+                                const packageNameB = b.event_fd_pckg_name.toLowerCase();
+                                return packageNameA < packageNameB ? -1 : packageNameA > packageNameB ? 1 : 0;
+                            })
+                            .map((pkg) => (
+                                <div
+                                    key={pkg.event_fd_pckg_id}
+                                    className={`staff-space ${selectedPackage && selectedPackage.event_fd_pckg_id === pkg.event_fd_pckg_id ? 'is-active' : ''}`} // Highlight selected food package
+                                    onClick={() => handlePackageClick(pkg)} // Handle food package click
+                                    style={{ 
+                                        cursor: 'pointer', 
+                                        padding: '1rem', 
+                                        backgroundColor: selectedPackage && selectedPackage.event_fd_pckg_id === pkg.event_fd_pckg_id ? '#e8f4ff' : 'transparent' 
+                                    }} // Add cursor pointer
+                                >
+                                    <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
+                                        <IoFastFoodOutline style={{ marginRight: '5px', textAlign: 'center' }} />
+                                        <div className="column is-flex is-align-items-center">
+                                            <h3 style={{ marginRight: "8px" }}>
+                                                {pkg.event_fd_pckg_name}
+                                            </h3>
+                                            <div
+                                                className="status-circle"
+                                                style={{
+                                                    backgroundColor: getStatusColor(pkg.event_fd_status), 
+                                                    borderRadius: '50%',
+                                                    width: '10px',
+                                                    height: '10px'
+                                                }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
+
                 </div>
 
                 <div className="column" style={{ backgroundColor: "white" }}>

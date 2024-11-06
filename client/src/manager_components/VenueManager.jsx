@@ -182,33 +182,44 @@ const VenueManager = () => {
 
                     {/* Venue List */}
                     <div style={{ marginBottom: "5px" }}>
-                        {filteredVenues.map((venue) => (
-                            <div
-                                key={venue.event_venue_id}
-                                className={`staff-space ${selectedVenue && selectedVenue.event_venue_id === venue.event_venue_id ? 'is-active' : ''}`} // Highlight selected venue
-                                onClick={() => handleVenueClick(venue)} // Handle venue click
-                                style={{ cursor: 'pointer', padding: '1rem', backgroundColor: selectedVenue && selectedVenue.event_venue_id === venue.event_venue_id ? '#e8f4ff' : 'transparent' }} // Add cursor pointer
-                            >
-                                <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
-                                    <IoLocationSharp style={{ marginRight: '5px', textAlign: 'center' }} />
-                                    <div className="column is-flex is-align-items-center">
-                                        <h3 style={{ marginRight: "8px" }}>
-                                            {venue.venue_name}
-                                        </h3>
-                                        <div
-                                            className="status-circle"
-                                            style={{
-                                                backgroundColor: getStatusColor(venue.venue_status), 
-                                                borderRadius: '50%',
-                                                width: '10px',
-                                                height: '10px'
-                                            }}
-                                        ></div>
+                        {filteredVenues
+                            .sort((a, b) => {
+                                const venueNameA = a.venue_name.toLowerCase();
+                                const venueNameB = b.venue_name.toLowerCase();
+                                return venueNameA < venueNameB ? -1 : venueNameA > venueNameB ? 1 : 0;
+                            })
+                            .map((venue) => (
+                                <div
+                                    key={venue.event_venue_id}
+                                    className={`staff-space ${selectedVenue && selectedVenue.event_venue_id === venue.event_venue_id ? 'is-active' : ''}`} // Highlight selected venue
+                                    onClick={() => handleVenueClick(venue)} // Handle venue click
+                                    style={{
+                                        cursor: 'pointer', 
+                                        padding: '1rem', 
+                                        backgroundColor: selectedVenue && selectedVenue.event_venue_id === venue.event_venue_id ? '#e8f4ff' : 'transparent'
+                                    }} // Add cursor pointer
+                                >
+                                    <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
+                                        <IoLocationSharp style={{ marginRight: '5px', textAlign: 'center' }} />
+                                        <div className="column is-flex is-align-items-center">
+                                            <h3 style={{ marginRight: "8px" }}>
+                                                {venue.venue_name}
+                                            </h3>
+                                            <div
+                                                className="status-circle"
+                                                style={{
+                                                    backgroundColor: getStatusColor(venue.venue_status), 
+                                                    borderRadius: '50%',
+                                                    width: '10px',
+                                                    height: '10px'
+                                                }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
+
                 </div>
 
                 <div className="column" style={{ backgroundColor: "white" }}>

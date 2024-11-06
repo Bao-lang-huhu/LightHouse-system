@@ -178,37 +178,44 @@ const ConciergeManager = () => {
 
                     {/* Concierge List */}
                     <div style={{ marginBottom: "5px" }}>
-                        {filteredConcierge.map((concierge) => (
-                            <div
-                                key={concierge.concierge_id}
-                                className={`staff-space ${selectedConcierge && selectedConcierge.concierge_id === concierge.concierge_id ? 'is-active' : ''}`} // Highlight selected concierge
-                                onClick={() => handleConciergeClick(concierge)} // Handle concierge click
-                                style={{
-                                    cursor: 'pointer',
-                                    padding: '1rem',
-                                    backgroundColor: selectedConcierge && selectedConcierge.concierge_id === concierge.concierge_id ? '#e8f4ff' : 'transparent'
-                                }} // Add cursor pointer and highlight style
-                            >
-                                <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
-                                    <IoWalk style={{ marginRight: '5px', textAlign: 'center' }} />
-                                    <div className="column is-flex is-align-items-center">
-                                        <h3 style={{ marginRight: "8px" }}>
-                                            {concierge.concierge_type}
-                                        </h3>
-                                        <div
-                                            className="status-circle"
-                                            style={{
-                                                backgroundColor: getStatusColor(concierge.concierge_status), // Color based on status
-                                                borderRadius: '50%',
-                                                width: '10px',
-                                                height: '10px'
-                                            }}
-                                        ></div>
+                        {filteredConcierge
+                            .sort((a, b) => {
+                                const conciergeTypeA = a.concierge_type.toLowerCase();
+                                const conciergeTypeB = b.concierge_type.toLowerCase();
+                                return conciergeTypeA < conciergeTypeB ? -1 : conciergeTypeA > conciergeTypeB ? 1 : 0;
+                            })
+                            .map((concierge) => (
+                                <div
+                                    key={concierge.concierge_id}
+                                    className={`staff-space ${selectedConcierge && selectedConcierge.concierge_id === concierge.concierge_id ? 'is-active' : ''}`} // Highlight selected concierge
+                                    onClick={() => handleConciergeClick(concierge)} // Handle concierge click
+                                    style={{
+                                        cursor: 'pointer',
+                                        padding: '1rem',
+                                        backgroundColor: selectedConcierge && selectedConcierge.concierge_id === concierge.concierge_id ? '#e8f4ff' : 'transparent'
+                                    }} // Add cursor pointer and highlight style
+                                >
+                                    <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
+                                        <IoWalk style={{ marginRight: '5px', textAlign: 'center' }} />
+                                        <div className="column is-flex is-align-items-center">
+                                            <h3 style={{ marginRight: "8px" }}>
+                                                {concierge.concierge_type}
+                                            </h3>
+                                            <div
+                                                className="status-circle"
+                                                style={{
+                                                    backgroundColor: getStatusColor(concierge.concierge_status), // Color based on status
+                                                    borderRadius: '50%',
+                                                    width: '10px',
+                                                    height: '10px'
+                                                }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
+
                 </div>
 
                 <div className="column" style={{ backgroundColor: "white" }}>

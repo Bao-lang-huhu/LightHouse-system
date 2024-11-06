@@ -284,35 +284,41 @@ const RoomManager = () => {
 
                     {/* Room List */}
                     <div style={{ marginBottom: "5px" }}>
-                        {filteredRooms.map((room) => (
-                            <div
-                                key={room.room_id}
-                                className={`staff-space ${selectedRoom && selectedRoom.room_id === room.room_id ? 'is-active' : ''}`} // Highlight selected room
-                                onClick={() => handleRoomClick(room)} 
-                                style={{ cursor: 'pointer', padding: '1rem',
-                                    backgroundColor: selectedRoom?.room_id === room.room_id ? '#e8f4ff' : 'transparent' 
-                                 }} 
-                            >
-                                <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
-                                    <IoBedOutline style={{ marginRight: '5px', textAlign: 'center' }} />
-                                    <div className="column is-flex is-align-items-center">
-                                        <h3 style={{ marginRight: "8px" }}>
-                                            {room.room_type_name} - {room.room_number}
-                                        </h3>
-                                        <div
-                                            className="status-circle"
-                                            style={{
-                                                backgroundColor: getStatusColor(room.room_status), 
-                                                borderRadius: '50%',
-                                                width: '10px',
-                                                height: '10px'
-                                            }}
-                                        ></div>
+                        {filteredRooms
+                            .sort((a, b) => a.room_number - b.room_number) // Sort by room number
+                            .map((room) => (
+                                <div
+                                    key={room.room_id}
+                                    className={`staff-space ${selectedRoom && selectedRoom.room_id === room.room_id ? 'is-active' : ''}`} // Highlight selected room
+                                    onClick={() => handleRoomClick(room)} 
+                                    style={{ 
+                                        cursor: 'pointer', 
+                                        padding: '1rem',
+                                        backgroundColor: selectedRoom?.room_id === room.room_id ? '#e8f4ff' : 'transparent' 
+                                    }}
+                                >
+                                    <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
+                                        <IoBedOutline style={{ marginRight: '5px', textAlign: 'center' }} />
+                                        <div className="column is-flex is-align-items-center">
+                                            <h3 style={{ marginRight: "8px" }}>
+                                                {room.room_number} - {room.room_type_name}
+                                            </h3>
+                                            <div
+                                                className="status-circle"
+                                                style={{
+                                                    backgroundColor: getStatusColor(room.room_status), 
+                                                    borderRadius: '50%',
+                                                    width: '10px',
+                                                    height: '10px'
+                                                }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
+
+
                 </div>
 
                 <div className="column" style={{ backgroundColor: "white" }}>

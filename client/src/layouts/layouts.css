@@ -33,7 +33,16 @@ li{
 .sidebar.is-active {
   transform: translateX(0); 
   height: 100%;
+  
 }
+
+.is-right-active {
+  font-weight: bold;
+  color: blue !important; /* Ensures color change */
+  background-color: #e8f4ff !important; /* Ensures background change */
+  border-left: 3px solid blue; /* Optional: Add a border to emphasize active link */
+}
+
 
 .sidebar-content {
   padding: 20px;

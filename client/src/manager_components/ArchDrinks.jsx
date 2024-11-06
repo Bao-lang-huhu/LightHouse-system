@@ -144,39 +144,46 @@ const ArchDrinks = () => {
                         </div>
                     </div>
 
+                    {/* Drink List */}
                     <div style={{ marginBottom: "5px" }}>
-                        {filteredDrinks.map((drink) => (
-                            drink && (
-                                <div
-                                    key={drink.drink_id}
-                                    className={`staff-space ${selectedDrink && selectedDrink.drink_id === drink.drink_id ? 'is-active' : ''}`}
-                                    onClick={() => handleDrinkClick(drink)} 
-                                    style={{
-                                        cursor: 'pointer',
-                                        padding: '1rem',
-                                        backgroundColor: selectedDrink && selectedDrink.drink_id === drink.drink_id ? '#e8f4ff' : 'transparent'
-                                    }}
-                                >
-                                    <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
-                                        <IoWine style={{ marginRight: '5px', textAlign: 'center' }} />
-                                        <div className="column is-flex is-align-items-center">
-                                            <h3 style={{ marginRight: "8px" }}>
-                                                {drink.drink_name}
-                                            </h3>
-                                            <div
-                                                className="status-circle"
-                                                style={{
-                                                    backgroundColor: getStatusColor(drink.drink_status), 
-                                                    borderRadius: '50%',
-                                                    width: '10px',
-                                                    height: '10px'
-                                                }}
-                                            ></div>
+                        {filteredDrinks
+                            .sort((a, b) => {
+                                const drinkNameA = a.drink_name.toLowerCase();
+                                const drinkNameB = b.drink_name.toLowerCase();
+                                return drinkNameA < drinkNameB ? -1 : drinkNameA > drinkNameB ? 1 : 0;
+                            })
+                            .map((drink) => (
+                                drink && (
+                                    <div
+                                        key={drink.drink_id}
+                                        className={`staff-space ${selectedDrink && selectedDrink.drink_id === drink.drink_id ? 'is-active' : ''}`}
+                                        onClick={() => handleDrinkClick(drink)} 
+                                        style={{
+                                            cursor: 'pointer',
+                                            padding: '1rem',
+                                            backgroundColor: selectedDrink && selectedDrink.drink_id === drink.drink_id ? '#e8f4ff' : 'transparent'
+                                        }}
+                                    >
+                                        <div className="columns is-vcentered is-mobile" style={{ paddingLeft: "5px" }}>
+                                            <IoWine style={{ marginRight: '5px', textAlign: 'center' }} />
+                                            <div className="column is-flex is-align-items-center">
+                                                <h3 style={{ marginRight: "8px" }}>
+                                                    {drink.drink_name}
+                                                </h3>
+                                                <div
+                                                    className="status-circle"
+                                                    style={{
+                                                        backgroundColor: getStatusColor(drink.drink_status), 
+                                                        borderRadius: '50%',
+                                                        width: '10px',
+                                                        height: '10px'
+                                                    }}
+                                                ></div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )
-                        ))}
+                                )
+                            ))}
                     </div>
                 </div>
 

@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { CircularProgress, Snackbar, Alert, FormControl, FormLabel, RadioGroup, Switch,FormControlLabel, Radio, Button, TextField, Select, MenuItem, Typography, Checkbox } from '@mui/material';
 import moment from 'moment';
-import { IoHelpCircle, IoWarning } from 'react-icons/io5';
+import { IoWarning } from 'react-icons/io5';
 
 
 function EventWalkIn() {
@@ -292,11 +292,15 @@ function EventWalkIn() {
                 guest_lname: lastName,
                 guest_birthdate: birthdate,
                 guest_address: address,
-                guest_email: email,
                 guest_country: country,
                 guest_phone_no: phoneNumber,
                 guest_gender: gender,
             };
+    
+            // Only include the email if it's provided
+            if (email) {
+                guestData.guest_email = email;
+            }
     
             const guestResponse = await axios.post('https://light-house-system-h74t-server.vercel.app/api/registerGuestRoom', guestData);
             if (guestResponse.status === 201) {
@@ -309,8 +313,89 @@ function EventWalkIn() {
             setNotification({ open: true, message: 'Error registering guest.', severity: 'error' });
         }
     };
+
+    const validateInput = () => {
+        const newErrors = {};
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple regex for basic email validation
+    
+        // Validate guest details
+        if (!firstName) newErrors.firstName = "First name is required";
+        if (!lastName) newErrors.lastName = "Last name is required";
+        if (!gender) newErrors.gender = "Gender is required";
+        if (!birthdate) newErrors.birthdate = "Birthdate is required";
+        if (!address) newErrors.address = "Address is required";
+        if (!country) newErrors.country = "Country is required";
+        if (!phoneNumber) newErrors.phoneNumber = "Phone number is required";
+        if (email && !emailPattern.test(email)) newErrors.email = "Please enter a valid email address";
+    
+        // Validate event details
+        if (!eventDetails.event_name) newErrors.event_name = "Event name is required";
+        if (!eventDetails.event_type) newErrors.event_type = "Event type is required";
+        if (!eventDetails.event_start_time) newErrors.event_start_time = "Start time is required";
+    
+        // Guest count validation
+        const guestCount = parseInt(eventDetails.event_no_guest, 10);
+        if (isNaN(guestCount) || guestCount < 20 || guestCount > maxGuests) {
+            newErrors.event_no_guest = `Number of guests must be between 20 and ${maxGuests}`;
+        }
+    
+        // Validate venue selection
+        if (!selectedVenueId) newErrors.venue = "Venue selection is required";
+    
+        // Validate food package selection
+        if (!selectedFoodPackageId) newErrors.foodPackage = "Food package selection is required";
+    
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    
+    const handleBlur = (field) => {
+        // Basic validation for email field only when it loses focus
+        if (field === "email" && email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
+            if (!emailPattern.test(email)) {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    email: "Please enter a valid email address"
+                }));
+            } else {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    email: ""
+                }));
+            }
+        } else {
+            validateInput(); // Validate other fields as before
+        }
+      };
+    
+    
+
+      useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const venuesResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getActiveVenues');
+                const foodPackagesResponse = await axios.get('https://light-house-system-h74t-server.vercel.app/api/getActiveFoodPackages');
+                
+                setVenues(venuesResponse.data.sort((a, b) => a.venue_name.localeCompare(b.venue_name)));
+                setFoodPackages(foodPackagesResponse.data.sort((a, b) => a.event_fd_pckg_name.localeCompare(b.event_fd_pckg_name)));
+            } catch (error) {
+                setNotification({
+                    open: true,
+                    message: 'Error fetching venues and food packages.',
+                    severity: 'error'
+                });
+            }
+        };
+    
+        fetchData();
+    }, []);
+    
+    
     
     const handleSubmit = async (guest_id) => { // Accept guest_id as a parameter
+        if (validateInput()){
+        
         // Clear previous notification state
         setNotification({ open: false, message: '', severity: '' });
     
@@ -364,7 +449,7 @@ function EventWalkIn() {
                 severity: 'error'
             });
             setLoading(false);
-        }
+        }}
     };
     
 
@@ -459,7 +544,10 @@ function EventWalkIn() {
                                 placeholder="Enter your first name"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
+                                onBlur={() => handleBlur("firstName")}
                                 margin="normal"
+                                error={!!errors.firstName} // Shows red border if there's an error
+                                helperText={errors.firstName} 
                             />
                             <TextField
                                 fullWidth
@@ -467,7 +555,10 @@ function EventWalkIn() {
                                 placeholder="Enter your last name"
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
+                                onBlur={() => handleBlur("lastName")}
                                 margin="normal"
+                                error={!!errors.lastName} 
+                                helperText={errors.lastName} 
                             />
                             <FormControl fullWidth margin="normal">
                                 <FormLabel>Gender</FormLabel>
@@ -478,7 +569,8 @@ function EventWalkIn() {
                                     <MenuItem value="NON-BINARY">Non-Binary</MenuItem>
                                     <MenuItem value="PREFER NOT TO SAY">Prefer Not To Say</MenuItem>
                                 </Select>
-                            </FormControl>
+                                {errors.gender && <p style={{ color: 'red', marginTop: '5px' }}>{errors.gender}</p>}
+                                </FormControl>
                             <TextField
                                 fullWidth
                                 type="date"
@@ -486,14 +578,20 @@ function EventWalkIn() {
                                 InputLabelProps={{ shrink: true }}
                                 value={birthdate}
                                 onChange={(e) => setBirthdate(e.target.value)}
+                                onBlur={() => handleBlur("birthdate")}
                                 margin="normal"
+                                error={!!errors.birthdate}
+                                helperText={errors.birthdate}
                             />
                             <TextField
                                 fullWidth
                                 label="Address"
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
+                                onBlur={() => handleBlur("address")}
                                 margin="normal"
+                                error={!!errors.address}
+                                helperText={errors.address}
                             />
                             <FormControl fullWidth margin="normal" error={!!errors.country}>
                             <FormLabel>Country</FormLabel>
@@ -546,13 +644,19 @@ function EventWalkIn() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 margin="normal"
+                                onBlur={() => handleBlur("email")}
+                                error={!!errors.email}
+                                helperText={errors.email}
                             />
                             <TextField
                                 fullWidth
                                 label="Phone Number"
                                 value={phoneNumber}
+                                onBlur={() => handleBlur("phoneNumber")}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 margin="normal"
+                                error={!!errors.phoneNumber}
+                                helperText={errors.phoneNumber}
                             />
                             <TextField
                                 fullWidth
@@ -571,6 +675,9 @@ function EventWalkIn() {
                                     value={eventDetails.event_name}
                                     onChange={handleInputChange}
                                     name="event_name"
+                                    onBlur={() => handleBlur("event_name")}
+                                    error={!!errors.event_name}
+                                    helperText={errors.event_name}
                                 />
                             </FormControl>
 
@@ -579,6 +686,8 @@ function EventWalkIn() {
                                     value={eventDetails.event_type}
                                     onChange={handleInputChange}
                                     name="event_type"
+                                    onBlur={() => handleBlur("event_type")}
+                                    error={!!errors.event_type}
                                     displayEmpty
                                 >
                                     <MenuItem value=""><em>Select Event Type</em></MenuItem>
@@ -593,6 +702,8 @@ function EventWalkIn() {
                                     <MenuItem value="CHRISTMAS">CHRISTMAS</MenuItem>
                                 </Select>
                             </FormControl>
+                            {errors.event_type && <p style={{ color: 'red', marginTop: '5px' }}>{errors.event_type}</p>}
+
 
                             <FormControl fullWidth margin="normal">
                                 <Typography>Event Date: {eventDetails.event_date ? eventDetails.event_date : 'No date selected'}</Typography>
@@ -608,6 +719,9 @@ function EventWalkIn() {
                                     name="event_start_time"
                                     onChange={handleInputChange}
                                     value={eventDetails.event_start_time}
+                                    onBlur={() => handleBlur("event_start_time")}
+                                    error={!!errors.event_start_time}
+                                    helperText={errors.event_start_time}
                                 />
                                 <TextField
                                     type="time"
@@ -618,18 +732,17 @@ function EventWalkIn() {
                                 />
                             </div>
 
-                            <FormControl component="fieldset">
-                            <FormLabel component="legend">Venue</FormLabel>
-
+                            <FormControl component="fieldset" fullWidth margin="normal">
+                                <FormLabel component="legend">Venue</FormLabel>
                                 <RadioGroup
                                     value={selectedVenueId}
                                     onChange={(e) => {
                                         handleVenueChange(e);
-                                        // Reset the number of guests to 20 when a new venue is selected
                                         handleInputChange({ target: { name: "event_no_guest", value: 20 } });
                                     }}
+                                    onBlur={() => handleBlur("venue")}
                                 >
-                                    {venues.map(venue => (
+                                    {venues.map((venue) => (
                                         <FormControlLabel
                                             key={venue.event_venue_id}
                                             value={venue.event_venue_id}
@@ -638,68 +751,10 @@ function EventWalkIn() {
                                         />
                                     ))}
                                 </RadioGroup>
+                                {errors.venue && <p style={{ color: 'red', marginTop: '5px' }}>{errors.venue}</p>}
                             </FormControl>
 
-                            <FormControl fullWidth margin="normal">
-                            <FormLabel component="legend">Number of Guest</FormLabel>
-
-                                <div className="control is-flex is-align-items-center">
-                                    {/* Decrease Button */}
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={() => {
-                                            const currentGuests = parseInt(eventDetails.event_no_guest, 10) || 20;
-                                            if (currentGuests > 20) {
-                                                handleInputChange({ target: { name: "event_no_guest", value: currentGuests - 1 } });
-                                            }
-                                        }}
-                                        disabled={!selectedVenueId || eventDetails.event_no_guest <= 20} // Disable if no venue is selected or below min
-                                    >
-                                        -
-                                    </Button>
-
-                                    {/* Display Current Number of Guests */}
-                                    <TextField
-                                        value={eventDetails.event_no_guest || ''}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            if (/^\d*$/.test(value) && parseInt(value, 10) >= 20 && parseInt(value, 10) <= maxGuests) {
-                                                handleInputChange(e);
-                                            }
-                                        }}
-                                        onBlur={(e) => {
-                                            const value = parseInt(e.target.value, 10);
-                                            if (value < 20 || value > maxGuests || isNaN(value)) {
-                                                handleInputChange({ target: { name: "event_no_guest", value: 20 } });
-                                            }
-                                        }}
-                                        placeholder={`Max Guests: ${maxGuests}`}
-                                        inputProps={{ readOnly: true, min: 20, step: 1 }}
-                                        style={{ textAlign: 'center', width: '80px', margin: '0 10px' }}
-                                        disabled={!selectedVenueId} // Disable if no venue is selected
-                                    />
-
-                                    {/* Increase Button */}
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={() => {
-                                            const currentGuests = parseInt(eventDetails.event_no_guest, 10) || 20;
-                                            if (currentGuests < maxGuests) {
-                                                handleInputChange({ target: { name: "event_no_guest", value: currentGuests + 1 } });
-                                            }
-                                        }}
-                                        disabled={!selectedVenueId || eventDetails.event_no_guest >= maxGuests} // Disable if no venue is selected or above max
-                                    >
-                                        +
-                                    </Button>
-                                </div>
-                            </FormControl>
-
-
-
-
+                           
                             <FormControl component="fieldset" fullWidth margin="normal">
                                 <FormLabel component="legend">Food Package</FormLabel>
                                 <RadioGroup
@@ -716,6 +771,7 @@ function EventWalkIn() {
                                         />
                                     ))}
                                 </RadioGroup>
+                                {errors.foodPackage && <p style={{ color: 'red', marginTop: '5px' }}>{errors.foodPackage}</p>}
                             </FormControl>
 
                             {foodPackageLimits.mainDishLimit && renderFoodDropdown('MAIN', foodPackageLimits.mainDishLimit)}

@@ -28,7 +28,7 @@ const RoomDetails = () => {
 
     const breadcrumbItems = [
         { label: 'Home', link: '/' },
-        { label: 'Room Search', link: '/room_search' },
+        { label: 'Room Search', action: () => navigate(-1)  },
         { label: 'Room Details' },
     ];
 
@@ -82,17 +82,6 @@ const RoomDetails = () => {
         return <div>Error: {error}</div>;
     }
 
-    const handleBookNow = (room) => {
-        if (!isGuestLoggedIn) {
-            navigate('/login', {
-                state: { from: location.pathname } 
-            });
-        } else {
-            navigate('/room_search/book_room_reservations', {
-                state: { room, checkInDate, checkOutDate, adults, children }
-            });
-        }
-    };
 
     const { room, photos } = roomDetails;
 
@@ -129,12 +118,6 @@ const RoomDetails = () => {
                                     </span>
                                     <span className='is-size-3 has-blue-text'>₱{room.room_final_rate}</span>
                                 </p>
-                                <button
-                                    className="button is-fullwidth is-blue"
-                                    onClick={() => handleBookNow(room)}
-                                >
-                                    {isGuestLoggedIn ? 'Book Now' : 'Sign in for reservation'}
-                                </button>
 
                                 <p className="price is-5"> {room.room_disc_percentage} % discount off now</p>
                                 <p className='mt-1 mb-1' style={{fontSize:"1rem"}}>Breakfast Availability: {room.room_breakfast_availability} </p>

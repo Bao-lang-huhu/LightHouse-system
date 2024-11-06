@@ -118,8 +118,35 @@ const getStatusColor = (status) => {
             reader.readAsDataURL(file); 
         }
     };
+
+    const handleSavePhotoOnly = async () => {
+        if (tempPhoto) {
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Ensure staff_id is included in the payload
+                const response = await axios.put(`https://light-house-system-h74t-server.vercel.app/api/updateStaffPhoto`, { 
+                    staff_id: staff.staff_id,  // Add staff_id here
+                    staff_photo: tempPhoto 
+                }, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                
+                if (response.status === 200) {
+                    setGuestPhoto(tempPhoto); // Update the photo in the state
+                    handleOpenNotification('Photo updated successfully', 'success');
+                }
+                
+            } catch (err) {
+                console.error('Error while updating photo:', err);
+                handleOpenNotification('Failed to update photo', 'error');
+            }
+        }
+        setIsEditing(false); 
+        setTempPhoto(null); // Reset temp photo after saving
+    };
     
-  
+
   
     const handleSavePhoto = async () => {
         if (tempPhoto) {
@@ -128,7 +155,7 @@ const getStatusColor = (status) => {
                 staff_photo: tempPhoto,  // Apply temp photo to staff_photo
             }));
     
-            await handleSaveChanges(); // Save changes to server
+            await handleSavePhotoOnly(); // Save changes to server
         }
         setIsEditing(false); 
         setTempPhoto(null); // Reset temp photo
@@ -251,7 +278,7 @@ const getStatusColor = (status) => {
                     // Close the modal after success
                     setIsEditingAccount(false);
                     setIsEmailModalOpen(false); 
-                    setIsPasswordModalOpen(false); // Close the username modal if open
+                     setIsPasswordModalOpen(false); // Close the username modal if open
                 }
             } catch (err) {
                 if (err.response && err.response.status === 400) {

@@ -2,7 +2,7 @@ const { supabase } = require('../../supabaseClient');
 var bcrypt = require('bcryptjs');
 
 const updateStaffProfile = async (req, res) => {
-    const { staff_id } = req.params;
+    const { staff_id } = req.params; // Assuming the staff_id is passed as a URL parameter
     const { staff_username, staff_old_password, staff_new_password } = req.body;
 
     if (!staff_id) {
@@ -15,7 +15,7 @@ const updateStaffProfile = async (req, res) => {
             .from('STAFF')
             .select('staff_password, staff_username')
             .eq('staff_id', staff_id)
-            .single();
+            .single(); // Ensure we fetch only one record
 
         if (staffError || !staffData) {
             return res.status(400).json({ error: 'User not found in Supabase.' });
@@ -23,13 +23,7 @@ const updateStaffProfile = async (req, res) => {
 
         const { staff_password: currentPassword, staff_username: currentUsername } = staffData;
 
-        // Step 2: Validate old password before allowing any updates
-        const isPasswordMatch = await bcrypt.compare(staff_old_password, currentPassword);
-        if (!isPasswordMatch) {
-            return res.status(400).json({ error: 'Old password is incorrect.' });
-        }
-
-        // Step 3: Check for Username Edit
+        // Check for Username Edit without requiring password validation
         if (staff_username && staff_username !== currentUsername) {
             // Ensure that the username does not already exist
             const { data: existingUser, error: usernameError } = await supabase
@@ -53,10 +47,16 @@ const updateStaffProfile = async (req, res) => {
             }
         }
 
-        // Step 4: Check for Password Edit if staff_new_password is provided
+        // Check for Password Edit only if staff_new_password is provided
         if (staff_new_password) {
             if (staff_new_password.length < 8) {
                 return res.status(400).json({ error: 'New password must be at least 8 characters long.' });
+            }
+
+            // Validate old password before updating
+            const isPasswordMatch = await bcrypt.compare(staff_old_password, currentPassword);
+            if (!isPasswordMatch) {
+                return res.status(400).json({ error: 'Old password is incorrect.' });
             }
 
             // Ensure the new password is different from the old password

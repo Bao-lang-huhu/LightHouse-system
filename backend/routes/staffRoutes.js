@@ -7,6 +7,8 @@ const {getStaffDetails} = require('../functions/guest/getStaffDetails');
 const {updateStaffDetails} = require ('../functions/update/updateStaffDetails');
 const {updateStaffProfile} =require('../functions/update/updateStaffProfile');
 const { validatePassword } = require('../functions/update/validatePassword');
+const {updateStaffPhoto} = require('../functions/update/updateStaffPhoto');
+
 const router = express.Router();
 
 // Route for staff registration
@@ -29,4 +31,7 @@ router.get('/getStaffDetails', getStaffDetails);
 router.put('/updateStaffProfile/:staff_id', updateStaffProfile);
 
 router.post('/validatePassword', validatePassword);
+
+router.put('/updateStaffPhoto', updateStaffPhoto);
+
 module.exports = router;

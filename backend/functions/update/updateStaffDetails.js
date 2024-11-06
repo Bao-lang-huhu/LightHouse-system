@@ -27,7 +27,6 @@ const updateStaffDetails = async (req, res) => {
         staff_photo,
         staff_acc_role,
         staff_status,
-        staff_password // Optional: Only update if provided
     } = req.body;
 
     if (!staff_id) {
@@ -51,7 +50,6 @@ const updateStaffDetails = async (req, res) => {
             staff_photo,
             staff_acc_role,
             staff_status,
-            staff_password: staff_password ? 'Provided' : 'Not provided' // Indicate if password is being updated
         });
 
         // Prepare the fields to be updated
@@ -71,14 +69,7 @@ const updateStaffDetails = async (req, res) => {
         if (staff_acc_role !== undefined) updatedFields.staff_acc_role = staff_acc_role;
         if (staff_status !== undefined) updatedFields.staff_status = staff_status;
 
-        // If only password is provided in the request, update only the password
-        if (staff_password) {
-            console.log('Hashing new password...');
-            const hashedPassword = await bcrypt.hash(staff_password, 10);
-            updatedFields.staff_password = hashedPassword;
-            console.log('Hashed Password:', hashedPassword);
-        }
-
+       
         // Check if there are fields to update
         if (Object.keys(updatedFields).length === 0) {
             return res.status(400).json({ error: "No valid fields provided for update." });

@@ -13,7 +13,8 @@ const Forecasting = () => {
     const [activeTab, setActiveTab] = useState('events');
     const [viewMode, setViewMode] = useState('chart'); // 'chart' or 'table'
 
-    const baseUrl = 'http://localhost:3001';
+    const baseUrl = 'https://light-house-system-h74t-server.vercel.app';
+
 
     const fetchEventForecastData = async () => {
         try {

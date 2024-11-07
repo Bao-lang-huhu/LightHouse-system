@@ -19,20 +19,23 @@ const Forecasting = () => {
         try {
             const response = await axios.post(`${baseUrl}/api/event_forecast`, { months: forecastMonths });
             const data = response.data;
-
+    
+            // Log data to inspect the fetched response
+            console.log("Fetched Event Forecast Data:", data);
+    
             const eventTypes = Array.from(new Set(data.map(item => item.event_type)));
             const completeData = [];
-
+    
             eventTypes.forEach(eventType => {
                 const historicalData = data
                     .filter(item => item.event_type === eventType && item.isHistorical)
                     .sort((a, b) => new Date(a.ds) - new Date(b.ds));
-
+    
                 const forecastedData = data
                     .filter(item => item.event_type === eventType && !item.isHistorical)
                     .sort((a, b) => new Date(a.ds) - new Date(b.ds))
                     .slice(0, forecastMonths);
-
+    
                 if (forecastedData.length > 0 && historicalData.length > 0) {
                     const lastHistoricalPoint = historicalData[historicalData.length - 1];
                     const duplicatedPoint = {
@@ -44,8 +47,14 @@ const Forecasting = () => {
                     completeData.push(...historicalData, ...forecastedData);
                 }
             });
-
-            setEventForecastData(completeData.sort((a, b) => new Date(a.ds) - new Date(b.ds)));
+    
+            // Assuming `event_count` is the field, map it to default to 0 if not present
+            const updatedData = completeData.map(item => ({
+                ...item,
+                event_count: item.event_count || 0
+            }));
+    
+            setEventForecastData(updatedData.sort((a, b) => new Date(a.ds) - new Date(b.ds)));
             setLoading(false);
         } catch (err) {
             console.error('Error fetching event forecast:', err);
@@ -53,6 +62,7 @@ const Forecasting = () => {
             setLoading(false);
         }
     };
+    
 
     const fetchRoomOccupancyData = async () => {
         try {
@@ -113,6 +123,7 @@ const Forecasting = () => {
                 <tr>
                     <th>Date</th>
                     <th>{activeTab === 'events' ? 'Event Type' : 'Occupancy Rate'}</th>
+                    {activeTab === 'events' && <th>Event Count</th>}
                 </tr>
             </thead>
             <tbody>
@@ -120,11 +131,13 @@ const Forecasting = () => {
                     <tr key={index}>
                         <td>{formatMonthYear(item.ds)}</td>
                         <td>{activeTab === 'events' ? item.event_type : `${Math.round(item.y)}%`}</td>
+                        {activeTab === 'events' && <td>{item.y}</td>}
                     </tr>
                 ))}
             </tbody>
         </table>
     );
+    
 
     return (
         <section className='section-p1'>
@@ -159,11 +172,11 @@ const Forecasting = () => {
                             <LineChart data={eventForecastData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="ds" type="category" tickFormatter={formatMonthYear} allowDuplicatedCategory={false}>
-                                    <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: window.innerWidth < 600 ? '14px' : '18px' }} />
+                                    <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: '18px' }} />
                                 </XAxis>
-                                <YAxis width={window.innerWidth < 600 ? 50 : 80} label={{ value: "Event Count", angle: -90, position: "insideLeft", offset: -10, style: { textAnchor: 'middle', fontSize: window.innerWidth < 600 ? '14px' : '18px' } }} />
+                                <YAxis width={80} label={{ value: "Event Count", angle: -90, position: "insideLeft", offset: -10, style: { fontSize: '18px' } }} />
                                 <Tooltip formatter={(value) => Math.round(value)} />
-                                <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+                                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '16px' }} />
                                 {["ANNIVERSARY", "WEDDING", "BIRTHDAY", "EXHIBITION", "CHRISTMAS", "SEMINAR"].map((eventType, index) => (
                                     <React.Fragment key={eventType}>
                                         <Line type="linear" dataKey={(item) => item.event_type === eventType && item.isHistorical ? item.y : null} name={`${eventType} (Historical)`} stroke={["#0000CD", "#FF4500", "#32CD32", "#FF6347", "#8A2BE2", "#FFA500"][index]} strokeWidth={2} dot={{ r: 2 }} connectNulls />
@@ -180,13 +193,13 @@ const Forecasting = () => {
                             <LineChart data={roomOccupancyData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="ds" type="category" tickFormatter={formatMonthYear} allowDuplicatedCategory={false}>
-                                    <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: window.innerWidth < 600 ? '14px' : '18px' }} />
+                                    <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: '18px' }} />
                                 </XAxis>
-                                <YAxis width={window.innerWidth < 600 ? 50 : 80} label={{ value: "Occupancy Rate (%)", angle: -90, position: "insideLeft", offset: -10, style: { textAnchor: 'middle', fontSize: window.innerWidth < 600 ? '14px' : '18px' } }} tickFormatter={(tick) => `${Math.round(tick)}%`} />
+                                <YAxis width={80} label={{ value: "Occupancy Rate (%)", angle: -90, position: "insideLeft", offset: -10, style: { fontSize: '18px' } }} tickFormatter={(tick) => `${Math.round(tick)}%`} />
                                 <Tooltip formatter={(value) => `${Math.round(value)}%`} />
-                                <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+                                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '16px' }} />
                                 <Line type="linear" dataKey={(item) => item.isHistorical ? item.y : null} name="Room Occupancy (Historical)" stroke="#32CD32" strokeWidth={2} dot={{ r: 2 }} connectNulls />
-                                <Line type="linear" dataKey={(item) => !item.isHistorical ? item.y : null} name="Room Occupancy (Forecasted)" stroke="#32CD32" strokeWidth={2} dot={{ r: 2 }} strokeDasharray="5 5" connectNulls />
+                                <Line type="linear" dataKey={(item) => !item.isHistorical ? item.y : null} name="Room Occupancy (Forecasted)" stroke="#FF4500" strokeWidth={2} dot={{ r: 2 }} strokeDasharray="5 5" connectNulls />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>

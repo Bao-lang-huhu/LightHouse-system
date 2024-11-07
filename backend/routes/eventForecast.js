@@ -8,7 +8,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const flaskApiUrl = 'http://localhost:8080';
+const flaskApiUrl = 'https://generous-optimism-production.up.railway.app';
 
 router.post('/event_forecast', async (req, res) => {
   console.log("Received request for event forecasting");

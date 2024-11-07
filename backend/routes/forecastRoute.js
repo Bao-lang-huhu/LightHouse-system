@@ -5,7 +5,7 @@ const { supabase } = require('../supabaseClient');
 require('dotenv').config();
 
 const totalRooms = 20;
-const flaskApiUrl = 'http://localhost:8080';
+const flaskApiUrl = 'https://generous-optimism-production.up.railway.app';
 
 router.post('/manager_forecast', async (req, res) => {
   try {

@@ -28,7 +28,6 @@ const roomSalesRoute = require('./routes/roomSalesRoutes');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Middleware to enable CORS
 app.get('/', (req, res) => {
     res.send('Backend is running!');
 });

@@ -5,11 +5,10 @@ const { supabase } = require('../supabaseClient');
 require('dotenv').config();
 
 const totalRooms = 20;
-const flaskApiUrl = 'https://chic-endurance-production.up.railway.app';
+const flaskApiUrl = 'https://generous-optimism-production.up.railway.app';
 
 router.post('/manager_forecast', async (req, res) => {
   try {
-    // Fetch all room reservation data
     const { data: reservationsData, error: reservationError } = await supabase
       .from('ROOM_RESERVATION')
       .select('room_check_in_date, room_check_out_date');
@@ -34,11 +33,7 @@ router.post('/manager_forecast', async (req, res) => {
     Object.keys(dailyOccupancy).forEach(dateStr => {
       const date = new Date(dateStr);
       const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
-
-      if (!monthlyOccupancy[monthYear]) {
-        monthlyOccupancy[monthYear] = 0;
-      }
-
+      if (!monthlyOccupancy[monthYear]) monthlyOccupancy[monthYear] = 0;
       monthlyOccupancy[monthYear] += dailyOccupancy[dateStr];
     });
 
@@ -52,19 +47,26 @@ router.post('/manager_forecast', async (req, res) => {
       };
     });
 
-    try {
-      const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates);
-      const forecastedData = response.data.map(forecast => ({
-        ds: forecast.ds,
-        y: forecast.yhat,
-        isHistorical: false
-      }));
+    // Get the last historical date and calculate the start of the next month
+    const lastHistoricalDate = new Date(Math.max(...occupancyRates.map(item => new Date(item.ds))));
+    const nextMonthStart = new Date(lastHistoricalDate);
+    nextMonthStart.setMonth(lastHistoricalDate.getMonth() + 1);
 
-      console.log('Forecast Response:', forecastedData);
+    try {
+      const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates, {
+        params: { months: 3 }
+      });
+      const forecastedData = response.data
+        .filter(forecast => new Date(forecast.ds) >= nextMonthStart) // Ensure forecast starts after the last historical month
+        .map(forecast => ({
+          ds: forecast.ds,
+          y: forecast.yhat,
+          isHistorical: false
+        }));
 
       res.json([...occupancyRates, ...forecastedData]);
     } catch (axiosError) {
-      console.error('Failed to fetch forecast:', axiosError.message);
+      console.error('Failed to fetch forecast:', axiosError.response ? axiosError.response.data : axiosError.message);
       res.status(500).json({ error: 'Failed to fetch forecast' });
     }
   } catch (error) {

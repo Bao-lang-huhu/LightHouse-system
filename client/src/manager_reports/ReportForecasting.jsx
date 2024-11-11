@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts';
 import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
 import './reports_m.css';
@@ -7,55 +7,38 @@ import './reports_m.css';
 const Forecasting = () => {
     const [eventForecastData, setEventForecastData] = useState([]);
     const [roomOccupancyData, setRoomOccupancyData] = useState([]);
+    const [selectedMonthData, setSelectedMonthData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [forecastMonths, setForecastMonths] = useState(3);
+    const [eventForecastMonths, setEventForecastMonths] = useState(1);
+    const [roomForecastMonths, setRoomForecastMonths] = useState(1);
     const [activeTab, setActiveTab] = useState('events');
-    const [viewMode, setViewMode] = useState('chart'); // 'chart' or 'table'
+    const [viewMode, setViewMode] = useState('chart');
 
     const baseUrl = 'https://light-house-system-h74t-server.vercel.app';
 
+    const aggregateEventDataForStack = (data) => {
+        const aggregatedData = {};
+        const historicalData = data.filter(item => item.isHistorical);
+        const forecastedData = data.filter(item => !item.isHistorical).slice(0, eventForecastMonths);
+        const limitedData = [...historicalData, ...forecastedData];
+
+        limitedData.forEach((item) => {
+            const date = new Date(item.ds);
+            const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+            if (!aggregatedData[month]) {
+                aggregatedData[month] = { ds: month };
+            }
+            aggregatedData[month][`${item.event_type}${item.isHistorical ? '_historical' : '_forecasted'}`] = Math.round(item.y);
+        });
+        return Object.values(aggregatedData).sort((a, b) => new Date(a.ds) - new Date(b.ds));
+    };
 
     const fetchEventForecastData = async () => {
         try {
-            const response = await axios.post(`${baseUrl}/api/event_forecast`, { months: forecastMonths });
-            const data = response.data;
-    
-            // Log data to inspect the fetched response
-            console.log("Fetched Event Forecast Data:", data);
-    
-            const eventTypes = Array.from(new Set(data.map(item => item.event_type)));
-            const completeData = [];
-    
-            eventTypes.forEach(eventType => {
-                const historicalData = data
-                    .filter(item => item.event_type === eventType && item.isHistorical)
-                    .sort((a, b) => new Date(a.ds) - new Date(b.ds));
-    
-                const forecastedData = data
-                    .filter(item => item.event_type === eventType && !item.isHistorical)
-                    .sort((a, b) => new Date(a.ds) - new Date(b.ds))
-                    .slice(0, forecastMonths);
-    
-                if (forecastedData.length > 0 && historicalData.length > 0) {
-                    const lastHistoricalPoint = historicalData[historicalData.length - 1];
-                    const duplicatedPoint = {
-                        ...lastHistoricalPoint,
-                        isHistorical: false
-                    };
-                    completeData.push(...historicalData, duplicatedPoint, ...forecastedData);
-                } else {
-                    completeData.push(...historicalData, ...forecastedData);
-                }
-            });
-    
-            // Assuming `event_count` is the field, map it to default to 0 if not present
-            const updatedData = completeData.map(item => ({
-                ...item,
-                event_count: item.event_count || 0
-            }));
-    
-            setEventForecastData(updatedData.sort((a, b) => new Date(a.ds) - new Date(b.ds)));
+            const response = await axios.post(`${baseUrl}/api/event_forecast`, { months: eventForecastMonths });
+            const aggregatedData = aggregateEventDataForStack(response.data);
+            setEventForecastData(aggregatedData);
             setLoading(false);
         } catch (err) {
             console.error('Error fetching event forecast:', err);
@@ -63,32 +46,14 @@ const Forecasting = () => {
             setLoading(false);
         }
     };
-    
 
     const fetchRoomOccupancyData = async () => {
         try {
-            const response = await axios.post(`${baseUrl}/api/manager_forecast`, { months: forecastMonths });
-            const data = response.data;
-
-            const historicalData = data
-                .filter(item => item.isHistorical)
-                .sort((a, b) => new Date(a.ds) - new Date(b.ds));
-
-            const forecastedData = data
-                .filter(item => !item.isHistorical)
-                .sort((a, b) => new Date(a.ds) - new Date(b.ds))
-                .slice(0, forecastMonths);
-
-            if (forecastedData.length > 0 && historicalData.length > 0) {
-                const lastHistoricalPoint = historicalData[historicalData.length - 1];
-                const duplicatedPoint = {
-                    ...lastHistoricalPoint,
-                    isHistorical: false
-                };
-                setRoomOccupancyData([...historicalData, duplicatedPoint, ...forecastedData]);
-            } else {
-                setRoomOccupancyData([...historicalData, ...forecastedData]);
-            }
+            const response = await axios.post(`${baseUrl}/api/manager_forecast`, { months: roomForecastMonths });
+            const historicalData = response.data.filter(item => item.isHistorical).map(item => ({ ...item, y_historical: item.y }));
+            const forecastedData = response.data.filter(item => !item.isHistorical).slice(0, roomForecastMonths).map(item => ({ ...item, y_forecasted: item.y }));
+            const combinedData = [...historicalData, ...forecastedData];
+            setRoomOccupancyData(combinedData);
             setLoading(false);
         } catch (err) {
             console.error('Error fetching room occupancy forecast:', err);
@@ -102,13 +67,23 @@ const Forecasting = () => {
         return `${parsedDate.toLocaleString('default', { month: 'short' })} ${parsedDate.getFullYear()}`;
     };
 
+    const handleChartClick = (state) => {
+        if (state && state.activeLabel) {
+            const monthData = (activeTab === 'events' ? eventForecastData : roomOccupancyData).find(
+                item => item.ds === state.activeLabel
+            );
+            setSelectedMonthData(monthData);
+        }
+    };
+
     useEffect(() => {
+        setLoading(true);
         if (activeTab === 'events') {
             fetchEventForecastData();
         } else {
             fetchRoomOccupancyData();
         }
-    }, [activeTab, forecastMonths]);
+    }, [activeTab, eventForecastMonths, roomForecastMonths]);
 
     if (loading) return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
@@ -118,27 +93,53 @@ const Forecasting = () => {
 
     if (error) return <p>{error}</p>;
 
-    const renderTable = (data, isHistorical) => (
+    // Define the table rendering functions for each tab
+    const renderEventForecastTable = () => (
         <table className="forecast-table">
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>{activeTab === 'events' ? 'Event Type' : 'Occupancy Rate'}</th>
-                    {activeTab === 'events' && <th>Event Count</th>}
+                    <th>Event Type</th>
+                    <th>Count</th>
                 </tr>
             </thead>
             <tbody>
-                {data.filter(item => item.isHistorical === isHistorical).map((item, index) => (
-                    <tr key={index}>
-                        <td>{formatMonthYear(item.ds)}</td>
-                        <td>{activeTab === 'events' ? item.event_type : `${Math.round(item.y)}%`}</td>
-                        {activeTab === 'events' && <td>{item.y}</td>}
-                    </tr>
+                {eventForecastData.map((item, index) => (
+                    Object.keys(item).map((key) => (
+                        key !== 'ds' && (
+                            <tr key={`${index}-${key}`}>
+                                <td>{formatMonthYear(item.ds)}</td>
+                                <td>{key.replace('_historical', '').replace('_forecasted', '')}</td>
+                                <td>{item[key] || 'N/A'}</td>
+                            </tr>
+                        )
+                    ))
                 ))}
             </tbody>
         </table>
     );
     
+
+    const renderRoomOccupancyTable = () => (
+        <table className="forecast-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Occupancy Rate (%)</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {roomOccupancyData.map((item, index) => (
+                    <tr key={index}>
+                        <td>{formatMonthYear(item.ds)}</td>
+                        <td>Occupancy</td>
+                        <td>{item.y_historical ? `${item.y_historical.toFixed(2)}%` : item.y_forecasted ? `${item.y_forecasted.toFixed(2)}%` : 'N/A'}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
 
     return (
         <section className='section-p1'>
@@ -157,64 +158,87 @@ const Forecasting = () => {
                     <option value="chart">Chart</option>
                     <option value="table">Table</option>
                 </select>
-                <label>Show Forecast for: </label>
-                <select value={forecastMonths} onChange={(e) => setForecastMonths(Number(e.target.value))}>
-                    <option value={1}>1 Month</option>
-                    <option value={2}>2 Months</option>
-                    <option value={3}>3 Months</option>
-                </select>
+                {activeTab === 'events' ? (
+                    <>
+                        <label>Show Forecast for: </label>
+                        <select value={eventForecastMonths} onChange={(e) => setEventForecastMonths(Number(e.target.value))}>
+                            <option value={1}>1 Month</option>
+                            <option value={2}>2 Months</option>
+                            <option value={3}>3 Months</option>
+                        </select>
+                    </>
+                ) : (
+                    <>
+                        <label>Show Forecast for: </label>
+                        <select value={roomForecastMonths} onChange={(e) => setRoomForecastMonths(Number(e.target.value))}>
+                            <option value={1}>1 Month</option>
+                            <option value={2}>2 Months</option>
+                            <option value={3}>3 Months</option>
+                        </select>
+                    </>
+                )}
             </div>
 
             {viewMode === 'chart' ? (
                 activeTab === 'events' ? (
                     <div>
-                        <p className='subtitle is-3'>Event Forecasting (Historical & Next {forecastMonths} Month{forecastMonths > 1 ? 's' : ''})</p>
-                        <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
-                            <LineChart data={eventForecastData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }}>
+                        <p className='subtitle is-3'>Event Forecasting (Historical & Next {eventForecastMonths} Month{eventForecastMonths > 1 ? 's' : ''})</p>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <BarChart data={eventForecastData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }} onClick={handleChartClick}>
+                                <defs>
+                                    <pattern id="forecastPattern" patternUnits="userSpaceOnUse" width="10" height="10">
+                                        <rect width="10" height="10" fill="#0000CD" />
+                                        <path d="M0 0L10 10ZM10 0L0 10Z" stroke="#FFFFFF" strokeWidth="2" />
+                                    </pattern>
+                                </defs>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="ds" type="category" tickFormatter={formatMonthYear} allowDuplicatedCategory={false}>
                                     <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: '18px' }} />
                                 </XAxis>
-                                <YAxis width={80} label={{ value: "Event Count", angle: -90, position: "insideLeft", offset: -10, style: { fontSize: '18px' } }} />
-                                <Tooltip formatter={(value) => Math.round(value)} />
-                                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '16px' }} />
+                                <YAxis label={{ value: "Event Count", angle: -90, position: "insideLeft", style: { fontSize: '18px' } }} />
+                                <Tooltip />
+                                <Legend layout="horizontal" verticalAlign="top" align="center" wrapperStyle={{ fontSize: '16px' }} />
                                 {["ANNIVERSARY", "WEDDING", "BIRTHDAY", "EXHIBITION", "CHRISTMAS", "SEMINAR"].map((eventType, index) => (
-                                    <React.Fragment key={eventType}>
-                                        <Line type="linear" dataKey={(item) => item.event_type === eventType && item.isHistorical ? item.y : null} name={`${eventType} (Historical)`} stroke={["#0000CD", "#FF4500", "#32CD32", "#FF6347", "#8A2BE2", "#FFA500"][index]} strokeWidth={2} dot={{ r: 2 }} connectNulls />
-                                        <Line type="linear" dataKey={(item) => item.event_type === eventType && !item.isHistorical ? item.y : null} name={`${eventType} (Forecasted)`} stroke={["#0000CD", "#FF4500", "#32CD32", "#FF6347", "#8A2BE2", "#FFA500"][index]} strokeWidth={2} dot={{ r: 2 }} strokeDasharray="5 5" connectNulls />
-                                    </React.Fragment>
+                                    <Bar key={`${eventType}-${index}`} dataKey={`${eventType}_historical`} name={`${eventType} (Historical)`} fill="#0000CD" stackId="a" />
                                 ))}
-                            </LineChart>
+                                {["ANNIVERSARY", "WEDDING", "BIRTHDAY", "EXHIBITION", "CHRISTMAS", "SEMINAR"].map((eventType, index) => (
+                                    <Bar key={`${eventType}-forecast-${index}`} dataKey={`${eventType}_forecasted`} name={`${eventType} (Forecasted)`} fill="url(#forecastPattern)" stackId="a" />
+                                ))}
+                            </BarChart>
                         </ResponsiveContainer>
                     </div>
                 ) : (
                     <div>
-                        <p className='subtitle is-3'>Room Occupancy Forecasting (Historical & Next {forecastMonths} Month{forecastMonths > 1 ? 's' : ''})</p>
-                        <ResponsiveContainer width="100%" maxHeight="60%" aspect={2}>
-                            <LineChart data={roomOccupancyData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }}>
+                        <p className='subtitle is-3'>Room Occupancy Forecasting (Historical & Next {roomForecastMonths} Month{roomForecastMonths > 1 ? 's' : ''})</p>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <BarChart data={roomOccupancyData} margin={{ top: 20, right: 30, left: 30, bottom: 40 }} onClick={handleChartClick}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="ds" type="category" tickFormatter={formatMonthYear} allowDuplicatedCategory={false}>
                                     <Label value="Date" offset={-20} position="insideBottom" style={{ fontSize: '18px' }} />
                                 </XAxis>
-                                <YAxis width={80} label={{ value: "Occupancy Rate (%)", angle: -90, position: "insideLeft", offset: -10, style: { fontSize: '18px' } }} tickFormatter={(tick) => `${Math.round(tick)}%`} />
-                                <Tooltip formatter={(value) => `${Math.round(value)}%`} />
-                                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '16px' }} />
-                                <Line type="linear" dataKey={(item) => item.isHistorical ? item.y : null} name="Room Occupancy (Historical)" stroke="#32CD32" strokeWidth={2} dot={{ r: 2 }} connectNulls />
-                                <Line type="linear" dataKey={(item) => !item.isHistorical ? item.y : null} name="Room Occupancy (Forecasted)" stroke="#FF4500" strokeWidth={2} dot={{ r: 2 }} strokeDasharray="5 5" connectNulls />
-                            </LineChart>
+                                <YAxis label={{ value: "Occupancy Rate (%)", angle: -90, position: "insideLeft", style: { fontSize: '18px' } }} tickFormatter={(tick) => tick ? `${tick}%` : ''} />
+                                <Tooltip />
+                                <Legend layout="horizontal" verticalAlign="top" align="center" wrapperStyle={{ fontSize: '16px' }} />
+                                <Bar dataKey="y_historical" name="Room Occupancy (Historical)" fill="#32CD32" />
+                                <Bar dataKey="y_forecasted" name="Room Occupancy (Forecasted)" fill="#FF4500" opacity={0.5} />
+                            </BarChart>
                         </ResponsiveContainer>
                     </div>
                 )
-            ) : (
-                <div className="table-container">
-                    <div className="table-cell">
-                        <p className="subtitle">Historical Data</p>
-                        {renderTable(activeTab === 'events' ? eventForecastData : roomOccupancyData, true)}
-                    </div>
-                    <div className="table-cell">
-                        <p className="subtitle">Forecasted Data</p>
-                        {renderTable(activeTab === 'events' ? eventForecastData : roomOccupancyData, false)}
-                    </div>
+            ) : activeTab === 'events' ? renderEventForecastTable() : renderRoomOccupancyTable()}
+
+            {viewMode === 'chart' && selectedMonthData && (
+                <div className="selected-data-display">
+                    <h4>Data for {formatMonthYear(selectedMonthData.ds)}</h4>
+                    {activeTab === 'events' ? (
+                        Object.keys(selectedMonthData).map((key, index) => (
+                            key !== "ds" && (
+                                <p key={index}><strong>{key.replace('_historical', '').replace('_forecasted', '')} Count:</strong> {selectedMonthData[key] || 'N/A'}</p>
+                            )
+                        ))
+                    ) : (
+                        <p><strong>Room Occupancy Rate:</strong> {selectedMonthData.y_historical ? `${selectedMonthData.y_historical.toFixed(2)}%` : selectedMonthData.y_forecasted ? `${selectedMonthData.y_forecasted.toFixed(2)}%` : 'N/A'}</p>
+                    )}
                 </div>
             )}
         </section>

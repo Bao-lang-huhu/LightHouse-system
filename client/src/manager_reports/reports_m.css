@@ -5,6 +5,16 @@
     margin-bottom: 20px;
 }
 
+.custom-tooltip {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
 
 .tabs button {
     background-color: #f9f9f9;

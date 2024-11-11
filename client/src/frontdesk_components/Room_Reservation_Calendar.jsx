@@ -266,27 +266,27 @@ const handleChangeStatus = (status) => {
             <Typography variant="h6" mb={2}>Guest Information</Typography>
             <Box mb={1}>
               <Typography variant="body2" color="textSecondary">Name</Typography>
-              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_fname || 'N/A'} {selectedEvent?.guest.guest_lname || 'N/A'}</strong></Typography>
+              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_fname || 'No Name'} {selectedEvent?.guest.guest_lname || 'N/A'}</strong></Typography>
             </Box>
             <Box mb={1}>
               <Typography variant="body2" color="textSecondary">Gender</Typography>
-              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_gender || 'N/A'}</strong></Typography>
+              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_gender || 'No Gender'}</strong></Typography>
             </Box>
             <Box mb={1}>
               <Typography variant="body2" color="textSecondary">Email</Typography>
-              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_email || 'N/A'}</strong></Typography>
+              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_email || 'No Email'}</strong></Typography>
             </Box>
             <Box mb={1}>
               <Typography variant="body2" color="textSecondary">Address</Typography>
-              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_address || 'N/A'}</strong></Typography>
+              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_address || 'No Address'}</strong></Typography>
             </Box>
             <Box mb={1}>
               <Typography variant="body2" color="textSecondary">Country</Typography>
-              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_country || 'N/A'}</strong></Typography>
+              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_country || 'No Country'}</strong></Typography>
             </Box>
             <Box mb={1}>
               <Typography variant="body2" color="textSecondary">Contact Number</Typography>
-              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_phone_no || 'N/A'}</strong></Typography>
+              <Typography variant="body1"><strong>{selectedEvent?.guest.guest_phone_no || 'No Contact Number'}</strong></Typography>
             </Box>
           </Box>
 

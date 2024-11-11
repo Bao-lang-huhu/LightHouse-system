@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { IoHome, IoPerson, IoChevronBack, IoChevronForward, IoBed, IoWalk, IoWine, IoCheckmarkCircle, IoHappy, IoAddCircle, IoStar } from 'react-icons/io5';
 import 'bulma/css/bulma.min.css';
@@ -8,38 +8,70 @@ import '../App.css';
 const SidebarFrontDesk = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation(); // Get current path
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
 
   const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
+    if (!isMobileOrTablet) {
+      setSidebarOpen(!isSidebarOpen);
+    }
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobileTablet =
+        window.innerWidth <= 1024; 
+      setIsMobileOrTablet(isMobileTablet);
+      if (isMobileTablet) {
+        setSidebarOpen(true); 
+      }
+    };
+
+    handleResize(); 
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   return (
     <section className='section-p1 side-color' style={{
       transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-20%)',
       transition: 'transform 0.5s ease-in', 
     }}>
-      <div className="columns" >
+      <div className="columns" style={{padding: "1em"}}>
         {/* Sidebar */}
         <aside className='aside-space' style={{ transition: 'width 0.3s', position: 'relative' }}>
-          {/* Floating Toggle Button */}
-          <button 
-            className={`button is-blue button-float button-aside ${isSidebarOpen ? 'hide-toggle' : ''}`}
-            onClick={toggleSidebar}
-            style={{
+           {/* Floating Toggle Button */}
+           {!isMobileOrTablet && (
+             <div
+             style={{
               position: 'absolute',
-              top: '10px',
-              right: '-20px',
-              width: '40px',
-              height: '40px',
-              textAlign: 'center',
-              transition: 'right 0.3s',
+              top: isSidebarOpen ? '20px' : '10px', 
+              left: isSidebarOpen ? 'auto' : '50%',
+              transform: isSidebarOpen ? 'none' : 'translateX(-50%)',
+              right: isSidebarOpen ? '-20px' : 'auto',
               zIndex: '1',
-            }}
-          >
-            {isSidebarOpen ? <IoChevronBack /> : <IoChevronForward />}
-          </button>
+              transition: 'all 0.3s ease',
+            }}>
+            <button
+              className="button is-blue button-float button-aside"
+              onClick={toggleSidebar}
+              style={{
+                width: '50px',
+                height: '50px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5em',  
+              }}
+            >
+              <div style={{ transform: 'scale(1.5)', margin: "0" }}>  {/* Scale icon size */}
+                {isSidebarOpen ? <IoChevronBack /> : <IoChevronForward />}
+              </div>
+            </button>
+            </div>
+          )}
 
-          <nav className="menu">
+          <nav className="menu" style={{ marginTop: isSidebarOpen ? '20px' : '70px' }}>
             <p className="subtitle" style={{ display: isSidebarOpen ? 'block' : 'none', paddingTop: '50px' }}>
               Front Desk
             </p>

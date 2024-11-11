@@ -80,16 +80,16 @@ const RoomReservation = () => {
             setNotification({ open: true, message: "Please accept the terms and conditions before proceeding.", severity: "warning" });
             return;
         }
-
+    
         try {
             if (!rooms?.length || !checkInDate || !checkOutDate || !guestInfo?.guest_id) {
                 setNotification({ open: true, message: "Room, date, or guest details are missing.", severity: "error" });
                 return;
             }
-
+    
             const guestsPerRoom = Math.floor(totalPeople / rooms.length);
             const remainingGuests = totalPeople % rooms.length;
-
+    
             const reservationPromises = rooms.map((room, index) => {
                 const roomPax = guestsPerRoom + (index < remainingGuests ? 1 : 0);
                 const reservationData = {
@@ -101,17 +101,18 @@ const RoomReservation = () => {
                     reservation_status: 'CONFIRMED',
                     room_notes: additionalNotes,
                     room_is_breakfast: roomIsBreakfast,
-                    room_pax: roomPax, // Number of guests assigned to this room
+                    room_pax: roomPax,
                     room_company: roomCompany || guestInfo.company || null, 
                     cancel_reservation_request: null,
                     total_cost: totalNights * room.room_final_rate,
                 };
-
+    
+                // Send each reservation as a separate request
                 return axios.post('https://light-house-system-h74t-server.vercel.app/api/registerRoomReservation', reservationData);
             });
-
+    
             const responses = await Promise.all(reservationPromises);
-
+    
             if (responses.every(response => response.status === 201)) {
                 setNotification({ open: true, message: 'Reservations confirmed!', severity: 'success' });
                 setShowSuccessModal(true);
@@ -123,6 +124,8 @@ const RoomReservation = () => {
             setShowErrorModal(true); 
         }
     };
+    
+    
 
     if (!guestInfo) {
         return <div>Loading guest details...</div>;

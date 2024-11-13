@@ -9,15 +9,32 @@ const flaskApiUrl = 'https://generous-optimism-production.up.railway.app';
 
 router.post('/manager_forecast', async (req, res) => {
   try {
+    // First, fetch CHECK_IN data with 'COMPLETED' payment status and join with ROOM_RESERVATION
+    const { data: checkInData, error: checkInError } = await supabase
+      .from('CHECK_IN')
+      .select('room_reservation_id, payment_status')
+      .eq('payment_status', 'PAID');
+
+    if (checkInError) {
+      console.error('Supabase CHECK_IN error:', checkInError.message);
+      return res.status(500).json({ error: `Supabase CHECK_IN error: ${checkInError.message}` });
+    }
+
+    // Extract room_reservation_ids with completed payments
+    const completedReservationIds = checkInData.map(entry => entry.room_reservation_id);
+
+    // Fetch room reservation data only for completed payment statuses
     const { data: reservationsData, error: reservationError } = await supabase
       .from('ROOM_RESERVATION')
-      .select('room_check_in_date, room_check_out_date');
+      .select('room_check_in_date, room_check_out_date, room_reservation_id')
+      .in('room_reservation_id', completedReservationIds);
 
     if (reservationError) {
       console.error('Supabase ROOM_RESERVATION error:', reservationError.message);
       return res.status(500).json({ error: `Supabase ROOM_RESERVATION error: ${reservationError.message}` });
     }
 
+    // Calculate daily occupancy
     const dailyOccupancy = {};
     reservationsData.forEach(reservation => {
       const checkInDate = new Date(reservation.room_check_in_date);
@@ -29,6 +46,7 @@ router.post('/manager_forecast', async (req, res) => {
       }
     });
 
+    // Aggregate daily occupancy into monthly occupancy
     const monthlyOccupancy = {};
     Object.keys(dailyOccupancy).forEach(dateStr => {
       const date = new Date(dateStr);
@@ -37,6 +55,7 @@ router.post('/manager_forecast', async (req, res) => {
       monthlyOccupancy[monthYear] += dailyOccupancy[dateStr];
     });
 
+    // Calculate occupancy rates per month
     const occupancyRates = Object.entries(monthlyOccupancy).map(([month, roomsOccupied]) => {
       const daysInMonth = new Date(parseInt(month.split('-')[0]), parseInt(month.split('-')[1]), 0).getDate();
       const occupancyRate = (roomsOccupied / (totalRooms * daysInMonth)) * 100;
@@ -52,12 +71,14 @@ router.post('/manager_forecast', async (req, res) => {
     const nextMonthStart = new Date(lastHistoricalDate);
     nextMonthStart.setMonth(lastHistoricalDate.getMonth() + 1);
 
+    // Fetch forecasted data from the external API
     try {
       const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates, {
+        headers: { 'Content-Type': 'application/json' },
         params: { months: 3 }
       });
       const forecastedData = response.data
-        .filter(forecast => new Date(forecast.ds) >= nextMonthStart) // Ensure forecast starts after the last historical month
+        .filter(forecast => new Date(forecast.ds) >= nextMonthStart)
         .map(forecast => ({
           ds: forecast.ds,
           y: forecast.yhat,

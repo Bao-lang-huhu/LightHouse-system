@@ -15,21 +15,26 @@ const Forecasting = () => {
     const [activeTab, setActiveTab] = useState('events');
     const [viewMode, setViewMode] = useState('chart');
 
-    const baseUrl = 'https://light-house-system-h74t-server.vercel.app';
+    const baseUrl = 'http://localhost:3001';
 
+
+    // Aggregate data for the event forecast chart
     const aggregateEventDataForStack = (data) => {
         const aggregatedData = {};
         const historicalData = data.filter(item => item.isHistorical);
         const forecastedData = data.filter(item => !item.isHistorical).slice(0, eventForecastMonths);
-        const limitedData = [...historicalData, ...forecastedData];
 
-        limitedData.forEach((item) => {
+        [...historicalData, ...forecastedData].forEach((item) => {
             const date = new Date(item.ds);
             const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
             if (!aggregatedData[month]) {
-                aggregatedData[month] = { ds: month };
+                aggregatedData[month] = { ds: month, historical: 0, forecasted: 0 };
             }
-            aggregatedData[month][`${item.event_type}${item.isHistorical ? '_historical' : '_forecasted'}`] = Math.round(item.y);
+            if (item.isHistorical) {
+                aggregatedData[month].historical += Math.round(item.y);
+            } else {
+                aggregatedData[month].forecasted += Math.round(item.y);
+            }
         });
         return Object.values(aggregatedData).sort((a, b) => new Date(a.ds) - new Date(b.ds));
     };
@@ -85,15 +90,7 @@ const Forecasting = () => {
         }
     }, [activeTab, eventForecastMonths, roomForecastMonths]);
 
-    if (loading) return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
-            <ClipLoader color="#123abc" loading={loading} size={50} />
-        </div>
-    );
-
-    if (error) return <p>{error}</p>;
-
-    // Define the table rendering functions for each tab
+    // Render the event forecast table
     const renderEventForecastTable = () => (
         <table className="forecast-table">
             <thead>
@@ -109,7 +106,7 @@ const Forecasting = () => {
                         key !== 'ds' && (
                             <tr key={`${index}-${key}`}>
                                 <td>{formatMonthYear(item.ds)}</td>
-                                <td>{key.replace('_historical', '').replace('_forecasted', '')}</td>
+                                <td>{key === 'historical' ? 'Historical' : 'Forecasted'}</td>
                                 <td>{item[key] || 'N/A'}</td>
                             </tr>
                         )
@@ -118,8 +115,8 @@ const Forecasting = () => {
             </tbody>
         </table>
     );
-    
 
+    // Render the room occupancy table
     const renderRoomOccupancyTable = () => (
         <table className="forecast-table">
             <thead>
@@ -140,6 +137,14 @@ const Forecasting = () => {
             </tbody>
         </table>
     );
+
+    if (loading) return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+            <ClipLoader color="#123abc" loading={loading} size={50} />
+        </div>
+    );
+
+    if (error) return <p>{error}</p>;
 
     return (
         <section className='section-p1'>
@@ -198,12 +203,8 @@ const Forecasting = () => {
                                 <YAxis label={{ value: "Event Count", angle: -90, position: "insideLeft", style: { fontSize: '18px' } }} />
                                 <Tooltip />
                                 <Legend layout="horizontal" verticalAlign="top" align="center" wrapperStyle={{ fontSize: '16px' }} />
-                                {["ANNIVERSARY", "WEDDING", "BIRTHDAY", "EXHIBITION", "CHRISTMAS", "SEMINAR"].map((eventType, index) => (
-                                    <Bar key={`${eventType}-${index}`} dataKey={`${eventType}_historical`} name={`${eventType} (Historical)`} fill="#0000CD" stackId="a" />
-                                ))}
-                                {["ANNIVERSARY", "WEDDING", "BIRTHDAY", "EXHIBITION", "CHRISTMAS", "SEMINAR"].map((eventType, index) => (
-                                    <Bar key={`${eventType}-forecast-${index}`} dataKey={`${eventType}_forecasted`} name={`${eventType} (Forecasted)`} fill="url(#forecastPattern)" stackId="a" />
-                                ))}
+                                <Bar dataKey="historical" name="Historical" fill="#0000CD" stackId="a" />
+                                <Bar dataKey="forecasted" name="Forecasted" fill="url(#forecastPattern)" stackId="a" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -231,11 +232,10 @@ const Forecasting = () => {
                 <div className="selected-data-display">
                     <h4>Data for {formatMonthYear(selectedMonthData.ds)}</h4>
                     {activeTab === 'events' ? (
-                        Object.keys(selectedMonthData).map((key, index) => (
-                            key !== "ds" && (
-                                <p key={index}><strong>{key.replace('_historical', '').replace('_forecasted', '')} Count:</strong> {selectedMonthData[key] || 'N/A'}</p>
-                            )
-                        ))
+                        <>
+                            <p><strong>Historical Count:</strong> {selectedMonthData.historical || 'N/A'}</p>
+                            <p><strong>Forecasted Count:</strong> {selectedMonthData.forecasted || 'N/A'}</p>
+                        </>
                     ) : (
                         <p><strong>Room Occupancy Rate:</strong> {selectedMonthData.y_historical ? `${selectedMonthData.y_historical.toFixed(2)}%` : selectedMonthData.y_forecasted ? `${selectedMonthData.y_forecasted.toFixed(2)}%` : 'N/A'}</p>
                     )}

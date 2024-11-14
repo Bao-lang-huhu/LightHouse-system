@@ -13,6 +13,14 @@
     font-size: 14px;
     line-height: 1.5;
 }
+.historical-row {
+    color: #0000CD; /* Dark blue for historical data */
+}
+
+.forecasted-row {
+    color: #FF4500; /* Orange for forecasted data */
+    font-weight: bold;
+}
 
 
 

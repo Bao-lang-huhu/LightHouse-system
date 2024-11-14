@@ -15,7 +15,8 @@ const Forecasting = () => {
     const [activeTab, setActiveTab] = useState('events');
     const [viewMode, setViewMode] = useState('chart');
 
-    const baseUrl = 'http://localhost:3001';
+    const baseUrl = 'https://light-house-system-h74t-server.vercel.app';
+
 
 
     // Aggregate data for the event forecast chart
@@ -103,11 +104,11 @@ const Forecasting = () => {
             <tbody>
                 {eventForecastData.map((item, index) => (
                     Object.keys(item).map((key) => (
-                        key !== 'ds' && (
-                            <tr key={`${index}-${key}`}>
+                        key !== 'ds' && item[key] !== 'N/A' && item[key] > 0 && (  // Check if count is not 'N/A' and greater than 0
+                            <tr key={`${index}-${key}`} className={key === 'historical' ? 'historical-row' : 'forecasted-row'}>
                                 <td>{formatMonthYear(item.ds)}</td>
                                 <td>{key === 'historical' ? 'Historical' : 'Forecasted'}</td>
-                                <td>{item[key] || 'N/A'}</td>
+                                <td>{item[key]}</td>
                             </tr>
                         )
                     ))
@@ -115,6 +116,8 @@ const Forecasting = () => {
             </tbody>
         </table>
     );
+    
+    
 
     // Render the room occupancy table
     const renderRoomOccupancyTable = () => (
@@ -128,7 +131,7 @@ const Forecasting = () => {
             </thead>
             <tbody>
                 {roomOccupancyData.map((item, index) => (
-                    <tr key={index}>
+                    <tr key={index} className={item.y_historical ? 'historical-row' : 'forecasted-row'}>
                         <td>{formatMonthYear(item.ds)}</td>
                         <td>Occupancy</td>
                         <td>{item.y_historical ? `${item.y_historical.toFixed(2)}%` : item.y_forecasted ? `${item.y_forecasted.toFixed(2)}%` : 'N/A'}</td>
@@ -137,6 +140,7 @@ const Forecasting = () => {
             </tbody>
         </table>
     );
+    
 
     if (loading) return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>

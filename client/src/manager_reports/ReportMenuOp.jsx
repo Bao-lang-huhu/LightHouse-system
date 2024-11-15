@@ -101,7 +101,7 @@ const ReportMenuOp = () => {
     return (
         <section className='section-p1'>
             <div className='mb-5 mt-4'>
-                <p className='subtitle is-3'>Menu Suggestions based on Order Counts</p>
+                <p className='subtitle is-3'>Orders Report</p>
             </div>
 
             {/* Tabs for Food and Drinks */}

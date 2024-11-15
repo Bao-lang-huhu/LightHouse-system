@@ -50,6 +50,8 @@ const HomeRestaurant = () => {
             <Link to="/restaurant_dashboard" className="button is-blue"><IoFastFoodOutline style={{ textAlign: 'center', margin:'5px' }} /> Food Orders</Link>
             <Link to="/restaurant_dashboard_table" className="button is-dark-blue"><IoTabletLandscapeOutline style={{ textAlign: 'center', margin:'5px' }} />Table Reservations</Link>
           </div>
+
+  
         </div>
       </div>
       </div>

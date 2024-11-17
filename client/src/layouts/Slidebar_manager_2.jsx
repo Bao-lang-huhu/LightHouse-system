@@ -98,11 +98,11 @@ const SidebarManager2 = () => {
                 <li>
                     <Link 
                       to="/manager_report_menu_optimization" 
-                      title="Orders Report"
+                      title="Orders Comparison Graph"
                       className={location.pathname === '/manager_report_menu_optimization' ? 'is-right-active' : ''}
                     >
                     <IoFastFood style={{ marginRight: isSidebarOpen ? '5px' : '0', textAlign: 'center' }} />
-                    {isSidebarOpen && 'Orders Report'}
+                    {isSidebarOpen && 'Orders Comparison Graph'}
                     </Link>
                 </li>
                 <li>

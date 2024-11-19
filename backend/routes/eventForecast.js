@@ -11,113 +11,56 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const flaskApiUrl = 'https://generous-optimism-production.up.railway.app';
 
 router.post('/event_forecast', async (req, res) => {
-  console.log("Received request for event forecasting");
-
   try {
-    const { data: completedEvents, error: fetchError } = await supabase
+    const { data: completedEvents, error } = await supabase
       .from('EVENT_RESERVATION')
       .select('event_date, event_type')
       .eq('event_status', 'COMPLETED');
 
-    if (fetchError) {
-      console.error(`Supabase error fetching events: ${fetchError.message}`);
-      return res.status(500).json({ error: 'Error fetching events from database' });
-    }
+    if (error) throw new Error(`Error fetching events: ${error.message}`);
 
-    console.log("Completed Events from Supabase:", completedEvents);
-
-    // Aggregate historical data by month and event type
     const monthlyEvents = {};
     completedEvents.forEach(event => {
       const eventDate = new Date(event.event_date);
       const monthYear = `${eventDate.getFullYear()}-${eventDate.getMonth() + 1}`;
       const eventType = event.event_type;
 
-      if (!monthlyEvents[monthYear]) {
-        monthlyEvents[monthYear] = {};
-      }
-      if (!monthlyEvents[monthYear][eventType]) {
-        monthlyEvents[monthYear][eventType] = 0;
-      }
+      if (!monthlyEvents[monthYear]) monthlyEvents[monthYear] = {};
+      if (!monthlyEvents[monthYear][eventType]) monthlyEvents[monthYear][eventType] = 0;
       monthlyEvents[monthYear][eventType] += 1;
     });
 
-    const forecastData = [];
-    Object.keys(monthlyEvents).forEach(month => {
-      Object.keys(monthlyEvents[month]).forEach(type => {
-        forecastData.push({
-          ds: `${month}-01`,
-          y: monthlyEvents[month][type],
-          event_type: type,
-          isHistorical: true
-        });
-      });
-    });
+    const forecastData = Object.entries(monthlyEvents).flatMap(([month, types]) =>
+      Object.entries(types).map(([type, count]) => ({
+        ds: `${month}-01`,
+        y: count,
+        event_type: type,
+        isHistorical: true,
+      }))
+    );
 
-    console.log("Aggregated Historical Data:", forecastData);
-
-    const latestHistoricalDate = new Date(Math.max(...forecastData.map(d => new Date(d.ds))));
-    console.log("Latest Historical Date:", latestHistoricalDate);
+    const latestDate = new Date(Math.max(...forecastData.map(d => new Date(d.ds))));
 
     const eventTypeGroups = forecastData.reduce((acc, item) => {
-      if (!acc[item.event_type]) {
-        acc[item.event_type] = [];
-      }
+      if (!acc[item.event_type]) acc[item.event_type] = [];
       acc[item.event_type].push(item);
       return acc;
     }, {});
 
-    let forecastResults = [];
+    const forecastResults = [];
     for (const [eventType, data] of Object.entries(eventTypeGroups)) {
-      if (data.length < 2) {
-        console.log(`Skipping forecast for ${eventType} due to insufficient data`);
-        continue;
-      }
+      if (data.length < 3) continue;
 
-      try {
-        const response = await axios.post(`${flaskApiUrl}/forecast`, data, { params: { months: 3 } });
-        const forecastedItems = response.data
-          .filter(forecast => new Date(forecast.ds) > latestHistoricalDate && forecast.yhat !== undefined)
-          .map(forecast => ({
-            ds: forecast.ds,
-            y: forecast.yhat,
-            event_type: eventType,
-            isHistorical: false
-          }));
-
-        console.log(`Forecasted Items for ${eventType}:`, forecastedItems);
-        forecastResults.push(...forecastedItems);
-      } catch (axiosError) {
-        if (axiosError.response && axiosError.response.status === 404) {
-          console.log(`No forecast data available for ${eventType}. Skipping.`);
-        } else {
-          throw axiosError;
-        }
-      }
+      const response = await axios.post('https://generous-optimism-production.up.railway.app', data);
+      forecastResults.push(...response.data);
     }
 
-    // Aggregate forecast results by month and event type
-    forecastResults = forecastResults.reduce((acc, item) => {
-      const key = `${item.ds}-${item.event_type}`;
-      if (!acc[key]) {
-        acc[key] = { ...item }; // If no entry exists, create one
-      } else {
-        acc[key].y += item.y; // If entry exists, sum the forecast values
-      }
-      return acc;
-    }, {});
-
-    forecastResults = Object.values(forecastResults);
-
-    console.log("Aggregated Forecast Results:", forecastResults);
-
-    const combinedData = [...forecastData, ...forecastResults];
-    console.log("Combined Data for Response:", combinedData);
-    res.json(combinedData);
+    res.json([...forecastData, ...forecastResults]);
   } catch (error) {
-    console.error('General error in event forecasting:', error);
-    res.status(500).json({ error: 'Internal server error during event forecasting' });
+    console.error("Error in event forecasting:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 module.exports = router;

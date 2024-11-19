@@ -8,7 +8,6 @@ const flaskApiUrl = 'https://generous-optimism-production.up.railway.app';
 
 router.post('/manager_forecast', async (req, res) => {
     try {
-        // Fetch occupancy rates
         const { data: checkInData, error: checkInError } = await supabase
             .from('CHECK_IN')
             .select('room_reservation_id, payment_status')
@@ -39,7 +38,7 @@ router.post('/manager_forecast', async (req, res) => {
         const monthlyOccupancy = {};
         Object.keys(dailyOccupancy).forEach(dateStr => {
             const date = new Date(dateStr);
-            const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
+            const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!monthlyOccupancy[monthYear]) monthlyOccupancy[monthYear] = 0;
             monthlyOccupancy[monthYear] += dailyOccupancy[dateStr];
         });
@@ -51,13 +50,12 @@ router.post('/manager_forecast', async (req, res) => {
             return { ds: `${year}-${monthIndex.toString().padStart(2, '0')}-01`, y: occupancyRate };
         });
 
-        const response = await axios.post(flaskApiUrl, occupancyRates, {
-            headers: { 'Content-Type': 'application/json' }
+        const response = await axios.post(`${flaskApiUrl}/forecast`, occupancyRates, {
+            headers: { 'Content-Type': 'application/json' },
         });
 
         const historicalData = occupancyRates.map(item => ({ ...item, isHistorical: true }));
 
-        // Include forecasted data beyond the historical range
         const forecastedData = response.data.filter(item =>
             !historicalData.some(hist => hist.ds === item.ds) || item.isHistorical === false
         );

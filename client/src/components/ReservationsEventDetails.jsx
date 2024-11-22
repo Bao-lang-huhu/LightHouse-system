@@ -101,19 +101,27 @@ const ReservationsEventDetails = () => {
 };
 
 
-  const getDaysBeforeCheckIn = () => {
-    if (!reservation) return 0;
-    const today = new Date();
-    const checkInDate = new Date(reservation.event_date);
-    const diffInTime = checkInDate.getTime() - today.getTime();
-    return Math.ceil(diffInTime / (1000 * 3600 * 24)); // Calculate days difference
-  };
+const getDaysBeforeCheckIn = () => {
+  if (!reservation) return 0;
+  const today = new Date();
+  const checkInDate = new Date(reservation.event_date);
+  const diffInTime = checkInDate.getTime() - today.getTime();
+  const daysDiff = Math.ceil(diffInTime / (1000 * 3600 * 24)); // Calculate days difference
+  console.log(`Days Difference: ${daysDiff}`); // Debug log
+  return daysDiff;
+};
 
+const isCancelable = () => {
   const daysDifference = getDaysBeforeCheckIn();
+  return (
+    daysDifference >= 2 && // Must be within 2 days before the event
+    daysDifference >= 0 && // Event date must not have passed
+    reservation.reservation_status === 'CONFIRMED' // Ensure reservation status is 'CONFIRMED'
+  );
+};
 
-  const isCancelable = () => {
-    return daysDifference > 2 && reservation.reservation_status !== 'CANCELED' && reservation.reservation_status !== 'COMPLETED' && reservation.reservation_status !== 'NO SHOW';
-  };
+
+
 
   if (loading) {
     return <p>Loading reservation details...</p>;
@@ -219,19 +227,32 @@ if (!reservation) {
       <p className='is-flex is-align-items-center label is-5 m-1' style={{ wordBreak: 'keep-all', whiteSpace: 'normal' }}>
             <IoTime className='mr-1 has-text-danger' />
                 Cancellation is allowed 2 days remaining before the reservation date
-        </p><div className="field is-flex is-justify-content-flex-end">
-        {['CONFIRMED', 'PENDING'].includes(reservation.reservation_status) && (
-             daysDifference > 2 ? (
-            
-            <button className="button is-danger" onClick={() => setIsModalOpen(true)}
-            style={{ wordBreak: 'keep-all', whiteSpace: 'normal', textAlign: 'center' }}>
-              Cancel ({daysDifference} days before reservation)
-            </button>
-          ) : (
-            <p className='has-text-danger'>You can only cancel reservations within 2 days of the check-in date. Current reservation cannot be canceled.</p>
-          ))}
+        </p>
+        <div className="field is-flex is-justify-content-flex-end">
+  {isCancelable() ? (
+      <p className="has-text-danger">
+      You can only cancel reservations more than 2 days before the event date.
+  </p>
+  ) : (
+     
+       <button
+       className="button is-danger"
+       onClick={() => setIsModalOpen(true)}
+       style={{
+           wordBreak: 'keep-all',
+           whiteSpace: 'normal',
+           textAlign: 'center',
+       }}
+   >
+       Cancel Reservation ({getDaysBeforeCheckIn()} days before event)
+   </button>
+  )}
+</div>
 
-        </div>
+
+
+
+
 
       {isModalOpen && (
         <div className="modal is-active">

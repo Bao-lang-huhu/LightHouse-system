@@ -316,7 +316,7 @@ function RegisterGuest() {
 
                             <div className="buttons is-centered">
                                 <button className="button is-blue search" type="submit" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Processing...' : 'SIGN UP'}
+                                    {isSubmitting ? 'Processing...' : 'SUBMIT'}
                                 </button>
                             </div>
 

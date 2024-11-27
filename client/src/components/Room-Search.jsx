@@ -303,7 +303,7 @@ const RoomSearch = () => {
                                 onClick={handleBookNow}
                                 disabled={selectedRooms.length < numberOfRooms}
                             >
-                                Book Now ({selectedRooms.length}/{numberOfRooms} selected)
+                                Selected Room ({selectedRooms.length}/{numberOfRooms} selected)
                             </button>
                         </div>
 

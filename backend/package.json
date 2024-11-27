@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "dayjs": "^1.11.13"
   },
   "devDependencies": {
     "webpack-cli": "^5.1.4"

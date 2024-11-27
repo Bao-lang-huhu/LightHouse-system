@@ -4,7 +4,8 @@ const axios = require('axios');
 const { supabase } = require('../supabaseClient');
 require('dotenv').config();
 
-const flaskApiUrl = 'https://generous-optimism-production.up.railway.app';
+const flaskApiUrl = 'http://127.0.0.1:8080';
+
 
 router.post('/manager_forecast', async (req, res) => {
     try {

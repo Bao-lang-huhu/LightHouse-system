@@ -24,7 +24,7 @@ const counts = require('./routes/count/counts');
 const forecastRoute = require('./routes/forecastRoute');
 const eventForecast = require('./routes/eventForecast');
 const roomSalesRoute = require('./routes/roomSalesRoutes');
-
+const add = require ('./routes/NewEvents');
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -68,6 +68,7 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 // Guest routes
 app.use('/api', guestRoutes);
+app.use('/api', add);
 app.use('/api', checkInRoutes);
 app.use('/api', staffRoutes);
 app.use('/api', roomRoutes);

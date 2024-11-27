@@ -24,7 +24,7 @@ const Forecasting = () => {
     const [viewMode, setViewMode] = useState("chart");
     const [forecastMonths, setForecastMonths] = useState(1); // Default to 1 month
 
-    const baseUrl = 'https://light-house-system-h74t-server.vercel.app';
+    const baseUrl = "http://localhost:3001";
 
     const normalizeDateToMonth = (date) => {
         const parsedDate = new Date(date);
@@ -82,6 +82,9 @@ const Forecasting = () => {
 
     const transformEventData = (data) => {
         const groupedData = data.reduce((acc, item) => {
+            // Skip the "FORECAST" event type
+            if (item.event_type === "FORECAST") return acc;
+    
             const normalizedDate = normalizeDateToMonth(item.ds);
             const existing = acc.find((group) => group.ds === normalizedDate);
     
@@ -187,47 +190,72 @@ const Forecasting = () => {
     const renderEventForecastTable = () => {
         const filteredData = filterChartData(eventForecastData, true); // Apply the filter for events
     
+        // Combine historical and forecasted data by date and event type
+        const combinedData = filteredData.reduce((acc, item) => {
+            item.historicalEvents.forEach((e) => {
+                const key = `${item.ds}-${e.event_type}`;
+                if (!acc[key]) {
+                    acc[key] = {
+                        date: formatMonthYear(item.ds),
+                        event_type: e.event_type,
+                        historical: e.y,
+                        forecasted: "N/A",
+                    };
+                } else {
+                    acc[key].historical = e.y;
+                }
+            });
+    
+            item.forecastedEvents.forEach((e) => {
+                const key = `${item.ds}-${e.event_type}`;
+                if (!acc[key]) {
+                    acc[key] = {
+                        date: formatMonthYear(item.ds),
+                        event_type: e.event_type,
+                        historical: "N/A",
+                        forecasted: e.y,
+                    };
+                } else {
+                    acc[key].forecasted = e.y;
+                }
+            });
+    
+            return acc;
+        }, {});
+    
+        // Convert the combined data into an array for rendering
+        const rows = Object.values(combinedData);
+    
         return (
             <table className="forecast-table">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Total Historical</th>
-                        <th>Total Forecasted</th>
-                        <th>Historical Events</th>
-                        <th>Forecasted Events</th>
+                        <th>Event Type</th>
+                        <th>Historical Count</th>
+                        <th>Forecasted Count</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredData.map((item, index) => (
+                    {rows.map((row, index) => (
                         <tr key={index}>
-                            <td>{formatMonthYear(item.ds)}</td>
-                            <td>{item.totalHistorical || "N/A"}</td>
-                            <td>{item.totalForecasted || "N/A"}</td>
-                            <td>
-                                {item.historicalEvents.length > 0
-                                    ? item.historicalEvents.map((e, i) => (
-                                          <div key={i}>
-                                              {e.event_type}: {e.y}
-                                          </div>
-                                      ))
-                                    : "N/A"}
-                            </td>
-                            <td>
-                                {item.forecastedEvents.length > 0
-                                    ? item.forecastedEvents.map((e, i) => (
-                                          <div key={i}>
-                                              {e.event_type}: {e.y}
-                                          </div>
-                                      ))
-                                    : "N/A"}
-                            </td>
+                            {/* Render date only for the first occurrence */}
+                            {index === 0 || rows[index - 1].date !== row.date ? (
+                                <td rowSpan={rows.filter(r => r.date === row.date).length}>
+                                    {row.date}
+                                </td>
+                            ) : null}
+                            <td>{row.event_type}</td>
+                            <td>{row.historical}</td>
+                            <td>{row.forecasted}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
         );
     };
+    
+    
     
 
     const renderRoomOccupancyTable = () => {
